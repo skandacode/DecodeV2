@@ -18,6 +18,8 @@ public class Shooter {
     private ServoEx kicker1, kicker2;
     private ServoEx turret, hood;
 
+    private ServoEx upperGate;
+
 
     private AnalogInput turretEncoder;
 
@@ -46,10 +48,6 @@ public class Shooter {
     public static double hoodLowerBound = 0.6;
 
 
-    // --- Kicker positions ---
-    public static double KICKER_UP = 0.35;
-    public static double KICKER_DOWN = 0.5;
-
     // --- Low-pass filter coefficient (for smoothing) ---
     public static double ALPHA = 0.3;
     private double smoothedVelocity = 0.0;
@@ -67,11 +65,16 @@ public class Shooter {
     public static double powerOffset = 0;
     public static double turretOffset = 0;
 
+    public static double upperGateOpenPos = 0.7;
+    public static double upperGateClosedPos = 1.0;
+
     public Shooter(HardwareMap hardwareMap) {
         shooterMotor1 = new Motor(hardwareMap, "outtakemotor1");
         shooterMotor2 = new Motor(hardwareMap, "outtakemotor2");
 
         turretEncoder = hardwareMap.analogInput.get("turret_encoder");
+
+        upperGate = new ServoEx(hardwareMap, "upperGate");
 
         kicker1 = new ServoEx(hardwareMap, "kicker1");
         kicker2 = new ServoEx(hardwareMap, "kicker2");
@@ -84,6 +87,14 @@ public class Shooter {
 
     public double getTurretVoltage(){
         return turretEncoder.getVoltage();
+    }
+
+    public void setUpperGatePos(boolean open){
+        if (open){
+            upperGate.setPosition(upperGateOpenPos);
+        } else {
+            upperGate.setPosition(upperGateClosedPos);
+        }
     }
 
     public double[] getAngleDistance(Pose currPosition, Goal target){
@@ -140,16 +151,6 @@ public class Shooter {
     public void setDirectPower(double power) {
         shooterMotor1.set(-power);
         shooterMotor2.set(power);
-    }
-
-    public void kickerUp() {
-        kicker1.setPosition(KICKER_UP);
-        kicker2.setPosition(1 - KICKER_UP);
-    }
-
-    public void kickerDown() {
-        kicker1.setPosition(KICKER_DOWN);
-        kicker2.setPosition(1 - KICKER_DOWN);
     }
 
     public void setHood(double pos){

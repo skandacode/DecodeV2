@@ -21,6 +21,10 @@ public class Testing extends LinearOpMode {
 
     public static int shooterTargetVelocity = 1500;
 
+    public static boolean kick = false;
+    public static boolean lowerGateOpen = false;
+    public static boolean upperGateOpen = false;
+
     @Override
     public void runOpMode() throws InterruptedException {
         intakes = new Intakes(hardwareMap);
@@ -34,6 +38,10 @@ public class Testing extends LinearOpMode {
             intakes.setBadIntakeMotor(badIntakePower);
             spindexer.setPosition(spindexerPosition);
             shooter.setTargetVelocity(shooterTargetVelocity);
+
+            spindexer.setLowerGatePos(lowerGateOpen);
+            spindexer.setKickerPos(kick);
+            shooter.setUpperGatePos(upperGateOpen);
 
             intakes.update();
             spindexer.update();

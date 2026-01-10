@@ -7,7 +7,16 @@ import solverslib.hardware.ServoEx;
 
 @Configurable
 public class Spindexer {
-    ServoEx servo1, servo2;
+    ServoEx spin1, spin2;
+
+    ServoEx lowerGate;
+    ServoEx kicker;
+
+    public static double kickerKickPos = 0.3;
+    public static double kickerIdlePos = 0.5;
+
+    public static double lowerGateOpen = 0.7;
+    public static double lowerGateClosed = 1.0;
 
     public enum SpindexerPosition {
         Shoot1(0.2),
@@ -25,13 +34,16 @@ public class Spindexer {
     }
 
     public Spindexer(HardwareMap hardwareMap) {
-        servo1 = new ServoEx(hardwareMap, "spindexerServo1");
-        servo2 = new ServoEx(hardwareMap, "spindexerServo2");
+        spin1 = new ServoEx(hardwareMap, "spindexerServo1");
+        spin2 = new ServoEx(hardwareMap, "spindexerServo2");
+
+        lowerGate = new ServoEx(hardwareMap, "lowerGate");
+        kicker = new ServoEx(hardwareMap, "kicker");
     }
 
     public void setPosition(double position) {
-        servo1.setPosition(position);
-        servo2.setPosition(position);
+        spin1.setPosition(position);
+        spin2.setPosition(position);
     }
 
     public void setPosition(SpindexerPosition pos) {
@@ -39,7 +51,26 @@ public class Spindexer {
     }
 
     public void update() {
-        servo1.update();
-        servo2.update();
+        spin1.update();
+        spin2.update();
+        lowerGate.update();
+        kicker.update();
+
+    }
+
+    public void setKickerPos(boolean kick){
+        if (kick){
+            kicker.setPosition(kickerKickPos);
+        } else {
+            kicker.setPosition(kickerIdlePos);
+        }
+    }
+
+    public void setLowerGatePos(boolean open){
+        if (open){
+            lowerGate.setPosition(lowerGateOpen);
+        } else {
+            lowerGate.setPosition(lowerGateClosed);
+        }
     }
 }
