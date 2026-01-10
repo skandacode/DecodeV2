@@ -1,0 +1,192 @@
+package org.firstinspires.ftc.teamcode.subsystems;
+
+import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
+
+import solverslib.controller.PIDFController;
+import solverslib.controller.feedforwards.SimpleMotorFeedforward;
+import solverslib.hardware.ServoEx;
+import solverslib.hardware.motors.Motor;
+
+@Configurable
+public class Shooter {
+
+    private Motor shooterMotor1, shooterMotor2;
+    private ServoEx kicker1, kicker2;
+    private ServoEx turret, hood;
+
+
+    private AnalogInput turretEncoder;
+
+    private PIDFController pidf;
+    private SimpleMotorFeedforward feedforward;
+
+    private double targetVelocity = 0.0;
+    private double currentVelocity = 0.0;
+
+    // --- Flywheel PIDF coefficients ---
+    public static double kP = 0.0019;
+    public static double kI = 0.0003;
+    public static double kD = 0.0002;
+
+    public static double kS = 0.045; // Static feedforward
+    public static double kV = 0.0004; // Velocity feedforward
+
+    public static boolean enablePIDF = true;
+
+    // --- Turret bounds ---
+    public static double turretUpperBound = 1;
+    public static double turretLowerBound = 0;
+
+    // -- Hood bounds
+    public static double hoodUpperBound = 0.86;
+    public static double hoodLowerBound = 0.6;
+
+
+    // --- Kicker positions ---
+    public static double KICKER_UP = 0.35;
+    public static double KICKER_DOWN = 0.5;
+
+    // --- Low-pass filter coefficient (for smoothing) ---
+    public static double ALPHA = 0.3;
+    private double smoothedVelocity = 0.0;
+
+    public enum Goal{
+        RED (new Pose(-72, 72)),
+        BLUE (new Pose(-72, -72));
+
+        Pose position;
+        Goal(Pose pose) {
+            position = pose;
+        }
+    }
+
+    public static double powerOffset = 0;
+    public static double turretOffset = 0;
+
+    public Shooter(HardwareMap hardwareMap) {
+        shooterMotor1 = new Motor(hardwareMap, "outtakemotor1");
+        shooterMotor2 = new Motor(hardwareMap, "outtakemotor2");
+
+        turretEncoder = hardwareMap.analogInput.get("turret_encoder");
+
+        kicker1 = new ServoEx(hardwareMap, "kicker1");
+        kicker2 = new ServoEx(hardwareMap, "kicker2");
+        turret = new ServoEx(hardwareMap, "turret");
+        hood = new ServoEx(hardwareMap, "hood");
+
+        pidf = new PIDFController(kP, kI, kD, 0);
+        feedforward = new SimpleMotorFeedforward(kS, kV);
+    }
+
+    public double getTurretVoltage(){
+        return turretEncoder.getVoltage();
+    }
+
+    public double[] getAngleDistance(Pose currPosition, Goal target){
+        double dx = target.position.getX()-currPosition.getX();
+        double dy = target.position.getY()-currPosition.getY();
+        double angle = Math.atan2(dy, dx);
+        double turretAngle = Math.toDegrees(-angle + currPosition.getHeading()+ Math.PI);
+
+        while (Math.abs(turretAngle)>180){
+            if (turretAngle>0){
+                turretAngle -= 360;
+            }else{
+                turretAngle +=360;
+            }
+        }
+
+        double distance = Math.hypot(dx, dy);
+
+        return new double[]{turretAngle, distance};
+    }
+
+    public void setTurretPos(double pos){
+        double safePos = Range.clip(pos, turretLowerBound, turretUpperBound);
+        turret.setPosition(safePos);
+    }
+
+    public double convertDegreestoServoPos(double deg){
+        return deg*0.00322222+0.5;
+    }
+
+    public void aimAtTarget(Pose currPosition, Goal target){
+        double[] angleDistance = getAngleDistance(currPosition, target);
+        double angle = angleDistance[0];
+        double distance = angleDistance[1];
+
+        double servoPos = convertDegreestoServoPos(angle + turretOffset);
+
+        servoPos = Range.clip(servoPos, turretLowerBound, turretUpperBound);
+
+        setTurretPos(servoPos);
+        setTargetVelocity(ShooterTables.getShooterVelocity(distance) + powerOffset);
+        setHood(ShooterTables.getHoodPosition(distance));
+    }
+
+    public void setTargetVelocity(double target) {
+        targetVelocity = target;
+        pidf.reset();
+    }
+
+    public double getCurrentVelocity() {
+        return smoothedVelocity;
+    }
+
+    public void setDirectPower(double power) {
+        shooterMotor1.set(-power);
+        shooterMotor2.set(power);
+    }
+
+    public void kickerUp() {
+        kicker1.setPosition(KICKER_UP);
+        kicker2.setPosition(1 - KICKER_UP);
+    }
+
+    public void kickerDown() {
+        kicker1.setPosition(KICKER_DOWN);
+        kicker2.setPosition(1 - KICKER_DOWN);
+    }
+
+    public void setHood(double pos){
+        hood.setPosition(Range.clip(pos, hoodLowerBound, hoodUpperBound));
+    }
+
+    public void update() {
+        // Measure velocity
+        currentVelocity = Math.abs(shooterMotor2.getVelocity());
+        smoothedVelocity = ALPHA * currentVelocity + (1 - ALPHA) * smoothedVelocity;
+
+        double outputPower;
+
+        if (targetVelocity <= 0) {
+            outputPower = 0;
+            smoothedVelocity = 0;
+        } else {
+            outputPower = feedforward.calculate(targetVelocity);
+            if (enablePIDF){
+                outputPower += pidf.calculate(smoothedVelocity, targetVelocity);
+            }
+        }
+
+        // Clamp to [-1, 1] range for safety
+        outputPower = Math.max(-1, Math.min(1, outputPower));
+
+        // Apply power
+        setDirectPower(outputPower);
+        shooterMotor1.update();
+        shooterMotor2.update();
+        kicker1.update();
+        kicker2.update();
+        turret.update();
+        hood.update();
+    }
+
+    public double getTargetVelo() {
+        return targetVelocity;
+    }
+}
