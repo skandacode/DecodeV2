@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -9,17 +10,19 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 
 
 @Configurable
+@TeleOp
 public class Testing extends LinearOpMode {
     Intakes intakes;
     Spindexer spindexer;
     Shooter shooter;
 
-    public static double goodIntakePower = 1.0;
-    public static double badIntakePower = 1.0;
+    public static double goodIntakePower = 0.0;
+    public static double badIntakePower = 0.0;
 
     public static double spindexerPosition = 0.2;
+    public static double turretPosition = 0.5;
 
-    public static int shooterTargetVelocity = 1500;
+    public static int shooterTargetVelocity = 00;
 
     public static boolean kick = false;
     public static boolean lowerGateOpen = false;
@@ -42,6 +45,8 @@ public class Testing extends LinearOpMode {
             spindexer.setLowerGatePos(lowerGateOpen);
             spindexer.setKickerPos(kick);
             shooter.setUpperGatePos(upperGateOpen);
+
+            shooter.setTurretPos(turretPosition);
 
             intakes.update();
             spindexer.update();
