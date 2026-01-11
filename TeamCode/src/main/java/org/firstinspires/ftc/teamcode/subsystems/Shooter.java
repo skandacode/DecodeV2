@@ -65,28 +65,20 @@ public class Shooter {
     public static double powerOffset = 0;
     public static double turretOffset = 0;
 
-    public static double upperGateOpenPos = 0.7;
-    public static double upperGateClosedPos = 1.0;
+    public static double upperGateOpenPos = 1.0;
+    public static double upperGateClosedPos = 0.7;
 
     public Shooter(HardwareMap hardwareMap) {
         shooterMotor1 = new Motor(hardwareMap, "outtakemotor1");
         shooterMotor2 = new Motor(hardwareMap, "outtakemotor2");
 
-        turretEncoder = hardwareMap.analogInput.get("turret_encoder");
-
         upperGate = new ServoEx(hardwareMap, "upperGate");
 
-        kicker1 = new ServoEx(hardwareMap, "kicker1");
-        kicker2 = new ServoEx(hardwareMap, "kicker2");
         turret = new ServoEx(hardwareMap, "turret");
         hood = new ServoEx(hardwareMap, "hood");
 
         pidf = new PIDFController(kP, kI, kD, 0);
         feedforward = new SimpleMotorFeedforward(kS, kV);
-    }
-
-    public double getTurretVoltage(){
-        return turretEncoder.getVoltage();
     }
 
     public void setUpperGatePos(boolean open){
@@ -149,8 +141,8 @@ public class Shooter {
     }
 
     public void setDirectPower(double power) {
-        shooterMotor1.set(-power);
-        shooterMotor2.set(power);
+        shooterMotor1.set(power);
+        shooterMotor2.set(-power);
     }
 
     public void setHood(double pos){
@@ -181,8 +173,7 @@ public class Shooter {
         setDirectPower(outputPower);
         shooterMotor1.update();
         shooterMotor2.update();
-        kicker1.update();
-        kicker2.update();
+        upperGate.update();
         turret.update();
         hood.update();
     }

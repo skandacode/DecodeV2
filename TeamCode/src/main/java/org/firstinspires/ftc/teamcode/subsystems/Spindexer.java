@@ -6,25 +6,26 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import solverslib.hardware.ServoEx;
 
 @Configurable
+
 public class Spindexer {
     ServoEx spin1, spin2;
 
     ServoEx lowerGate;
     ServoEx kicker;
 
-    public static double kickerKickPos = 0.3;
-    public static double kickerIdlePos = 0.5;
+    public static double kickerKickPos = 0.5;
+    public static double kickerIdlePos = 0.67;
 
-    public static double lowerGateOpen = 0.7;
-    public static double lowerGateClosed = 1.0;
+    public static double lowerGateOpen = 0.65;
+    public static double lowerGateClosed = 0.5;
 
     public enum SpindexerPosition {
-        Shoot1(0.2),
-        Shoot2(0.4),
-        Shoot3(0.6),
-        Intake1(0.8),
-        Intake2(1.0),
-        Intake3(1.0);
+        Shoot1(0.37),
+        Shoot2(0.58),
+        Shoot3(0.8),
+        Intake1(0.04),
+        Intake2(0.27),
+        Intake3(0.49);
 
         public final double position;
 
