@@ -77,6 +77,12 @@ public class Teleop extends LinearOpMode {
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                //transition if detects a ball in other intake or button pressed
+                //if ball is detected in bad intake
+                //index +1 fully if GG did not happen
+                //GG can be detected with slowdown of good intake
+                //good intake do nothing
+
                 .state(States.OpenUpperGate)
                 .onEnter(()->{
                     shooter.setUpperGatePos(true);
@@ -104,6 +110,8 @@ public class Teleop extends LinearOpMode {
         }
 
         waitForStart();
+
+        stateMachine.start();
 
         long lastLoopTime = System.nanoTime();
         while (opModeIsActive()) {
@@ -149,11 +157,11 @@ public class Teleop extends LinearOpMode {
                 Shooter.powerOffset += powerOffsetIncrements;
             }
 
+            stateMachine.update()
 
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
-            telemetry.addData("Turret Voltage", shooter.getTurretVoltage());
 
             long currentTime = System.nanoTime();
             double loopTime = (double) (currentTime - lastLoopTime) / 1_000_000.0;
