@@ -157,7 +157,7 @@ public class Teleop extends LinearOpMode {
                 Shooter.powerOffset += powerOffsetIncrements;
             }
 
-            stateMachine.update()
+            stateMachine.update();
 
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
