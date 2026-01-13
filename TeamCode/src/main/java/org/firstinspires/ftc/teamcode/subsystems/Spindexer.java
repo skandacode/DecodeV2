@@ -67,7 +67,7 @@ public class Spindexer {
         }
     }
 
-    public void setLowerGatePos(boolean open){
+    public void setLowerGateOpen(boolean open){
         if (open){
             lowerGate.setPosition(lowerGateOpen);
         } else {

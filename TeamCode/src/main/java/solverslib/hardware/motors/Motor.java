@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 import java.util.function.Supplier;
 
 import solverslib.hardware.HardwareDevice;
@@ -296,5 +298,8 @@ public class Motor implements HardwareDevice {
             }
             return real;
         }
+    }
+    public double getCurrentDraw(){
+        return motor.getCurrent(CurrentUnit.AMPS);
     }
 }

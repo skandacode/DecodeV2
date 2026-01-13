@@ -81,7 +81,7 @@ public class Shooter {
         feedforward = new SimpleMotorFeedforward(kS, kV);
     }
 
-    public void setUpperGatePos(boolean open){
+    public void setUpperGateOpen(boolean open){
         if (open){
             upperGate.setPosition(upperGateOpenPos);
         } else {

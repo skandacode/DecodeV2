@@ -74,8 +74,8 @@ public class Teleop extends LinearOpMode {
                 .onEnter(()->{
                     intakes.setGoodIntakePower(1);
                     //intakes.setBadIntakeMotor(0.2);
-                    shooter.setUpperGatePos(true);
-                    spindexer.setLowerGatePos(false);
+                    shooter.setUpperGateOpen(false);
+                    spindexer.setLowerGateOpen(true);
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
@@ -88,7 +88,7 @@ public class Teleop extends LinearOpMode {
 
                 .state(States.OpenUpperGate)
                 .onEnter(()->{
-                    shooter.setUpperGatePos(true);
+                    shooter.setUpperGateOpen(true);
                 })
                 .transitionTimed(0.1, States.Shoot)
                 .state(States.Shoot)

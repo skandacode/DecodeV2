@@ -13,6 +13,8 @@ public class Intakes {
     public Intakes(HardwareMap hardwareMap) {
         goodIntakeMotor = new Motor(hardwareMap, "goodIntakeMotor");
         badIntakeMotor = new Motor(hardwareMap, "badIntakeMotor");
+
+        badIntakeMotor.setInverted(true);
     }
 
     public void setGoodIntakePower(double power) {
@@ -21,6 +23,21 @@ public class Intakes {
     public void setBadIntakeMotor(double power) {
         badIntakeMotor.set(power);
     }
+
+    public double getGoodIntakeVelocity(){
+        return goodIntakeMotor.getVelocity();
+    }
+    public double getBadIntakeVelocity(){
+        return badIntakeMotor.getVelocity();
+    }
+
+    public double getGoodIntakeCurrentDraw(){
+        return goodIntakeMotor.getCurrentDraw();
+    }
+    public double getBadIntakeCurrentDraw(){
+        return badIntakeMotor.getCurrentDraw();
+    }
+
 
     public void update() {
         goodIntakeMotor.update();

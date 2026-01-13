@@ -22,7 +22,7 @@ public class Testing extends LinearOpMode {
     public static double spindexerPosition = 0.2;
     public static double turretPosition = 0.5;
 
-    public static int shooterTargetVelocity = 00;
+    public static int shooterTargetVelocity = 0;
 
     public static boolean kick = false;
     public static boolean lowerGateOpen = false;
@@ -42,9 +42,9 @@ public class Testing extends LinearOpMode {
             spindexer.setPosition(spindexerPosition);
             shooter.setTargetVelocity(shooterTargetVelocity);
 
-            spindexer.setLowerGatePos(lowerGateOpen);
+            spindexer.setLowerGateOpen(lowerGateOpen);
             spindexer.setKickerPos(kick);
-            shooter.setUpperGatePos(upperGateOpen);
+            shooter.setUpperGateOpen(upperGateOpen);
 
             shooter.setTurretPos(turretPosition);
 
