@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
@@ -21,7 +23,8 @@ import java.util.List;
 
 import solverslib.gamepad.GamepadEx;
 import solverslib.gamepad.GamepadKeys;
-
+@Configurable
+@TeleOp
 public class Teleop extends LinearOpMode {
     Intakes intakes;
     Spindexer spindexer;
@@ -70,9 +73,9 @@ public class Teleop extends LinearOpMode {
                 .state(States.Intake)
                 .onEnter(()->{
                     intakes.setGoodIntakePower(1);
-                    intakes.setBadIntakeMotor(0.2);
-                    shooter.setUpperGatePos(false);
-                    spindexer.setLowerGatePos(true);
+                    //intakes.setBadIntakeMotor(0.2);
+                    shooter.setUpperGatePos(true);
+                    spindexer.setLowerGatePos(false);
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
@@ -92,7 +95,7 @@ public class Teleop extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.3, States.Intake)
+                .transitionTimed(0.5, States.Intake)
                 .build();
 
         while (opModeInInit()) {
@@ -112,6 +115,7 @@ public class Teleop extends LinearOpMode {
         waitForStart();
 
         stateMachine.start();
+        follower.startTeleopDrive();
 
         long lastLoopTime = System.nanoTime();
         while (opModeIsActive()) {
@@ -124,7 +128,6 @@ public class Teleop extends LinearOpMode {
             }
 
             gamepadEx.readButtons();
-
             follower.update();
             Position.pose = follower.getPose();
             telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, target)));
