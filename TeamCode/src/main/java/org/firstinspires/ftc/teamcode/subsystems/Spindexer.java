@@ -34,6 +34,8 @@ public class Spindexer {
         }
     }
 
+    private SpindexerPosition currentPosition = SpindexerPosition.Shoot1;
+
     public Spindexer(HardwareMap hardwareMap) {
         spin1 = new ServoEx(hardwareMap, "spindexerServo1");
         spin2 = new ServoEx(hardwareMap, "spindexerServo2");
@@ -49,6 +51,10 @@ public class Spindexer {
 
     public void setPosition(SpindexerPosition pos) {
         setPosition(pos.position);
+        currentPosition = pos;
+    }
+    public SpindexerPosition getCurrentPosition() {
+        return currentPosition;
     }
 
     public void update() {

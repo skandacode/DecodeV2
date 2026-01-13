@@ -10,6 +10,7 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
@@ -23,9 +24,10 @@ import java.util.List;
 
 import solverslib.gamepad.GamepadEx;
 import solverslib.gamepad.GamepadKeys;
+
 @Configurable
 @TeleOp
-public class Teleop extends LinearOpMode {
+public class TeleopMaybeFull extends LinearOpMode {
     Intakes intakes;
     Spindexer spindexer;
     Shooter shooter;
@@ -66,25 +68,40 @@ public class Teleop extends LinearOpMode {
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
+        GamepadKeys.Button fastBackIntakeButton = GamepadKeys.Button.X;
+
 
         follower.setStartingPose(Position.pose);
+
+        ElapsedTime elapsedTime = new ElapsedTime();
 
         StateMachine stateMachine = new StateMachineBuilder()
                 .state(States.Intake)
                 .onEnter(()->{
                     intakes.setGoodIntakePower(1);
-                    //intakes.setBadIntakeMotor(0.2);
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(true);
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    elapsedTime.reset();
+                })
+                .loop(()->{
+                    if (gamepadEx.getButton(fastBackIntakeButton)){
+                        intakes.setBadIntakePower(1);
+                    }else{
+                        intakes.setBadIntakePower(0.2);
+                    }
+                    if (elapsedTime.seconds() > 0.3 && intakes.getBadIntakeMotorOverCurrent()){
+                        //increment
+                        if (spindexer.getCurrentPosition() == Spindexer.SpindexerPosition.Shoot1){
+                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                        } else if (spindexer.getCurrentPosition() == Spindexer.SpindexerPosition.Shoot2){
+                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
+                        }
+                        elapsedTime.reset();
+                    }
                 })
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-                //transition if detects a ball in other intake or button pressed
-                //if ball is detected in bad intake
-                //index +1 fully if GG did not happen
-                //GG can be detected with slowdown of good intake
-                //good intake do nothing
 
                 .state(States.OpenUpperGate)
                 .onEnter(()->{

@@ -38,7 +38,7 @@ public class Testing extends LinearOpMode {
 
         while (opModeIsActive()) {
             intakes.setGoodIntakePower(goodIntakePower);
-            intakes.setBadIntakeMotor(badIntakePower);
+            intakes.setBadIntakePower(badIntakePower);
             spindexer.setPosition(spindexerPosition);
             shooter.setTargetVelocity(shooterTargetVelocity);
 

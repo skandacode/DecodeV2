@@ -39,7 +39,7 @@ public class IntakesVelocityChecker extends LinearOpMode {
             spindexer.setLowerGateOpen(lowerGateOpen);
 
             intakes.setGoodIntakePower(goodPower);
-            intakes.setBadIntakeMotor(badPower);
+            intakes.setBadIntakePower(badPower);
 
             intakes.update();
             spindexer.update();

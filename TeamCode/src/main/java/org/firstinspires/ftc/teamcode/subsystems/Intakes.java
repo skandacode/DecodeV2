@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 import solverslib.hardware.motors.Motor;
 
 @Configurable
@@ -15,12 +17,13 @@ public class Intakes {
         badIntakeMotor = new Motor(hardwareMap, "badIntakeMotor");
 
         badIntakeMotor.setInverted(true);
+        badIntakeMotor.motor.setCurrentAlert(4, CurrentUnit.AMPS);
     }
 
     public void setGoodIntakePower(double power) {
         goodIntakeMotor.set(power);
     }
-    public void setBadIntakeMotor(double power) {
+    public void setBadIntakePower(double power) {
         badIntakeMotor.set(power);
     }
 
@@ -36,6 +39,10 @@ public class Intakes {
     }
     public double getBadIntakeCurrentDraw(){
         return badIntakeMotor.getCurrentDraw();
+    }
+
+    public boolean getBadIntakeMotorOverCurrent(){
+        return badIntakeMotor.motor.isOverCurrent();
     }
 
 
