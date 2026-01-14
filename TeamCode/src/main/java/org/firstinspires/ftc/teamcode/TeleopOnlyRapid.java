@@ -81,11 +81,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-                //transition if detects a ball in other intake or button pressed
-                //if ball is detected in bad intake
-                //index +1 fully if GG did not happen
-                //GG can be detected with slowdown of good intake
-                //good intake do nothing
 
                 .state(States.OpenUpperGate)
                 .onEnter(()->{
