@@ -17,7 +17,6 @@ public class Intakes {
         badIntakeMotor = new Motor(hardwareMap, "badIntakeMotor");
 
         badIntakeMotor.setInverted(true);
-        badIntakeMotor.motor.setCurrentAlert(4, CurrentUnit.AMPS);
     }
 
     public void setGoodIntakePower(double power) {
@@ -40,11 +39,6 @@ public class Intakes {
     public double getBadIntakeCurrentDraw(){
         return badIntakeMotor.getCurrentDraw();
     }
-
-    public boolean getBadIntakeMotorOverCurrent(){
-        return badIntakeMotor.motor.isOverCurrent();
-    }
-
 
     public void update() {
         goodIntakeMotor.update();

@@ -66,6 +66,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
+        GamepadKeys.Button stopAllButton = GamepadKeys.Button.A;
 
         follower.setStartingPose(Position.pose);
 
@@ -119,12 +120,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
         long lastLoopTime = System.nanoTime();
         while (opModeIsActive()) {
-            if (controlhub != null) {
-                controlhub.clearBulkCache();
-            }else {
-                for (LynxModule hub : allHubs) {
-                    hub.clearBulkCache();
-                }
+            for (LynxModule hub : allHubs) {
+                hub.clearBulkCache();
             }
 
             gamepadEx.readButtons();
@@ -158,6 +155,12 @@ public class TeleopOnlyRapid extends LinearOpMode {
             }
             if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
                 Shooter.powerOffset += powerOffsetIncrements;
+            }
+            if (gamepadEx.wasJustPressed(GamepadKeys.Button.A)){
+                intakes.setGoodIntakePower(0);
+            }else{
+                intakes.setGoodIntakePower(1);
+
             }
 
             stateMachine.update();

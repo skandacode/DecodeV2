@@ -15,13 +15,9 @@ import solverslib.hardware.motors.Motor;
 public class Shooter {
 
     private Motor shooterMotor1, shooterMotor2;
-    private ServoEx kicker1, kicker2;
     private ServoEx turret, hood;
 
     private ServoEx upperGate;
-
-
-    private AnalogInput turretEncoder;
 
     private PIDFController pidf;
     private SimpleMotorFeedforward feedforward;
@@ -40,13 +36,13 @@ public class Shooter {
     public static boolean enablePIDF = true;
 
     // --- Turret bounds ---
-    public static double turretUpperBound = 1;
-    public static double turretLowerBound = 0;
+    public static double turretUpperBound = 0.95;
+    public static double turretLowerBound = 0.05;
 
-    // -- Hood bounds
-    public static double hoodUpperBound = 0.86;
-    public static double hoodLowerBound = 0.6;
+    // --- Hood bounds ---
 
+    public static double hoodLowerBound = 0.355;
+    public static double hoodUpperBound = 0.82;
 
     // --- Low-pass filter coefficient (for smoothing) ---
     public static double ALPHA = 0.3;
@@ -93,7 +89,7 @@ public class Shooter {
         double dx = target.position.getX()-currPosition.getX();
         double dy = target.position.getY()-currPosition.getY();
         double angle = Math.atan2(dy, dx);
-        double turretAngle = Math.toDegrees(-angle + currPosition.getHeading()+ Math.PI);
+        double turretAngle = Math.toDegrees(-angle + currPosition.getHeading());
 
         while (Math.abs(turretAngle)>180){
             if (turretAngle>0){
@@ -114,7 +110,7 @@ public class Shooter {
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*0.00322222+0.5;
+        return deg*0.003222222222222222+0.5;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){

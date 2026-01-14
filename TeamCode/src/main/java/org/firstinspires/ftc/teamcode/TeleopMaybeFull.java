@@ -91,7 +91,7 @@ public class TeleopMaybeFull extends LinearOpMode {
                     }else{
                         intakes.setBadIntakePower(0.2);
                     }
-                    if (elapsedTime.seconds() > 0.3 && intakes.getBadIntakeMotorOverCurrent()){
+                    if (elapsedTime.seconds() > 0.3 && intakes.getBadIntakeCurrentDraw()>5){
                         //increment
                         if (spindexer.getCurrentPosition() == Spindexer.SpindexerPosition.Shoot1){
                             spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
