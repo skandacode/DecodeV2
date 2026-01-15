@@ -35,7 +35,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
-    public static double turretOffsetIncrements = 2;
+    public static double turretOffsetIncrements = 2;//0000000000 why not 0 bum bum bum
 
     public enum States{
         Intake,
