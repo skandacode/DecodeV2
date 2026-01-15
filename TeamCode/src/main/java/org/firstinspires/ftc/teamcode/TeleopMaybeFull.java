@@ -39,7 +39,9 @@ public class TeleopMaybeFull extends LinearOpMode {
 
     public enum States{
         Intake,
-        Intake2,
+        OpenLowerGate, //if 2 go in good intake
+        Increment1, //switch from Shoot1 to Intake1
+        Increment2, //
         OpenUpperGate,
         Shoot,
     }
@@ -80,7 +82,7 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .onEnter(()->{
                     intakes.setGoodIntakePower(1);
                     shooter.setUpperGateOpen(false);
-                    spindexer.setLowerGateOpen(true);
+                    spindexer.setLowerGateOpen(false);
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     elapsedTime.reset();

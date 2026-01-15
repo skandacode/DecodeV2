@@ -19,7 +19,7 @@ public class Testing extends LinearOpMode {
     public static double goodIntakePower = 0.0;
     public static double badIntakePower = 0.0;
 
-    public static double spindexerPosition = 0.2;
+    public static Spindexer.SpindexerPosition spindexerPosition = Spindexer.SpindexerPosition.Shoot1;
     public static double turretPosition = 0.5;
 
     public static int shooterTargetVelocity = 0;
