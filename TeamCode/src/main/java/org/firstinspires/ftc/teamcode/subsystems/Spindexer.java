@@ -13,11 +13,13 @@ public class Spindexer {
     ServoEx lowerGate;
     ServoEx kicker;
 
-    public static double kickerKickPos = 0.5;
-    public static double kickerIdlePos = 0.67;
+    public static double kickerKickPos = 0.72;
+    public static double kickerIdlePos = 0.8;
 
     public static double lowerGateOpen = 0.65;
     public static double lowerGateClosed = 0.5;
+
+    public boolean is_kick = false;
 
     public enum SpindexerPosition {
         Shoot1(0.37),
@@ -71,6 +73,7 @@ public class Spindexer {
         } else {
             kicker.setPosition(kickerIdlePos);
         }
+        is_kick = kick;
     }
 
     public void setLowerGateOpen(boolean open){

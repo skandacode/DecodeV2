@@ -3,17 +3,17 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 public class ShooterTables {
     public static double getHoodPosition(double distance) {
-        return (-3.04567e-8) * Math.pow(distance, 4)
-                + (1.3578e-5)  * Math.pow(distance, 3)
-                - (0.00220059) * Math.pow(distance, 2)
-                + (0.1549)* distance
-                - 3.44543;
+        return (-1.65e-8) * Math.pow(distance, 4)
+                + (0.00000685734)  * Math.pow(distance, 3)
+                - (0.00104471) * Math.pow(distance, 2)
+                + (0.0701471)* (distance)
+                - 1.16012;
     }
     public static double getShooterVelocity(double distance) {
-        return (-3.97447e-5) * Math.pow(distance, 4)
-                + (1.79756e-2)  * Math.pow(distance, 3)
-                - (2.92533)     * Math.pow(distance, 2)
-                + (209.10536)   * distance
-                - 4051.96864;
+        return (-0.0000151859) * Math.pow(distance, 4)
+                + (0.00633315)  * Math.pow(distance, 3)
+                - (0.952019)     * Math.pow(distance, 2)
+                + (67.30893)   * (distance)
+                - 322.96513;
     }
 }

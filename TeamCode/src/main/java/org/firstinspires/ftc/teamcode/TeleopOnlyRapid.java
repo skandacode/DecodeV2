@@ -10,6 +10,8 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
@@ -37,7 +39,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
     public enum States{
         Intake,
-        Intake2,
+        HoldBalls,
         OpenUpperGate,
         Shoot,
     }
@@ -63,10 +65,12 @@ public class TeleopOnlyRapid extends LinearOpMode {
         shooter = new Shooter(hardwareMap);
         follower = createFollower(hardwareMap);
 
+        ElapsedTime currentMonitoringTime = new ElapsedTime();
+
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
-        GamepadKeys.Button stopAllButton = GamepadKeys.Button.A;
+        GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
 
         follower.setStartingPose(Position.pose);
 
@@ -74,17 +78,22 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .state(States.Intake)
                 .onEnter(()->{
                     intakes.setGoodIntakePower(1);
-                    //intakes.setBadIntakeMotor(0.2);
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(true);
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
+                .transition(()->gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
+                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+
+                .state(States.HoldBalls)
+                .onEnter(()->intakes.setGoodIntakePower(0.1))
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.OpenUpperGate)
                 .onEnter(()->{
                     shooter.setUpperGateOpen(true);
+                    intakes.setGoodIntakePower(1);
                 })
                 .transitionTimed(0.1, States.Shoot)
                 .state(States.Shoot)
@@ -114,9 +123,14 @@ public class TeleopOnlyRapid extends LinearOpMode {
         follower.startTeleopDrive();
 
         long lastLoopTime = System.nanoTime();
+        double prevGoodIntakeCurrent = 0.0;
         while (opModeIsActive()) {
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
+            }
+            if (currentMonitoringTime.milliseconds()>150){
+                intakes.updateCurrent();
+                currentMonitoringTime.reset();
             }
 
             gamepadEx.readButtons();
@@ -138,6 +152,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
             if (gamepadEx.wasJustPressed(positionResetButton)){
                 follower.setPose(new Pose(65, 0, Math.toRadians(180)));
+                Shooter.powerOffset=0;
+                Shooter.turretOffset=0;
             }
             if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)){
                 Shooter.powerOffset -= powerOffsetIncrements;
@@ -151,18 +167,23 @@ public class TeleopOnlyRapid extends LinearOpMode {
             if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
                 Shooter.powerOffset += powerOffsetIncrements;
             }
-            if (gamepadEx.wasJustPressed(GamepadKeys.Button.A)){
-                intakes.setGoodIntakePower(0);
+
+            if (intakes.getGoodIntakeCurrent()>Intakes.goodIntake3Thresh){
+                if (prevGoodIntakeCurrent<Intakes.goodIntake3Thresh){
+                    gamepad1.rumble(Gamepad.RUMBLE_DURATION_CONTINUOUS);
+                }
             }else{
-                intakes.setGoodIntakePower(1);
-
+                gamepad1.stopRumble();
             }
-
             stateMachine.update();
 
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
+            telemetry.addData("Spindexer kick", spindexer.is_kick);
+            telemetry.addData("Statemachine State", stateMachine.getState());
+
+
 
             long currentTime = System.nanoTime();
             double loopTime = (double) (currentTime - lastLoopTime) / 1_000_000.0;
@@ -172,6 +193,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
             spindexer.update();
             shooter.update();
             telemetry.update();
+            prevGoodIntakeCurrent = intakes.getGoodIntakeCurrent();
         }
     }
 }

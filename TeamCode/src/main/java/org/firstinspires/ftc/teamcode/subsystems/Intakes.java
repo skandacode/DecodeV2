@@ -12,6 +12,11 @@ public class Intakes {
     Motor goodIntakeMotor;
     Motor badIntakeMotor;
 
+    private double goodIntakeCurrent = 0;
+    private double badIntakeCurrent = 0;
+
+    public static double goodIntake3Thresh = 5.0;
+
     public Intakes(HardwareMap hardwareMap) {
         goodIntakeMotor = new Motor(hardwareMap, "goodIntakeMotor");
         badIntakeMotor = new Motor(hardwareMap, "badIntakeMotor");
@@ -44,4 +49,17 @@ public class Intakes {
         goodIntakeMotor.update();
         badIntakeMotor.update();
     }
+
+    public void updateCurrent(){
+        goodIntakeCurrent = getGoodIntakeCurrentDraw();
+        badIntakeCurrent = getBadIntakeCurrentDraw();
+    }
+
+    public double getGoodIntakeCurrent(){
+        return goodIntakeCurrent;
+    }
+    public double getBadIntakeCurrent(){
+        return badIntakeCurrent;
+    }
+
 }
