@@ -168,8 +168,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 Shooter.powerOffset += powerOffsetIncrements;
             }
 
-            if (intakes.getGoodIntakeCurrent()>Intakes.goodIntake3Thresh){
-                if (prevGoodIntakeCurrent<Intakes.goodIntake3Thresh){
+            if (intakes.getGoodIntakeCurrent()>Intakes.goodIntake3ThreshCurrent){
+                if (prevGoodIntakeCurrent<Intakes.goodIntake3ThreshCurrent){
                     gamepad1.rumble(Gamepad.RUMBLE_DURATION_CONTINUOUS);
                 }
             }else{

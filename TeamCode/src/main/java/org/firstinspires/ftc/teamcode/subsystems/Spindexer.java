@@ -27,7 +27,9 @@ public class Spindexer {
         Shoot3(0.8),
         Intake1(0.04),
         Intake2(0.27),
-        Intake3(0.49);
+        Intake3(0.49),
+        Intake4(0.71);
+
 
         public final double position;
 
