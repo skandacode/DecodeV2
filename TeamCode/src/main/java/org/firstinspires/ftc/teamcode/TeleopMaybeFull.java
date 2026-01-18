@@ -197,12 +197,8 @@ public class TeleopMaybeFull extends LinearOpMode {
 
         long lastLoopTime = System.nanoTime();
         while (opModeIsActive()) {
-            if (controlhub != null) {
-                controlhub.clearBulkCache();
-            }else {
-                for (LynxModule hub : allHubs) {
-                    hub.clearBulkCache();
-                }
+            for (LynxModule hub : allHubs) {
+                hub.clearBulkCache();
             }
 
             gamepadEx.readButtons();

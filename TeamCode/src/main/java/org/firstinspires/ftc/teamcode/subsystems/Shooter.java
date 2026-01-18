@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
 
 import solverslib.controller.PIDFController;
@@ -18,6 +19,8 @@ public class Shooter {
     private ServoEx turret, hood;
 
     private ServoEx upperGate;
+
+    VoltageSensor voltageSensor;
 
     private PIDFController pidf;
     private SimpleMotorFeedforward feedforward;
@@ -67,6 +70,7 @@ public class Shooter {
     public Shooter(HardwareMap hardwareMap) {
         shooterMotor1 = new Motor(hardwareMap, "outtakemotor1");
         shooterMotor2 = new Motor(hardwareMap, "outtakemotor2");
+        voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         upperGate = new ServoEx(hardwareMap, "upperGate");
 
@@ -137,6 +141,7 @@ public class Shooter {
     }
 
     public void setDirectPower(double power) {
+        power = power * 12/voltageSensor.getVoltage();
         shooterMotor1.set(power);
         shooterMotor2.set(-power);
     }
@@ -162,10 +167,8 @@ public class Shooter {
             }
         }
 
-        // Clamp to [-1, 1] range for safety
         outputPower = Math.max(-1, Math.min(1, outputPower));
 
-        // Apply power
         setDirectPower(outputPower);
         shooterMotor1.update();
         shooterMotor2.update();
