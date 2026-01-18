@@ -49,8 +49,8 @@ public class Shooter {
     private double smoothedVelocity = 0.0;
 
     public enum Goal{
-        RED (new Pose(-58, 73)),
-        BLUE (new Pose(-58, -73));
+        RED (new Pose(-57, 67)),
+        BLUE (new Pose(-57, -67));
 
         Pose position;
         Goal(Pose pose) {
