@@ -20,14 +20,14 @@ public class Intakes {
 
     public static double goodIntake3ThreshCurrent = 5.0;
 
-    public static double badIntakeSensorThresh = 5.0;
+    public static double badIntakeSensorThresh = 2;
 
 
 
     public Intakes(HardwareMap hardwareMap) {
         goodIntakeMotor = new Motor(hardwareMap, "goodIntakeMotor");
         badIntakeMotor = new Motor(hardwareMap, "badIntakeMotor");
-        badIntakeSensor = hardwareMap.get(RevColorSensorV3.class, "badIntake");
+        badIntakeSensor = hardwareMap.get(RevColorSensorV3.class, "badIntakeSensor");
 
         badIntakeMotor.setInverted(true);
     }
@@ -54,7 +54,14 @@ public class Intakes {
     }
 
     public boolean getBadIntakeDetected(){
-        return badIntakeSensor.getDistance(DistanceUnit.CM)<badIntakeSensorThresh;
+        return getBadIntakeDistance()<badIntakeSensorThresh;
+    }
+
+    public double getBadIntakeDistance(){
+        //not detected ~ 2.8
+        //nothing at all ~3.2
+        //detected ~1
+        return badIntakeSensor.getDistance(DistanceUnit.CM);
     }
 
     public void update() {

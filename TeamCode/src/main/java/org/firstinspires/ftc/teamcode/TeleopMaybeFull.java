@@ -37,6 +37,8 @@ public class TeleopMaybeFull extends LinearOpMode {
     public static double powerOffsetIncrements = 20;
     public static double turretOffsetIncrements = 2;
 
+    public static double shootWaitTime = 0.26;
+
     public enum States{
         Intake,
         TwoInGood,
@@ -82,7 +84,8 @@ public class TeleopMaybeFull extends LinearOpMode {
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.TOUCHPAD;
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
-        GamepadKeys.Button backIntakeButton = GamepadKeys.Button.X;
+        GamepadKeys.Trigger backIntakeButton = GamepadKeys.Trigger.RIGHT_TRIGGER;
+        GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
 
 
         follower.setStartingPose(Position.pose);
@@ -100,25 +103,34 @@ public class TeleopMaybeFull extends LinearOpMode {
                 })
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
                 .transition(()->intakes.getGoodIntakeCurrent()>4, States.TwoInGood)
-                .transition(()->gamepadEx.isDown(backIntakeButton), States.Increment1)
+                .transition(()->gamepadEx.getTrigger(backIntakeButton)>0.5, States.Increment1)
+                .transition(()->gamepadEx.getButton(stopIntakeButton), TeleopOnlyRapid.States.HoldBalls)
 
+
+                .state(TeleopOnlyRapid.States.HoldBalls)
+                .onEnter(()->intakes.setGoodIntakePower(0.1))
+                .transition(()->gamepadEx.getButton(shooterButton), TeleopOnlyRapid.States.OpenUpperGate)
 
                 .state(States.TwoInGood)
                 .onEnter(()->{
                     spindexer.setLowerGateOpen(true);
                 })
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .transition(()->intakes.getGoodIntakeCurrent()<4, States.Intake)
 
                 .state(States.Increment1)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
                     intakes.setBadIntakePower(1);
                 })
-                .transition(()->!gamepadEx.isDown(backIntakeButton), States.Intake)
+                .transition(()->!(gamepadEx.getTrigger(backIntakeButton)>0.5), States.Intake)
                 .transition(()->intakes.getBadIntakeDetected(), States.Wait1)
 
                 .state(States.Wait1)
-                .transitionTimed(0.2, States.Increment2)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
+                })
+                .transitionTimed(shootWaitTime, States.Increment2)
 
                 .state(States.Increment2)
                 .onEnter(()->{
@@ -127,7 +139,10 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .transition(()->intakes.getBadIntakeDetected(), States.Wait2)
 
                 .state(States.Wait2)
-                .transitionTimed(0.2, States.Increment3)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake4);
+                })
+                .transitionTimed(shootWaitTime, States.Increment3)
 
                 .state(States.Increment3)
                 .onEnter(()->{
@@ -203,6 +218,8 @@ public class TeleopMaybeFull extends LinearOpMode {
 
             gamepadEx.readButtons();
             follower.update();
+            intakes.updateCurrent();
+
             Position.pose = follower.getPose();
             telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, target)));
             shooter.aimAtTarget(Position.pose, target);
@@ -239,6 +256,10 @@ public class TeleopMaybeFull extends LinearOpMode {
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
+            telemetry.addData("State", stateMachine.getState());
+            telemetry.addData("Good intake current", intakes.getGoodIntakeCurrent());
+            telemetry.addData("Bad intake current", intakes.getBadIntakeCurrent());
+
 
             long currentTime = System.nanoTime();
             double loopTime = (double) (currentTime - lastLoopTime) / 1_000_000.0;

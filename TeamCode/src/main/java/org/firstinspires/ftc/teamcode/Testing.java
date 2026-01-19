@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.JoinedTelemetry;
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -30,6 +32,7 @@ public class Testing extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         intakes = new Intakes(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
         shooter = new Shooter(hardwareMap);
@@ -53,6 +56,8 @@ public class Testing extends LinearOpMode {
             shooter.update();
 
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
+            telemetry.addData("Shooter Target Velocity", shooterTargetVelocity);
+
             telemetry.update();
         }
     }

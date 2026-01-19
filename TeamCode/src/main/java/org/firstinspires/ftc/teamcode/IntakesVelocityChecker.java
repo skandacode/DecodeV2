@@ -41,6 +41,8 @@ public class IntakesVelocityChecker extends LinearOpMode {
             intakes.setGoodIntakePower(goodPower);
             intakes.setBadIntakePower(badPower);
 
+            telemetry.addData("Bad Intake Distance", intakes.getBadIntakeDistance());
+
             intakes.update();
             spindexer.update();
             shooter.update();

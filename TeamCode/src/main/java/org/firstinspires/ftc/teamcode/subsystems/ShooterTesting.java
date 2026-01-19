@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.JoinedTelemetry;
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -22,6 +24,7 @@ public class ShooterTesting extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         shooter = new Shooter(hardwareMap);
         follower = createFollower(hardwareMap);
         follower.setStartingPose(new Pose(65, 0, Math.toRadians(180)));
