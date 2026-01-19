@@ -151,7 +151,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
             follower.setTeleOpDrive(forward, -1*strafe, -1*turn, true);
 
             if (gamepadEx.wasJustPressed(positionResetButton)){
-                follower.setPose(new Pose(65, 0, Math.toRadians(180)));
+                follower.setPose(new Pose(47, 0, Math.toRadians(180)));
                 Shooter.powerOffset=0;
                 Shooter.turretOffset=0;
             }

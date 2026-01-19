@@ -7,6 +7,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -40,6 +41,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
     public int pattern = 1;
     public boolean shooterButton = false;
     public double shootWaitTime = 0.25;
+    public static boolean rapidFire = true;
 
 
 
@@ -47,6 +49,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
 
 
     public enum AutoStates {
+        PUSH,
         MOVETOSHOOT1, wait1, SHOOT1,
         MOVETOINTAKE1, INTAKE1,
         MOVETOSHOOT2, wait2, SHOOT2,
@@ -75,7 +78,6 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        boolean rapidFire = true;
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         List<LynxModule> hubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : hubs)
@@ -115,34 +117,41 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
         waitForStart();
 
 
-        Pose opengate = new Pose(2, -56*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose opengateback = new Pose(2, -50*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose startPose = new Pose(65, -24*Posmultiplier, Math.toRadians(0*Posmultiplier));
-        Pose shootPose = new Pose(-24, -24*Posmultiplier, Math.toRadians(0*Posmultiplier));
-        Pose shootPoselast = new Pose(60, -20*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose shootPoselastshot = new Pose(67, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose opengate = new Pose(-7, -48*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose opengateback = new Pose(-2, -38*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose startPose = new Pose(46, -15*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose pushPose = new Pose(44, -26*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose shootPose = new Pose(-25, -22*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose shootPose2 = new Pose(-22, -29*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose shootPoselast = new Pose(-21, -15*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose shootPoseleave = new Pose(-37, -16*Posmultiplier, Math.toRadians(-23*Posmultiplier));
 
-        Pose intake1Pose = new Pose(-10, -22*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake2Pose = new Pose(14, -26*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake3Pose = new Pose(37,-26*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake4Pose = new Pose(62,-25*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake4donePose = new Pose(66, -61*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake1Pose = new Pose(-21, -21*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose intake2Pose = new Pose(1, -25*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose intake3Pose = new Pose(26,-42*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake4Pose = new Pose(33,-64*Posmultiplier, Math.toRadians(-15*Posmultiplier));
+        Pose intake4donePose = new Pose(58, -66*Posmultiplier, Math.toRadians(0*Posmultiplier));
 
-        Pose intake1donePose = new Pose(-10, -53*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake2donePose = new Pose(14, -60*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake3donePose = new Pose(40, -60*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake1donePose = new Pose(-21, -46*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake2donePose = new Pose(1, -55*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose intake3donePose = new Pose(26, -70*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose leave = new Pose(60, -46*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
 
         PathChain toShoot = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, shootPose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), shootPose.getHeading())
+                .addPath(new BezierLine(pushPose, shootPose))
+                .setLinearHeadingInterpolation(pushPose.getHeading(), shootPose.getHeading())
+                .setBrakingStrength(1.5)
+                .build();
+        PathChain toPush = follower.pathBuilder()
+                .addPath(new BezierLine(startPose, pushPose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), pushPose.getHeading())
                 .setBrakingStrength(1.5)
                 .build();
 
         PathChain toIntake1 = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose, intake1Pose))
-                .setLinearHeadingInterpolation(shootPose.getHeading(), intake1Pose.getHeading())
+                .addPath(new BezierLine(shootPose, intake3Pose))
+                .setLinearHeadingInterpolation(shootPose.getHeading(), intake3Pose.getHeading())
                 .build();
 
         PathChain toIntake2 = follower.pathBuilder()
@@ -151,19 +160,19 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .setBrakingStrength(0.9)
                 .build();
 
-        PathChain toIntake1back = follower.pathBuilder()
-                .addPath(new BezierLine(intake1Pose, opengateback))
-                .setLinearHeadingInterpolation(intake1Pose.getHeading(), opengateback.getHeading())
+        PathChain opengatein = follower.pathBuilder()
+                .addPath(new BezierLine(opengateback, opengate))
+                .setLinearHeadingInterpolation(opengateback.getHeading(), opengate.getHeading())
                 .build();
 
         PathChain intake2ToGate= follower.pathBuilder()
-                .addPath(new BezierLine(intake2Pose, opengate))
-                .setLinearHeadingInterpolation(intake2Pose.getHeading(), opengate.getHeading())
+                .addPath(new BezierLine(intake2donePose, opengateback))
+                .setLinearHeadingInterpolation(intake2donePose.getHeading(), opengateback.getHeading())
                 .build();
 
         PathChain toIntake3 = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose, intake3Pose))
-                .setLinearHeadingInterpolation(shootPose.getHeading(), intake3Pose.getHeading())
+                .addPath(new BezierLine(shootPoselast, intake4Pose))
+                .setLinearHeadingInterpolation(shootPoselast.getHeading(), intake4Pose.getHeading())
                 .setBrakingStrength(0.8)
                 .build();
         PathChain toIntake4 = follower.pathBuilder()
@@ -172,8 +181,8 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .build();
 
         PathChain toIntake1fin = follower.pathBuilder()
-                .addPath(new BezierLine(intake1Pose, intake1donePose))
-                .setLinearHeadingInterpolation(intake1Pose.getHeading(), intake1donePose.getHeading())
+                .addPath(new BezierLine(intake3Pose, intake3donePose))
+                .setLinearHeadingInterpolation(intake3Pose.getHeading(), intake3donePose.getHeading())
                 .build();
 
         PathChain toIntake2fin = follower.pathBuilder()
@@ -187,33 +196,33 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .build();
 
         PathChain toIntake3fin = follower.pathBuilder()
-                .addPath(new BezierLine(intake3Pose, intake3donePose))
-                .setLinearHeadingInterpolation(intake3Pose.getHeading(), intake3donePose.getHeading())
+                .addPath(new BezierLine(intake1Pose, intake1donePose))
+                .setLinearHeadingInterpolation(intake1Pose.getHeading(), intake1donePose.getHeading())
                 .build();
         PathChain toIntake4fin = follower.pathBuilder()
                 .addPath(new BezierLine(intake4Pose, intake4donePose))
                 .setLinearHeadingInterpolation(intake4Pose.getHeading(), intake4donePose.getHeading())
                 .build();
-        PathChain toIntake4back = follower.pathBuilder()
-                .addPath(new BezierLine(intake4donePose, intake4Pose))
-                .setLinearHeadingInterpolation(intake4donePose.getHeading(), intake4Pose.getHeading())
-                .build();
 
         PathChain toScore1 = follower.pathBuilder()
-                .addPath(new BezierLine(intake1donePose, shootPose))
-                .setLinearHeadingInterpolation(intake1donePose.getHeading(), shootPose.getHeading())
+                .addPath(new BezierLine(intake3donePose, shootPose))
+                .setLinearHeadingInterpolation(intake3donePose.getHeading(), shootPose.getHeading())
                 .setBrakingStrength(0.8)
                 .build();
 
         PathChain toScore2 = follower.pathBuilder()
-                .addPath(new BezierLine(opengate, shootPose))
-                .setLinearHeadingInterpolation(opengate.getHeading(), shootPose.getHeading())
+                .addPath(new BezierCurve(opengate, opengateback,shootPose2))
+                .setLinearHeadingInterpolation(opengate.getHeading(), shootPose2.getHeading())
                 .setBrakingStrength(0.9)
                 .build();
 
         PathChain toScore3 = follower.pathBuilder()
-                .addPath(new BezierLine(intake3donePose, shootPoselast))
-                .setLinearHeadingInterpolation(intake3donePose.getHeading(), shootPoselast.getHeading())
+                .addPath(new BezierLine(intake1donePose, shootPoselast))
+                .setLinearHeadingInterpolation(intake1donePose.getHeading(), shootPoselast.getHeading())
+                .build();
+        PathChain toScore4 = follower.pathBuilder()
+                .addPath(new BezierLine(intake4donePose, shootPoseleave))
+                .setLinearHeadingInterpolation(intake4donePose.getHeading(), shootPoseleave.getHeading())
                 .build();
 
         PathChain park = follower.pathBuilder()
@@ -346,20 +355,23 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
 
 
         StateMachine autoMachine = new StateMachineBuilder() //Autonomia
-                .state(AutoStates.MOVETOSHOOT1)
+                .state(AutoStates.PUSH)
+                .onEnter(()->{
+                    follower.followPath(toPush, true);
+                    shooter.setHood(0.68);
+                    shooter.setTargetVelocity(1050);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-40*Posmultiplier));
+                    rapidFire=true;
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(0.7)
+                .state(AutoStates.PUSH)
                 .onEnter(()->{
                     follower.followPath(toShoot, true);
                     shooter.setHood(0.68);
                     shooter.setTargetVelocity(1050);
                     shooter.setTurretPos(shooter.convertDegreestoServoPos(-40*Posmultiplier));
-                    if (pattern==1){
-                        shootorder = new int[]{0, 1, 2};
-                    }else if (pattern==2){
-                        shootorder = new int[]{2, 0, 1};
-                    }else{
-                        shootorder = new int[]{1, 2, 0};
-
-                    }
+                    rapidFire=true;
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.8)
@@ -475,7 +487,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .transitionTimed(2)
                 .state(AutoStates.INTAKE3)
                 .onEnter(()->{
-                    shooter.aimAtTarget(shootPoselastshot,shooterTarget);
+                    shooter.aimAtTarget(shootPoselast,shooterTarget);
                     follower.followPath(toIntake3fin, true);
                 })
                 .transition(()->follower.atParametricEnd())
@@ -522,24 +534,8 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.7)
-                .state(AutoStates.INTAKE4BACK)
-                .onEnter(()->{
-                    follower.followPath(toIntake4back, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(0.3)
-                .state(AutoStates.INTAKE4BACKIN)
-                .onEnter(()->{
-                    follower.followPath(toIntake4fin, true);
-                })
-                .transition(()->stateMachine.getStateEnum() == States.WaitForShoot)
-                .transitionTimed(1)
                 .state(AutoStates.MOVETOSHOOT5)
                 .onEnter(()->{
-                    PathChain toScore4 = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), shootPoselast))
-                            .setLinearHeadingInterpolation(follower.getHeading(), shootPoselast.getHeading())
-                            .build();
                     follower.followPath(toScore4, true);
                 })
                 .transition(()->follower.atParametricEnd())
