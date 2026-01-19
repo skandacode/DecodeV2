@@ -86,6 +86,8 @@ public class TeleopMaybeFull extends LinearOpMode {
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Trigger backIntakeButton = GamepadKeys.Trigger.RIGHT_TRIGGER;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
+        GamepadKeys.Button restartIntakeButton = GamepadKeys.Button.Y;
+
 
 
         follower.setStartingPose(Position.pose);
@@ -110,6 +112,8 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .state(TeleopOnlyRapid.States.HoldBalls)
                 .onEnter(()->intakes.setGoodIntakePower(0.1))
                 .transition(()->gamepadEx.getButton(shooterButton), TeleopOnlyRapid.States.OpenUpperGate)
+                .transition(()->gamepadEx.getButton(restartIntakeButton), TeleopOnlyRapid.States.Intake)
+
 
                 .state(States.TwoInGood)
                 .onEnter(()->{
