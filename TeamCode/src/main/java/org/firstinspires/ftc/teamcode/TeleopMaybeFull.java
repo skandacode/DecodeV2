@@ -42,6 +42,7 @@ public class TeleopMaybeFull extends LinearOpMode {
     public enum States{
         Intake,
         TwoInGood,
+        HoldBalls,
         OpenLowerGate, //if 2 go in good intake
         Increment1, //switch from Shoot1 to Intake2
         Wait1,
@@ -106,13 +107,13 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
                 .transition(()->intakes.getGoodIntakeCurrent()>4, States.TwoInGood)
                 .transition(()->gamepadEx.getTrigger(backIntakeButton)>0.5, States.Increment1)
-                .transition(()->gamepadEx.getButton(stopIntakeButton), TeleopOnlyRapid.States.HoldBalls)
+                .transition(()->gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
 
 
-                .state(TeleopOnlyRapid.States.HoldBalls)
+                .state(States.HoldBalls)
                 .onEnter(()->intakes.setGoodIntakePower(0.1))
-                .transition(()->gamepadEx.getButton(shooterButton), TeleopOnlyRapid.States.OpenUpperGate)
-                .transition(()->gamepadEx.getButton(restartIntakeButton), TeleopOnlyRapid.States.Intake)
+                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .transition(()->gamepadEx.getButton(restartIntakeButton), States.Intake)
 
 
                 .state(States.TwoInGood)
