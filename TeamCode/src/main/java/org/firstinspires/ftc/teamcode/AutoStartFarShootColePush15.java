@@ -6,7 +6,6 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollow
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -17,8 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.Position;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.LimelightMotif;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -62,10 +60,6 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
     }
     public enum States{
         Intake,
-        TwoInGood,
-        HoldBalls,
-        OpenLowerGate, //if 2 go in good intake
-        Increment1, //switch from Shoot1 to Intake2
         Wait1,
         Increment2, //switch from Intake2 to Intake3
         Wait2,
@@ -360,13 +354,10 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                     shooter.setTurretPos(shooter.convertDegreestoServoPos(-40*Posmultiplier));
                     if (pattern==1){
                         shootorder = new int[]{0, 1, 2};
-                        spindexer.setPosition();
                     }else if (pattern==2){
                         shootorder = new int[]{2, 0, 1};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT3);
                     }else{
                         shootorder = new int[]{1, 2, 0};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT2);
 
                     }
                 })
@@ -382,7 +373,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                     shooterButtonAll=true;
                 })
                 .transitionTimed(1.4)
-                .transition(()->stateMachine.getStateEnum() == RobotState.spin3)
+                .transition(()->stateMachine.getStateEnum() == States.Intake)
 
                 .state(AutoStates.MOVETOINTAKE1)
                 .onEnter(()->{
@@ -393,12 +384,11 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
 
                 .state(AutoStates.INTAKE1)
                 .onEnter(()->{
-                    follower.followPath(toIntake1fin, 0.9, true);
+                    follower.followPath(toIntake1fin, true);
                 })
                 .transitionTimed(1.3)
                 .state(AutoStates.MOVETOSHOOT2)
                 .onEnter(()->{
-                    intakes.setPower(1);
                     follower.followPath(toScore1, true);
                 })
                 .transition(()->follower.atParametricEnd())
@@ -408,13 +398,13 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .onEnter(()->{
                     if (pattern==1){
                         shootorder = new int[]{2, 0, 1};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT3);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
                     }else if (pattern==2){
                         shootorder = new int[]{1, 2, 0};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT2);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }else{
                         shootorder = new int[]{0, 1, 2};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT1);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     }
                 })
                 .transitionTimed(0.3)
@@ -423,7 +413,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                     shooterButtonAll=true;
                 })
                 .transitionTimed(1.7)
-                .transition(()->stateMachine.getStateEnum() == RobotState.spin3)
+                .transition(()->stateMachine.getStateEnum() == States.Intake)
                 .state(AutoStates.MOVETOINTAKE2)
                 .onEnter(()->{
                     follower.followPath(toIntake2, true);
@@ -433,7 +423,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
 
                 .state(AutoStates.INTAKE2)
                 .onEnter(()->{
-                    follower.followPath(toIntake2fin, 0.9, true);
+                    follower.followPath(toIntake2fin, true);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.8)
@@ -446,19 +436,12 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .transitionTimed(0.2)
                 .state(AutoStates.GATE)
                 .onEnter(()->{
-                    follower.followPath(intake2ToGate, 1, true);
-                    intake.setPower(0);
+                    follower.followPath(intake2ToGate, true);
                 })
-                .transitionTimed(0.3)
-                .state(AutoStates.waitgate)
-                .onEnter(()->{
-                    intake.setPower(0);
-                })
-                .transitionTimed(2)
+                .transitionTimed(2.3)
                 .state(AutoStates.MOVETOSHOOT3)
                 .onEnter(()->{
                     follower.followPath(toScore2, true);
-                    intake.setPower(1);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.6)
@@ -467,13 +450,13 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .onEnter(()->{
                     if (pattern==1){
                         shootorder = new int[]{1, 2, 0};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT2);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }else if (pattern==2){
                         shootorder = new int[]{0, 1, 2};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT1);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     }else{
                         shootorder = new int[]{2, 0, 1};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT3);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
                     }
                 })
                 .transitionTimed(0.3)
@@ -482,7 +465,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                     shooterButtonAll=true;
                 })
                 .transitionTimed(2)
-                .transition(()->stateMachine.getStateEnum() == RobotState.spin3)
+                .transition(()->stateMachine.getStateEnum() == States.Intake)
 
                 .state(AutoStates.MOVETOINTAKE3)
                 .onEnter(()->{
@@ -493,10 +476,10 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .state(AutoStates.INTAKE3)
                 .onEnter(()->{
                     shooter.aimAtTarget(shootPoselastshot,shooterTarget);
-                    follower.followPath(toIntake3fin, 0.7, true);
+                    follower.followPath(toIntake3fin, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.55)
+                .transitionTimed(2.3)
                 .state(AutoStates.MOVETOSHOOT4)
                 .onEnter(()->{
                     follower.followPath(toScore3, true);
@@ -507,25 +490,26 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .onEnter(()->{
                     if (pattern==1){
                         shootorder = new int[]{0, 1, 2};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT1);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     }else if (pattern==2){
                         shootorder = new int[]{2, 0, 1};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT3);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
                     }else{
                         shootorder = new int[]{1, 2, 0};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT2);
-
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }
                     shooter.setHood(0.84);
                     shooter.setTurretPos(shooter.convertDegreestoServoPos(-108 * Posmultiplier));
-                    shooter.setTargetVelocity(1490);                })
+                    shooter.setTargetVelocity(1490);
+                })
                 .transitionTimed(0.3)
                 .state(AutoStates.SHOOT4)
                 .onEnter(()->{
                     shooterButtonAll=true;
                 })
                 .transitionTimed(1.55)
-                .transition(()->stateMachine.getStateEnum() == States.spin3)
+                .transition(()->stateMachine.getStateEnum() == States.Intake)
+
                 .state(AutoStates.MOVETOINTAKE4)
                 .onEnter(()->{
                     follower.followPath(toIntake4, true);
@@ -534,19 +518,19 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .transitionTimed(0.2)
                 .state(AutoStates.INTAKE4)
                 .onEnter(()->{
-                    follower.followPath(toIntake4fin, 0.8, true);
+                    follower.followPath(toIntake4fin, true);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.7)
                 .state(AutoStates.INTAKE4BACK)
                 .onEnter(()->{
-                    follower.followPath(toIntake4back, 1, true);
+                    follower.followPath(toIntake4back, true);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.3)
                 .state(AutoStates.INTAKE4BACKIN)
                 .onEnter(()->{
-                    follower.followPath(toIntake4fin, 0.8, true);
+                    follower.followPath(toIntake4fin, true);
                 })
                 .transition(()->stateMachine.getStateEnum() == States.WaitForShoot)
                 .transitionTimed(1)
@@ -564,13 +548,13 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .onEnter(()->{
                     if (pattern==1){
                         shootorder = new int[]{0, 1, 2};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT1);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     }else if (pattern==2){
                         shootorder = new int[]{2, 0, 1};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT3);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
                     }else{
                         shootorder = new int[]{1, 2, 0};
-                        spindexer.setPosition(Spindexer.SpindexerPositions.SHOOT2);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
 
                     }
                     shooter.setHood(0.84);
@@ -590,24 +574,22 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .build();
 
         stateMachine.start();
-        stateMachine.setState(RobotState.WaitForShoot);
-
-        spindexer.setArtifactPositions(new String[] {"GREEN", "PURPLE", "PURPLE"});
         autoMachine.start();
-        intake.setPower(1);
-        spindexer.shootPos(0);
+
         while (opModeIsActive()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             Position.pose = follower.getPose();
             stateMachine.update();
             autoMachine.update();
             follower.update();
-            intake.update();
+            intakes.update();
             shooter.update();
             spindexer.update();
-            telemetry.addData("Artifact colors", Arrays.toString(spindexer.getArtifactPositions()));
             telemetry.addData("State: ", stateMachine.getState());
             telemetry.addData("State auto: ", autoMachine.getState());
+            telemetry.addData("Shooter Target", shooter.getTargetVelo());
+            telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
+            telemetry.addData("Spindexer kick", spindexer.is_kick);
             telemetry.addData("Pose: ", follower.getPose());
             telemetry.update();
         }
