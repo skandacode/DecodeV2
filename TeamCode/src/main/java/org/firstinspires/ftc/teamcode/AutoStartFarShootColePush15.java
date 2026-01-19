@@ -31,7 +31,6 @@ import java.util.List;
 @Autonomous(name = "AutoFarIndex15", group = "Auto")
 public class AutoStartFarShootColePush15 extends LinearOpMode {
     private Follower follower;
-    private TelemetryManager panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     public static int[] shootorder = {0, 1, 2};
     public boolean shooterButtonAll = false;
     LimelightMotif limelightMotif;
@@ -41,21 +40,12 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
     Shooter shooter;
     Spindexer spindexer;
     public int pattern = 1;
-    public static double timeforkicker = 0.2;
-    public static double timeforspin = 0.3;
-    public static double timeforkickerlast = 0.26;
-    public static double timeforspinlast = 0.3;
-    public static double timeForIntake = 0.15;
-    public static double waitforkickerdown = 0.03;
     public boolean shooterButton = false;
-    public boolean stopIntakeButton = false;
-    public boolean backIntakeButton = false;
     public double shootWaitTime = 0.25;
 
 
 
     public static Shooter.Goal shooterTarget = Shooter.Goal.BLUE;
-
 
 
     public enum AutoStates {
@@ -244,76 +234,107 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
         StateMachine stateMachine = new StateMachineBuilder()
                 .state(States.Intake)
                 .onEnter(()->{
-                    intakes.setGoodIntakePower(1);
-                    intakes.setBadIntakePower(0.2);
 
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(rapidFire);
 
                     spindexer.setKickerPos(false);
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                })
-                .transition(()->shooterButton, States.OpenUpperGate)
-                .transition(()->backIntakeButton, States.Increment1)
 
-                .state(States.Increment1)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
-                    intakes.setBadIntakePower(1);
+                    if (rapidFire) {
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+
+                        intakes.setGoodIntakePower(1);
+                        intakes.setBadIntakePower(-0.1);
+                    }else{
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Intake1);
+                        intakes.setGoodIntakePower(0.2);
+                        intakes.setBadIntakePower(1);
+                    }
                 })
-                .transition(()->!backIntakeButton, States.Intake)
-                .transition(()->intakes.getBadIntakeDetected(),States.Wait1)
+                .transition(()->shooterButton && rapidFire, States.OpenUpperGate)
+                .transition(()->shooterButton && !rapidFire, States.Kick1)
+                .transition(()->intakes.getBadIntakeDetected() && !rapidFire, States.Wait1)
 
                 .state(States.Wait1)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
                 })
-                .transitionTimed(shootWaitTime,States.Increment2)
+                .transitionTimed(shootWaitTime, States.Increment2)
+                .transition(()->shooterButton, States.Kick1)
 
                 .state(States.Increment2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
                 })
                 .transition(()->intakes.getBadIntakeDetected(), States.Wait2)
+                .transition(()->shooterButton, States.Kick1)
 
                 .state(States.Wait2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake4);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
                 })
                 .transitionTimed(shootWaitTime, States.Increment3)
+                .transition(()->shooterButton, States.Kick1)
 
                 .state(States.Increment3)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake4);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
                 })
                 .transition(()->intakes.getBadIntakeDetected(), States.WaitForShoot)
+                .transition(()->shooterButton, States.Kick1)
 
                 .state(States.WaitForShoot)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    if (shootorder[0]==0){
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    }else if (shootorder[0]==1){
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                    }else{
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
+                    }
                     intakes.setBadIntakePower(0.3);
+                    intakes.setGoodIntakePower(1);
                 })
                 .transition(()->shooterButton, States.Kick1)
 
                 .state(States.Kick1)
                 .onEnter(()->{
+                    if (shootorder[0]==0){
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    }else if (shootorder[0]==1){
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                    }else{
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
+                    }
                     spindexer.setLowerGateOpen(true);
                     shooter.setUpperGateOpen(true);
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.3, States.ShootSpin1)
+                .transitionTimed(shootWaitTime, States.ShootSpin1)
 
                 .state(States.ShootSpin1)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                    if (shootorder[1]==0){
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    }else if (shootorder[1]==1){
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                    }else{
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
+                    }
                 })
-                .transitionTimed(0.3, States.ShootSpin2)
+                .transitionTimed(shootWaitTime, States.ShootSpin2)
 
                 .state(States.ShootSpin2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
+                    if (shootorder[2]==0){
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    }else if (shootorder[2]==1){
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                    }else{
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
+                    }
                 })
-                .transitionTimed(0.3, States.Intake)
+                .transitionTimed(shootWaitTime, States.Intake)
 
                 .state(States.OpenUpperGate)
                 .onEnter(()->{
