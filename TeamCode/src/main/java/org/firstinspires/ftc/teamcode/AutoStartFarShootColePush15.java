@@ -377,7 +377,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .transitionTimed(1.3)
                 .state(AutoStates.MOVETOSHOOT2)
                 .onEnter(()->{
-                    intake.setPower(1);
+                    intakes.setPower(1);
                     follower.followPath(toScore1, true);
                 })
                 .transition(()->follower.atParametricEnd())
@@ -504,7 +504,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                     shooterButtonAll=true;
                 })
                 .transitionTimed(1.55)
-                .transition(()->stateMachine.getStateEnum() == RobotState.spin3)
+                .transition(()->stateMachine.getStateEnum() == States.spin3)
                 .state(AutoStates.MOVETOINTAKE4)
                 .onEnter(()->{
                     follower.followPath(toIntake4, true);
@@ -527,8 +527,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .onEnter(()->{
                     follower.followPath(toIntake4fin, 0.8, true);
                 })
-                .transition(()->stateMachine.getStateEnum() == RobotState.WaitForShoot)
-                .transition(()->stateMachine.getStateEnum()== RobotState.reverseIntake)
+                .transition(()->stateMachine.getStateEnum() == States.WaitForShoot)
                 .transitionTimed(1)
                 .state(AutoStates.MOVETOSHOOT5)
                 .onEnter(()->{
