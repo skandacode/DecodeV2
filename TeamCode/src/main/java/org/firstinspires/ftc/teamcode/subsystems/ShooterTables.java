@@ -17,4 +17,14 @@ public class ShooterTables {
                     - 67.60176;
 
     }
+
+    public static double actualShooterVelocity(double distance) {
+        return -0.0000189653 * Math.pow(distance, 4)
+                + 0.00786296 * Math.pow(distance, 3)
+                - 1.17049 * Math.pow(distance, 2)
+                + 81.6816 * distance
+                - 103.137;
+    }
+
+    public static double hoodAngleChangePer100ticksPerSecondError = 0.01;
 }

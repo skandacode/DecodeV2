@@ -287,7 +287,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .transition(()->shooterButton, States.Kick1)
 
                 .state(States.WaitForShoot)
-                .onEnter(()->{
+                .loop(()->{
                     if (shootorder[0]==0){
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     }else if (shootorder[0]==1){
@@ -302,6 +302,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
 
                 .state(States.Kick1)
                 .onEnter(()->{
+                    shooterButton=false;
                     if (shootorder[0]==0){
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     }else if (shootorder[0]==1){
@@ -341,6 +342,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
 
                 .state(States.OpenUpperGate)
                 .onEnter(()->{
+                    shooterButton=false;
                     spindexer.setLowerGateOpen(true);
                     shooter.setUpperGateOpen(true);
                 })
@@ -390,7 +392,6 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .state(AutoStates.MOVETOINTAKE1)
                 .onEnter(()->{
                     follower.followPath(toIntake1, true);
-                    shooterButton=false;
                 })
 
                 .transition(()->follower.atParametricEnd())
@@ -423,7 +424,6 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .state(AutoStates.MOVETOINTAKE2)
                 .onEnter(()->{
                     rapidFire=false;
-                    shooterButton=false;
                     follower.followPath(toIntake2, true);
                 })
 
