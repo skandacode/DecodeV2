@@ -17,18 +17,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
-import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.LimelightMotif;
+import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configurable
-@Autonomous(name = "AutoFarIndex15", group = "Auto")
-public class AutoStartFarShootColePush15 extends LinearOpMode {
+@Autonomous(name = "AutoStartCloseGate", group = "Auto")
+public class AutoStartCloseGate extends LinearOpMode {
     private Follower follower;
     public static int[] shootorder = {0, 1, 2};
     LimelightMotif limelightMotif;
@@ -181,8 +180,8 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .build();
 
         PathChain toIntake3 = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose2, intake1Pose))
-                .setLinearHeadingInterpolation(shootPose2.getHeading(), intake1Pose.getHeading())
+                .addPath(new BezierLine(shootPoselast, intake1Pose))
+                .setLinearHeadingInterpolation(shootPoselast.getHeading(), intake1Pose.getHeading())
                 .setBrakingStrength(0.8)
                 .build();
         PathChain toIntake4 = follower.pathBuilder()

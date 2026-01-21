@@ -76,6 +76,7 @@ public class Spindexer {
             kicker.setPosition(kickerIdlePos);
         }
         is_kick = kick;
+        System.out.println("Kicker "+kick);
     }
 
     public void setLowerGateOpen(boolean open){

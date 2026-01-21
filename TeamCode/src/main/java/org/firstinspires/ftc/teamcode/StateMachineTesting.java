@@ -73,7 +73,7 @@ public class StateMachineTesting extends LinearOpMode {
 
         StateMachine stateMachine = new StateMachineBuilder()
                 .state(States.Intake)
-                .onEnter(()->{
+                .loop(()->{
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(rapidFire);
                     spindexer.setKickerPos(false);
@@ -132,6 +132,8 @@ public class StateMachineTesting extends LinearOpMode {
                     }
                     intakes.setBadIntakePower(0.3);
                     intakes.setGoodIntakePower(1);
+
+                    shooter.setUpperGateOpen(true);
                 })
                 .transition(()->shooterButton, States.Kick1)
 
