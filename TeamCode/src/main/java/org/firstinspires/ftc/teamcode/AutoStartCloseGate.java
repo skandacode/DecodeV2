@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 import java.util.List;
 
 @Configurable
-@Autonomous(name = "AutoStartCloseGate", group = "Auto")
+@Autonomous(name = "AutoFarIndex15", group = "Auto")
 public class AutoStartCloseGate extends LinearOpMode {
     private Follower follower;
     public static int[] shootorder = {0, 1, 2};
