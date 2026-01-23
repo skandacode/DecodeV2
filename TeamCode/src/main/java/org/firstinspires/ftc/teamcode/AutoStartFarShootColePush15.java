@@ -267,41 +267,71 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                     }
                 })
                 .transition(()->shooterButton && rapidFire, States.OpenUpperGate)
-                .transition(()->shooterButton && !rapidFire, States.WaitForShoot)
-                .transition(()->intakes.getBadIntakeDetected() && !rapidFire, States.Wait1)
-                .transition(()->forceWait, States.WaitForShoot)
+                .transition(()->shooterButton && !rapidFire, States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from intake to wait for shoot because shooter button pressed and not rapid fire");
+                })
+                .transition(()->intakes.getBadIntakeDetected() && !rapidFire, States.Wait1, ()->{
+                    System.out.println("Transitioned from intake to wait1 because bad intake detected and not rapid fire");
+                })
+                .transition(()->forceWait, States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from intake to wait for shoot because force wait true");
+                })
 
                 .state(States.Wait1)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
                 })
-                .transitionTimed(shootWaitTime, States.Increment2)
-                .transition(()->shooterButton, States.WaitForShoot)
-                .transition(()->forceWait, States.WaitForShoot)
+                .transitionTimed(shootWaitTime, States.Increment2, ()->{
+                    System.out.println("Transitioned from wait1 to increment2 because time elapsed");
+                })
+                .transition(()->shooterButton, States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from wait1 to wait for shoot because shooter button pressed");
+                })
+                .transition(()->forceWait, States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from wait1 to wait for shoot because force wait true");
+                })
 
                 .state(States.Increment2)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
                 })
-                .transition(()->intakes.getBadIntakeDetected(), States.Wait2)
-                .transition(()->shooterButton, States.WaitForShoot)
-                .transition(()->forceWait, States.WaitForShoot)
+                .transition(()->intakes.getBadIntakeDetected(), States.Wait2, ()->{
+                    System.out.println("Transitioned from increment2 to wait2 because bad intake detected");
+                })
+                .transition(()->shooterButton, States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from increment2 to wait for shoot because shooter button pressed");
+                })
+                .transition(()->forceWait, States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from increment2 to wait for shoot because force wait true");
+                })
 
                 .state(States.Wait2)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
                 })
-                .transitionTimed(shootWaitTime, States.Increment3)
-                .transition(()->shooterButton, States.WaitForShoot)
-                .transition(()->forceWait, States.WaitForShoot)
+                .transitionTimed(shootWaitTime, States.Increment3, ()->{
+                    System.out.println("Transitioned from wait2 to increment3 because time elapsed");
+                })
+                .transition(()->shooterButton, States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from wait2 to wait for shoot because shooter button pressed");
+                })
+                .transition(()->forceWait, States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from wait2 to wait for shoot because force wait true");
+                })
 
                 .state(States.Increment3)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
                 })
-                .transition(()->intakes.getBadIntakeDetected(), States.WaitForShoot)
-                .transition(()->shooterButton, States.WaitForShoot)
-                .transition(()->forceWait, States.WaitForShoot)
+                .transition(()->intakes.getBadIntakeDetected(), States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from increment3 to wait for shoot because bad intake detected");
+                })
+                .transition(()->shooterButton, States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from increment3 to wait for shoot because shooter button pressed");
+                })
+                .transition(()->forceWait, States.WaitForShoot, ()->{
+                    System.out.println("Transitioned from increment3 to wait for shoot because force wait true");
+                })
 
 
                 .state(States.WaitForShoot)
