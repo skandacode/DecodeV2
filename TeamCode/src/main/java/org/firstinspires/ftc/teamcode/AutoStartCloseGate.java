@@ -119,21 +119,20 @@ public class AutoStartCloseGate extends LinearOpMode {
         waitForStart();
 
 
-        Pose opengate = new Pose(-8, -53*Posmultiplier, Math.toRadians(90*Posmultiplier));
-        Pose opengateback = new Pose(-7, -38*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose gateintake = new Pose(11, -61*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose gateintakecontrol = new Pose(16, -42*Posmultiplier, Math.toRadians(90*Posmultiplier));
         Pose startPose = new Pose(-40, -55*Posmultiplier, Math.toRadians(-126.3*Posmultiplier));
         Pose shootPose = new Pose(34, -34*Posmultiplier, Math.toRadians(0*Posmultiplier));
-        Pose shootPoseturned = new Pose(-18, -22*Posmultiplier, Math.toRadians(-23*Posmultiplier));
+        Pose shootPose2nd = new Pose(-16, -13*Posmultiplier, Math.toRadians(-23*Posmultiplier));
         Pose shootPose2Control = new Pose(-16, -54.9*Posmultiplier, Math.toRadians(90*Posmultiplier));
-        Pose shootPose2 = new Pose(-32, -10*Posmultiplier, Math.toRadians(90*Posmultiplier));
 
         Pose shootPoselast = new Pose(-21, -15*Posmultiplier, Math.toRadians(0*Posmultiplier));
         Pose shootPosegoingtolast = new Pose(-27, -16*Posmultiplier, Math.toRadians(-23*Posmultiplier));
         Pose shootPoseleave = new Pose(-37, -16*Posmultiplier, Math.toRadians(-23*Posmultiplier));
 
-        Pose intake1Pose = new Pose(-24, -21*Posmultiplier, Math.toRadians(90*Posmultiplier));
-        Pose intake2Pose = new Pose(0, -25*Posmultiplier, Math.toRadians(90*Posmultiplier));
-        Pose intake3Pose = new Pose(40,-20*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake1Pose = new Pose(10, -48*Posmultiplier, Math.toRadians(-210*Posmultiplier));
+        Pose intake2Pose = new Pose(-12, -48*Posmultiplier, Math.toRadians(-199*Posmultiplier));
+        Pose intake3Pose = new Pose(36,-48*Posmultiplier, Math.toRadians(-192*Posmultiplier));
         Pose intake3Posecontrol = new Pose(30,-20*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
         Pose intake4Pose = new Pose(33,-64*Posmultiplier, Math.toRadians(-15*Posmultiplier));
@@ -151,24 +150,18 @@ public class AutoStartCloseGate extends LinearOpMode {
                 .setBrakingStrength(1.5)
                 .build();
         PathChain toIntake1 = follower.pathBuilder()
-                .addPath(new BezierCurve(shootPose, intake3Pose,intake3donePose))
-                .setLinearHeadingInterpolation(shootPose.getHeading(), intake3donePose.getHeading())
+                .addPath(new BezierCurve(shootPose, intake1Pose))
+                .setLinearHeadingInterpolation(shootPose.getHeading(), intake1Pose.getHeading())
                 .build();
 
         PathChain toIntake2 = follower.pathBuilder()
-                .addPath(new BezierLine(shootPoseturned, intake2Pose))
-                .setLinearHeadingInterpolation(shootPoseturned.getHeading(), intake2Pose.getHeading())
-                .setBrakingStrength(0.9)
+                .addPath(new BezierLine(shootPose2nd, intake2Pose))
+                .setTangentHeadingInterpolation()
                 .build();
 
-        PathChain opengatein = follower.pathBuilder()
-                .addPath(new BezierLine(opengateback, opengate))
-                .setLinearHeadingInterpolation(opengateback.getHeading(), opengate.getHeading())
-                .build();
-
-        PathChain intake2ToGate= follower.pathBuilder()
-                .addPath(new BezierLine(intake2donePose, opengateback))
-                .setLinearHeadingInterpolation(intake2donePose.getHeading(), opengateback.getHeading())
+        PathChain toIntakeGate = follower.pathBuilder()
+                .addPath(new BezierCurve(shootPose2nd, gateintakecontrol, gateintake))
+                .setTangentHeadingInterpolation()
                 .build();
 
         PathChain toIntake3 = follower.pathBuilder()
@@ -206,24 +199,24 @@ public class AutoStartCloseGate extends LinearOpMode {
                 .build();
 
         PathChain toScore1 = follower.pathBuilder()
-                .addPath(new BezierCurve(intake3donePose, intake3Posecontrol, shootPoseturned))
-                .setLinearHeadingInterpolation(intake3donePose.getHeading(), shootPose.getHeading())
-                .setBrakingStrength(0.8)
+                .addPath(new BezierCurve(intake1Pose, shootPose2nd))
+                .setLinearHeadingInterpolation(intake1Pose.getHeading(), shootPose2nd.getHeading())
+                .setReversed()
                 .build();
 
         PathChain toScore2 = follower.pathBuilder()
-                .addPath(new BezierCurve(opengate, opengateback,shootPose2Control, shootPose2))
-                .setConstantHeadingInterpolation(opengate.getHeading())
-                .setBrakingStrength(0.9)
+                .addPath(new BezierCurve(intake2Pose, shootPose2nd))
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
         PathChain toScore3 = follower.pathBuilder()
                 .addPath(new BezierLine(intake1donePose, shootPosegoingtolast))
                 .setLinearHeadingInterpolation(intake1donePose.getHeading(), shootPosegoingtolast.getHeading())
                 .build();
-        PathChain toScore4 = follower.pathBuilder()
-                .addPath(new BezierLine(intake4donePose, shootPoseleave))
-                .setLinearHeadingInterpolation(intake4donePose.getHeading(), shootPoseleave.getHeading())
+        PathChain toScoreGate = follower.pathBuilder()
+                .addPath(new BezierCurve(gateintake, gateintakecontrol, shootPose2nd))
+                .setTangentHeadingInterpolation()
                 .build();
 
         PathChain park = follower.pathBuilder()
