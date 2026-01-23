@@ -525,7 +525,8 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
 
                 .state(AutoStates.INTAKE3)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(107 * Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(110 * Posmultiplier));
+                    shooter.setTargetVelocity(1350);
                     follower.followPath(toIntake3fin, true);
                 })
                 .transition(()->follower.atParametricEnd())
@@ -573,8 +574,8 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .state(AutoStates.MOVETOSHOOT5)
                 .onEnter(()->{
                     follower.followPath(toScore4, true);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(92 * Posmultiplier));
-                    shooter.setTargetVelocity(1360);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(95 * Posmultiplier));
+                    shooter.setTargetVelocity(1300);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(2)
