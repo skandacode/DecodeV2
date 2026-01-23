@@ -311,7 +311,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                     }else if (shootorder[0]==1){
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }else{
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                     }
                     intakes.setBadIntakePower(0.3);
                     intakes.setGoodIntakePower(1);
@@ -330,7 +330,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                     }else if (shootorder[0]==1){
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }else{
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                     }
                     spindexer.setLowerGateOpen(true);
                     shooter.setUpperGateOpen(true);
@@ -360,7 +360,7 @@ public class AutoStartFarShootColePush15 extends LinearOpMode {
                 .state(States.ShootSpin2)
                 .onEnter(()->{
                     if (shootorder[2]==0){
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot4);
                     }else if (shootorder[2]==1){
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }else{
