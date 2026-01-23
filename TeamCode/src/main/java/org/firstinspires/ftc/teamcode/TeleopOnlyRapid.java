@@ -71,6 +71,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
+        GamepadKeys.Button reverseintake = GamepadKeys.Button.OPTIONS;
+
 
         follower.setStartingPose(Position.pose);
 
@@ -151,7 +153,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
             follower.setTeleOpDrive(forward, -1*strafe, -1*turn, true);
 
             if (gamepadEx.wasJustPressed(positionResetButton)){
-                follower.setPose(new Pose(47, 0, Math.toRadians(180)));
+                follower.setPose(new Pose(70, 0, Math.toRadians(180)));
                 Shooter.powerOffset=0;
                 Shooter.turretOffset=0;
             }
@@ -166,6 +168,9 @@ public class TeleopOnlyRapid extends LinearOpMode {
             }
             if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
                 Shooter.powerOffset += powerOffsetIncrements;
+            }
+            if (gamepadEx.isDown(GamepadKeys.Button.OPTIONS)){
+                intakes.setBadIntakePower(-1);
             }
 
             if (intakes.getGoodIntakeCurrent()>Intakes.goodIntake3ThreshCurrent){

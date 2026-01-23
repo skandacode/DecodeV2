@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 import java.util.List;
 
 @Configurable
-@Autonomous(name = "AutoFarIndex15", group = "Auto")
+@Autonomous(name = "AutoCloseGate", group = "Auto")
 public class AutoStartCloseGate extends LinearOpMode {
     private Follower follower;
     public static int[] shootorder = {0, 1, 2};
@@ -121,12 +121,10 @@ public class AutoStartCloseGate extends LinearOpMode {
 
         Pose opengate = new Pose(-8, -53*Posmultiplier, Math.toRadians(90*Posmultiplier));
         Pose opengateback = new Pose(-7, -38*Posmultiplier, Math.toRadians(90*Posmultiplier));
-        Pose startPose = new Pose(60, -15*Posmultiplier, Math.toRadians(0*Posmultiplier));
-        Pose pushPose = new Pose(58, -26*Posmultiplier, Math.toRadians(0*Posmultiplier));
-        Pose shootPose = new Pose(-18, -22*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose startPose = new Pose(-40, -55*Posmultiplier, Math.toRadians(-126.3*Posmultiplier));
+        Pose shootPose = new Pose(34, -34*Posmultiplier, Math.toRadians(0*Posmultiplier));
         Pose shootPoseturned = new Pose(-18, -22*Posmultiplier, Math.toRadians(-23*Posmultiplier));
-
-        Pose shootPose2Control = new Pose(-16, -10*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose shootPose2Control = new Pose(-16, -54.9*Posmultiplier, Math.toRadians(90*Posmultiplier));
         Pose shootPose2 = new Pose(-32, -10*Posmultiplier, Math.toRadians(90*Posmultiplier));
 
         Pose shootPoselast = new Pose(-21, -15*Posmultiplier, Math.toRadians(0*Posmultiplier));
@@ -148,16 +146,10 @@ public class AutoStartCloseGate extends LinearOpMode {
 
 
         PathChain toShoot = follower.pathBuilder()
-                .addPath(new BezierLine(pushPose, shootPose))
-                .setLinearHeadingInterpolation(pushPose.getHeading(), shootPose.getHeading())
+                .addPath(new BezierLine(startPose, shootPose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), shootPose.getHeading())
                 .setBrakingStrength(1.5)
                 .build();
-        PathChain toPush = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, pushPose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), pushPose.getHeading())
-                .setBrakingStrength(1.5)
-                .build();
-
         PathChain toIntake1 = follower.pathBuilder()
                 .addPath(new BezierCurve(shootPose, intake3Pose,intake3donePose))
                 .setLinearHeadingInterpolation(shootPose.getHeading(), intake3donePose.getHeading())
@@ -382,7 +374,7 @@ public class AutoStartCloseGate extends LinearOpMode {
         StateMachine autoMachine = new StateMachineBuilder() //Autonomia
                 .state(AutoStates.PUSH)
                 .onEnter(()->{
-                    follower.followPath(toPush, true);
+                    follower.followPath(toShoot, true);
                     shooter.setHood(0.52);
                     shooter.setTargetVelocity(1360);
                     shooter.setTurretPos(shooter.convertDegreestoServoPos(137*Posmultiplier));
