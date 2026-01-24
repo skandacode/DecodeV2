@@ -47,16 +47,19 @@ public class AutoStartCloseGate extends LinearOpMode {
 
 
     public enum AutoStates {
-        PUSH,
         MOVETOSHOOT1, wait1, SHOOT1,
-        MOVETOINTAKE1, INTAKE1,
+        MOVETOINTAKE1,
         MOVETOSHOOT2, wait2, SHOOT2,
-        MOVETOINTAKE2, INTAKE2, INTAKE2BACK, BACK, GATE, waitgate,
+        MOVETOINTAKE2,
         MOVETOSHOOT3, wait3,SHOOT3,
-        MOVETOINTAKE3, INTAKE3,
+        MOVETOINTAKE3, INTAKE3, waitgate1,
         MOVETOSHOOT4, wait4,SHOOT4,
-        MOVETOINTAKE4, INTAKE4, INTAKE4BACK, INTAKE4BACKIN,
+        MOVETOINTAKE4, INTAKE4,waitgate2,
         MOVETOSHOOT5, wait5,SHOOT5,
+        MOVETOINTAKE5, INTAKE5, waitgate3,
+        MOVETOSHOOT6, wait6,SHOOT6,
+        MOVETOINTAKE6, INTAKE6,waitgate4,
+        MOVETOSHOOT7, wait7,SHOOT7,
         LEAVE
     }
     public enum States{
@@ -365,17 +368,6 @@ public class AutoStartCloseGate extends LinearOpMode {
 
 
         StateMachine autoMachine = new StateMachineBuilder() //Autonomia
-                .state(AutoStates.PUSH)
-                .onEnter(()->{
-                    follower.followPath(toShoot, true);
-                    shooter.setHood(0.52);
-                    shooter.setTargetVelocity(1360);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(137*Posmultiplier));
-                    rapidFire=true;
-                })
-
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(0.4)
                 .state(AutoStates.MOVETOSHOOT1)
                 .onEnter(()->{
                     follower.followPath(toShoot, true);
@@ -385,25 +377,29 @@ public class AutoStartCloseGate extends LinearOpMode {
                 })
 
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.7)
+                .transitionTimed(1)
                 .state(AutoStates.wait1)
                 .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                    spindexer.setLowerGateOpen(true);
 
                 })
                 .transitionTimed(0.3)
                 .state(AutoStates.SHOOT1)
                 .onEnter(()->{
-                    shooterButton=true;
+                    spindexer.setKickerPos(true);
                 })
                 .transitionTimed(0.6)
 
                 .state(AutoStates.MOVETOINTAKE1)
                 .onEnter(()->{
+                    shooter.setUpperGateOpen(false);
+                    spindexer.setKickerPos(false);
                     follower.followPath(toIntake1, true);
                 })
 
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(3)
+                .transitionTimed(1.4)
 
                 .state(AutoStates.MOVETOSHOOT2)
                 .onEnter(()->{
@@ -411,150 +407,165 @@ public class AutoStartCloseGate extends LinearOpMode {
                     follower.followPath(toScore1, true);
                 })
                 .transition(()->!follower.isBusy())
-                .transitionTimed(2.5)
+                .transitionTimed(2)
 
                 .state(AutoStates.wait2)
                 .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(0.4)
+                .transitionTimed(0.2)
                 .state(AutoStates.SHOOT2)
                 .onEnter(()->{
-                    shooterButton=true;
+                    spindexer.setKickerPos(true);
                 })
-
-                .transitionTimed(0.9)
+                .transitionTimed(0.6)
                 .state(AutoStates.MOVETOINTAKE2)
                 .onEnter(()->{
-                    rapidFire=false;
+                    spindexer.setKickerPos(false);
+                    shooter.setUpperGateOpen(false);
                     follower.followPath(toIntake2, true);
                 })
 
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.3)
 
-                .state(AutoStates.INTAKE2)
-                .onEnter(()->{
-                    follower.followPath(toIntake2fin, true);
-                })
-
-                .transitionTimed(1)
-
-                .state(AutoStates.INTAKE2BACK)
-                .onEnter(()->{
-                    follower.followPath(intake2ToGate, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(1)
-                .state(AutoStates.GATE)
-                .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-145*Posmultiplier));
-                    follower.followPath(opengatein, true);
-                })
-                .transitionTimed(2.3)
                 .state(AutoStates.MOVETOSHOOT3)
                 .onEnter(()->{
                     follower.followPath(toScore2, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.6)
+                .transitionTimed(1.3)
 
                 .state(AutoStates.wait3)
                 .onEnter(()->{
-                    if (pattern==1){
-                        shootorder = new int[]{1, 2, 0};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    }else if (pattern==2){
-                        shootorder = new int[]{0, 1, 2};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    }else{
-                        shootorder = new int[]{2, 0, 1};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
-                    }
+                    shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.2)
                 .state(AutoStates.SHOOT3)
                 .onEnter(()->{
+                    spindexer.setKickerPos(true);
                     shooterButton=true;
                 })
 
-                .transitionTimed(1.67)
+                .transitionTimed(0.5)
 
                 .state(AutoStates.MOVETOINTAKE3)
                 .onEnter(()->{
-                    follower.followPath(toIntake3, true);
+                    follower.followPath(toIntakeGate, true);
                 })
-
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(2)
-                .state(AutoStates.INTAKE3)
+                .state(AutoStates.waitgate1)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-55*Posmultiplier));
-                    follower.followPath(toIntake3fin, true);
+
                 })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.3)
+                .transitionTimed(1.6)
                 .state(AutoStates.MOVETOSHOOT4)
                 .onEnter(()->{
-                    follower.followPath(toScore3, true);
+                    follower.followPath(toScoreGate, true);
                 })
 
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.7)
                 .state(AutoStates.wait4)
                 .onEnter(()->{
-                    if (pattern==1){
-                        shootorder = new int[]{0, 1, 2};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    }else if (pattern==2){
-                        shootorder = new int[]{2, 0, 1};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
-                    }else{
-                        shootorder = new int[]{1, 2, 0};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    }
-                    shooter.setHood(0.84);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(115 * Posmultiplier));
-                    shooter.setTargetVelocity(1490);
+                    shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.2)
                 .state(AutoStates.SHOOT4)
                 .onEnter(()->{
-                    shooterButton=true;
-                    rapidFire=false;
+                    spindexer.setKickerPos(true);
                 })
 
-                .transitionTimed(1.55)
-                .transition(()->stateMachine.getStateEnum() == States.Intake)
+                .transitionTimed(0.5)
 
                 .state(AutoStates.MOVETOINTAKE4)
                 .onEnter(()->{
-                    follower.followPath(toIntake4, true);
+                    follower.followPath(toIntakeGate, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(0.2)
-                .state(AutoStates.INTAKE4)
+                .transitionTimed(2.1)
+                .state(AutoStates.waitgate2)
                 .onEnter(()->{
-                    follower.followPath(toIntake4fin, true);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.7)
                 .state(AutoStates.MOVETOSHOOT5)
                 .onEnter(()->{
-                    follower.followPath(toScore4, true);
+                    follower.followPath(toScoreGate, true);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(2)
                 .state(AutoStates.wait5)
                 .onEnter(()->{
-
-                    shooter.setHood(0.84);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(100 * Posmultiplier));
-                    shooter.setTargetVelocity(1490);
+                    shooter.setUpperGateOpen(true);
                 })
                 .transitionTimed(0.3)
                 .state(AutoStates.SHOOT5)
                 .onEnter(()->{
-                    shooterButton=true;
+                    spindexer.setKickerPos(true);
+                })
+                .transitionTimed(0.5)
+
+
+
+
+
+                .state(AutoStates.MOVETOINTAKE5)
+                .onEnter(()->{
+                    follower.followPath(toIntakeGate, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(2.1)
+                .state(AutoStates.waitgate3)
+                .onEnter(()->{
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(1.7)
+                .state(AutoStates.MOVETOSHOOT6)
+                .onEnter(()->{
+                    follower.followPath(toScoreGate, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(2)
+                .state(AutoStates.wait6)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.3)
+                .state(AutoStates.SHOOT6)
+                .onEnter(()->{
+                    spindexer.setKickerPos(true);
+                })
+                .transitionTimed(0.5)
+
+
+
+                .state(AutoStates.MOVETOINTAKE6)
+                .onEnter(()->{
+                    follower.followPath(toIntakeGate, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(2.1)
+                .state(AutoStates.waitgate4)
+                .onEnter(()->{
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(1.7)
+                .state(AutoStates.MOVETOSHOOT7)
+                .onEnter(()->{
+                    follower.followPath(toScoreGate, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(2)
+                .state(AutoStates.wait7)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.3)
+                .state(AutoStates.SHOOT7)
+                .onEnter(()->{
+                    spindexer.setKickerPos(true);
                 })
                 .build();
 
