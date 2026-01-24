@@ -33,5 +33,5 @@ public class ShooterTables {
 
     public static double hoodAngleChangePer100ticksPerSecondError = 0.01;
 
-    public static double hoodAdjustDistanceThreshold = 70;
+    public static double hoodAdjustDistanceThreshold = 75;
 }
