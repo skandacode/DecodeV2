@@ -33,8 +33,8 @@ public class Shooter {
     public static double kI = 0;
     public static double kD = 0;
 
-    public static double kS = 0.11; // Static feedforward
-    public static double kV = 0.000375; // Velocity feedforward
+    public static double kS = 0.115; // Static feedforward
+    public static double kV = 0.00038; // Velocity feedforward
 
     public static boolean enablePIDF = true;
 
