@@ -171,6 +171,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
             }
             if (gamepadEx.isDown(GamepadKeys.Button.OPTIONS)){
                 intakes.setBadIntakePower(-1);
+            }else{
+                intakes.setBadIntakePower(-0.1);
             }
 
             if (intakes.getGoodIntakeCurrent()>Intakes.goodIntake3ThreshCurrent){
