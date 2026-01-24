@@ -18,13 +18,20 @@ public class ShooterTables {
 
     }
 
-    public static double actualShooterVelocity(double distance) {
-        return -0.0000189653 * Math.pow(distance, 4)
-                + 0.00786296 * Math.pow(distance, 3)
-                - 1.17049 * Math.pow(distance, 2)
-                + 81.6816 * distance
-                - 103.137;
+    public static double actualShooterVelocityNoLoad(double targetVelocity) {
+        return targetVelocity;
+    }
+
+    public static double getHoodAngleChange(double loadedVelocity, double distance){
+        //should be negative
+        double error = loadedVelocity - actualShooterVelocityNoLoad(getShooterVelocity(distance));
+        if (distance > hoodAdjustDistanceThreshold){
+            error = 0;
+        }
+        return error * hoodAngleChangePer100ticksPerSecondError;
     }
 
     public static double hoodAngleChangePer100ticksPerSecondError = 0.01;
+
+    public static double hoodAdjustDistanceThreshold = 75;
 }

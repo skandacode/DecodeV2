@@ -124,11 +124,14 @@ public class Shooter {
 
         double servoPos = convertDegreestoServoPos(angle + turretOffset);
 
+        double currVelo = getCurrentVelocity();
+
         servoPos = Range.clip(servoPos, turretLowerBound, turretUpperBound);
+
 
         setTurretPos(servoPos);
         setTargetVelocity(ShooterTables.getShooterVelocity(distance) + powerOffset);
-        setHood(ShooterTables.getHoodPosition(distance));
+        setHood(ShooterTables.getHoodPosition(distance) + ShooterTables.getHoodAngleChange(currVelo, distance));
     }
 
     public void setTargetVelocity(double target) {
