@@ -170,8 +170,6 @@ public class Shooter {
             }
         }
 
-        outputPower = Math.max(-1, Math.min(1, outputPower));
-
         setDirectPower(outputPower);
         shooterMotor1.update();
         shooterMotor2.update();
