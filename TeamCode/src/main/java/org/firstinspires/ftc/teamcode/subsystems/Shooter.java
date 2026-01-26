@@ -90,8 +90,12 @@ public class Shooter {
     }
 
     public double[] getAngleDistance(Pose currPosition, Goal target){
-        double dx = target.position.getX()-currPosition.getX();
-        double dy = target.position.getY()-currPosition.getY();
+        return getAngleDistance(currPosition, target.position);
+    }
+
+    public double[] getAngleDistance(Pose currPosition, Pose target){
+        double dx = target.getX()-currPosition.getX();
+        double dy = target.getY()-currPosition.getY();
         double angle = Math.atan2(dy, dx);
         double turretAngle = Math.toDegrees(-angle + currPosition.getHeading());
 
@@ -118,6 +122,10 @@ public class Shooter {
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){
+        aimAtTarget(currPosition, target.position);
+    }
+
+    public void aimAtTarget(Pose currPosition, Pose target){
         double[] angleDistance = getAngleDistance(currPosition, target);
         double angle = angleDistance[0];
         double distance = angleDistance[1];
