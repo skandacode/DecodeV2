@@ -37,6 +37,10 @@ public class TeleopOnlyRapid extends LinearOpMode {
     public static double powerOffsetIncrements = 20;
     public static double turretOffsetIncrements = 2;//0000000000 why not 0 bum bum bum
 
+    public static double targetX = -53;
+    public static double targetY = 63;
+
+
     public enum States{
         Intake,
         HoldBalls,
@@ -71,7 +75,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
-        GamepadKeys.Button reverseintake = GamepadKeys.Button.OPTIONS;
+        GamepadKeys.Button restartIntake = GamepadKeys.Button.Y;
 
 
         follower.setStartingPose(Position.pose);
@@ -91,18 +95,20 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .state(States.HoldBalls)
                 .onEnter(()->intakes.setGoodIntakePower(0.1))
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .transition(()->gamepadEx.getButton(restartIntake), States.Intake)
+
 
                 .state(States.OpenUpperGate)
                 .onEnter(()->{
                     shooter.setUpperGateOpen(true);
                     intakes.setGoodIntakePower(1);
                 })
-                .transitionTimed(0.1, States.Shoot)
+                .transitionTimed(0.4, States.Shoot)
                 .state(States.Shoot)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.5, States.Intake)
+                .transitionTimed(0.3, States.Intake)
                 .build();
 
         while (opModeInInit()) {
@@ -139,7 +145,9 @@ public class TeleopOnlyRapid extends LinearOpMode {
             follower.update();
             Position.pose = follower.getPose();
             telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, target)));
-            shooter.aimAtTarget(Position.pose, target);
+            //shooter.aimAtTarget(Position.pose, target);
+
+            shooter.aimAtTarget(Position.pose, new Pose(targetX, targetY));
 
             double forward = gamepadEx.getLeftY();
             double strafe = gamepadEx.getLeftX();
