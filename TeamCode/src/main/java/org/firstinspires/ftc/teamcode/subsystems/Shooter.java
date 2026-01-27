@@ -52,8 +52,8 @@ public class Shooter {
     private double smoothedVelocity = 0.0;
 
     public enum Goal{
-        RED (new Pose(-60, 67)),
-        BLUE (new Pose(-60, -67));
+        RED (new Pose(-53, 63)),
+        BLUE (new Pose(-53, -63));
 
         Pose position;
         Goal(Pose pose) {
@@ -64,7 +64,7 @@ public class Shooter {
     public static double powerOffset = 0;
     public static double turretOffset = 0;
 
-    public static double upperGateOpenPos = 1.0;
+    public static double upperGateOpenPos = 0.89;
     public static double upperGateClosedPos = 0.7;
 
     public Shooter(HardwareMap hardwareMap) {

@@ -145,9 +145,9 @@ public class TeleopOnlyRapid extends LinearOpMode {
             follower.update();
             Position.pose = follower.getPose();
             telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, target)));
-            //shooter.aimAtTarget(Position.pose, target);
+            shooter.aimAtTarget(Position.pose, target);
 
-            shooter.aimAtTarget(Position.pose, new Pose(targetX, targetY));
+            //shooter.aimAtTarget(Position.pose, new Pose(targetX, targetY));
 
             double forward = gamepadEx.getLeftY();
             double strafe = gamepadEx.getLeftX();
