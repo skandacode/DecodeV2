@@ -55,7 +55,7 @@ public class LimelightCamera {
                     }
                 }
             }
-            return pattern; //returns 0 if it doesnt see anything
+            return pattern; //returns 0 if it doesn't see anything
         }else{
             return -1;
         }
