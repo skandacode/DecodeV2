@@ -258,7 +258,7 @@ public class AutoStartFarShootFar extends LinearOpMode {
                     follower.followPath(toScore, true);
                     shooter.setHood(0.67);
                     shooter.setTargetVelocity(1970);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-107*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-111*Posmultiplier));
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.5)
@@ -275,7 +275,7 @@ public class AutoStartFarShootFar extends LinearOpMode {
 
                 .state(AutoStates.MOVETOINTAKE1)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-104 *Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-109 *Posmultiplier));
 
                     PathChain toIntake = follower.pathBuilder()
                             .addPath(new BezierCurve(follower.getPose(), intake1Pose, intake1donePose))
@@ -339,7 +339,7 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 .transition(()->stateMachine.getState()==States.Intake)
                 .state(AutoStates.MOVETOINTAKE2)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-105.6*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-111*Posmultiplier));
 
                     PathChain toIntakeHuman = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), intakeHuman))
@@ -497,8 +497,7 @@ public class AutoStartFarShootFar extends LinearOpMode {
                     follower.followPath(toIntakeHuman, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.3)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
+                .transitionTimed(1.6)
                 .state(AutoStates.Out5)
                 .onEnter(()->{
                     PathChain toIntakeHuman = follower.pathBuilder()
@@ -508,8 +507,7 @@ public class AutoStartFarShootFar extends LinearOpMode {
                     follower.followPath(toIntakeHuman, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(0.3)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
+                .transitionTimed(0.4)
                 .state(AutoStates.INTAKE5)
                 .onEnter(()->{
                     PathChain toIntakeHuman = follower.pathBuilder()
@@ -528,7 +526,7 @@ public class AutoStartFarShootFar extends LinearOpMode {
                             .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
                             .setBrakingStrength(0.7)
                             .build();
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-102.6*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-105.6*Posmultiplier));
 
                     follower.followPath(toScore, true);
                 })
