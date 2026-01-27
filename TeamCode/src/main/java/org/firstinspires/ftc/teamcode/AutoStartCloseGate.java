@@ -18,7 +18,7 @@ import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
-import org.firstinspires.ftc.teamcode.subsystems.LimelightMotif;
+import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
@@ -30,7 +30,7 @@ import java.util.List;
 public class AutoStartCloseGate extends LinearOpMode {
     private Follower follower;
     public static int[] shootorder = {0, 1, 2};
-    LimelightMotif limelightMotif;
+    LimelightCamera limelightCamera;
     Intakes intakes;
     String colorAlliance = "BLUE";
     int Posmultiplier = 1;
@@ -86,7 +86,7 @@ public class AutoStartCloseGate extends LinearOpMode {
         for (LynxModule hub : hubs)
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
-        limelightMotif = new LimelightMotif(hardwareMap);
+        limelightCamera = new LimelightCamera(hardwareMap);
         intakes = new Intakes(hardwareMap);
         shooter = new Shooter(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
@@ -95,7 +95,7 @@ public class AutoStartCloseGate extends LinearOpMode {
         while (opModeInInit()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             follower.update();
-            int currpattern = limelightMotif.getMotif();
+            int currpattern = limelightCamera.getMotif();
             spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
             if (currpattern != 0){
                 pattern = currpattern;
