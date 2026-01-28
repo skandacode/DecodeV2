@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import java.util.Arrays;
+
 @TeleOp
 public class LimelightTesting extends LinearOpMode {
     LimelightCamera limelightCamera;
@@ -29,7 +31,7 @@ public class LimelightTesting extends LinearOpMode {
                 telemetry.addLine("is null");
             }else {
                 telemetry.addLine(results.toString());
-                telemetry.addData("Position", results.getPosition());
+                telemetry.addData("Position", Arrays.toString(results.getPosition()));
             }
             telemetry.update();
         }
