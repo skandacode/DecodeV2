@@ -213,7 +213,7 @@ public class AutoStartCloseGate extends LinearOpMode {
                 .build();
         PathChain toScore4 = follower.pathBuilder()
                 .addPath(new BezierLine(intake4donePose, shootPoseleave))
-                .setBrakingStrength(3)
+                .setBrakingStrength(20)
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
@@ -304,7 +304,7 @@ public class AutoStartCloseGate extends LinearOpMode {
                     follower.followPath(toScore2, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.5)
+                .transitionTimed(1.3)
 
                 .state(AutoStates.wait3)
                 .onEnter(()->{
