@@ -10,6 +10,7 @@ public class LLFieldScannerResults {
     public final double tx, ty;
 
     public static double cameraHeight = 11;
+    public static double horizontalOffset = 5;
 
     public LLFieldScannerResults(double tx, double ty) {
         this.tx = tx;
@@ -28,7 +29,7 @@ public class LLFieldScannerResults {
         double txRadians = Math.toRadians(tx);
 
         double forwardDistance =  - cameraHeight / Math.tan(tyRadians);
-        double sidewaysDistance = forwardDistance * Math.tan(txRadians);
+        double sidewaysDistance = forwardDistance * Math.tan(txRadians) + horizontalOffset;
 
         return new double[]{forwardDistance, sidewaysDistance};
     }
