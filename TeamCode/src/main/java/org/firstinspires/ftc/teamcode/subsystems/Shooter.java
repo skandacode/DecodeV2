@@ -65,7 +65,7 @@ public class Shooter {
     public static double turretOffset = 0;
 
     public static double upperGateOpenPos = 0.89;
-    public static double upperGateClosedPos = 0.7;
+    public static double upperGateClosedPos = 0.73;
 
     public Shooter(HardwareMap hardwareMap) {
         shooterMotor1 = new Motor(hardwareMap, "outtakemotor1");
