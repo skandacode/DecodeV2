@@ -13,11 +13,15 @@ public class ShooterTables {
                 - 0.74;
     }
     public static double getShooterVelocity(double distance) {
-            return -0.00000527297 * Math.pow(distance, 4)
-                    + 0.00184391 * Math.pow(distance, 3)
-                    -0.227349 * Math.pow(distance, 2)
-                    + 19.86808 * distance
-                    + 710;
+        double increase = 0;
+        if (distance>100){
+            increase = 30;
+        }
+        return -0.00000527297 * Math.pow(distance, 4)
+                + 0.00184391 * Math.pow(distance, 3)
+                -0.227349 * Math.pow(distance, 2)
+                + 19.86808 * distance
+                + 710 + increase;
     }
 
     public static double actualShooterVelocityNoLoad(double targetVelocity) {

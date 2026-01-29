@@ -118,7 +118,7 @@ public class Shooter {
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*0.003222222222222222+0.495;
+        return deg*0.003222222222222222+0.511111111;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){
