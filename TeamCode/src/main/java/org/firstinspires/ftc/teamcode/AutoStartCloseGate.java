@@ -29,8 +29,6 @@ import java.util.List;
 @Autonomous(name = "AutoCloseGate", group = "Auto")
 public class AutoStartCloseGate extends LinearOpMode {
     private Follower follower;
-    public static int[] shootorder = {0, 1, 2};
-    LimelightCamera limelightCamera;
     Intakes intakes;
     String colorAlliance = "BLUE";
     int Posmultiplier = 1;
@@ -38,11 +36,6 @@ public class AutoStartCloseGate extends LinearOpMode {
     Spindexer spindexer;
     public int pattern = 1;
     public boolean shooterButton = false;
-    public double shootWaitTime = 0.3;
-    public static boolean rapidFire = true;
-
-//Hello, humans.
-
     public static Shooter.Goal shooterTarget = Shooter.Goal.BLUE;
 
 
@@ -86,7 +79,6 @@ public class AutoStartCloseGate extends LinearOpMode {
         for (LynxModule hub : hubs)
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
-        limelightCamera = new LimelightCamera(hardwareMap);
         intakes = new Intakes(hardwareMap);
         shooter = new Shooter(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
@@ -95,13 +87,8 @@ public class AutoStartCloseGate extends LinearOpMode {
         while (opModeInInit()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             follower.update();
-            int currpattern = limelightCamera.getMotif();
             spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-            if (currpattern != 0){
-                pattern = currpattern;
-            }else{
-                telemetry.addLine("Don't see anything");
-            }
+
             telemetry.addData("Pattern", pattern);
             telemetry.addData("Init Pose: ", follower.getPose());
             telemetry.addData("ALLIANCE: ", colorAlliance);
@@ -138,9 +125,9 @@ public class AutoStartCloseGate extends LinearOpMode {
         Pose intake2Pose = new Pose(23, -29*Posmultiplier, Math.toRadians(-80*Posmultiplier));
         Pose intake3Pose = new Pose(46,-20*Posmultiplier, Math.toRadians(-192*Posmultiplier));
         Pose intake3Poseback = new Pose(46,-40*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake4Pose = new Pose(33,-58*Posmultiplier, Math.toRadians(-15*Posmultiplier));
-        Pose intake4donePose = new Pose(64, -62*Posmultiplier, Math.toRadians(0*Posmultiplier));
-        Pose intake4Poseback = new Pose(55, -62*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose intake4Pose = new Pose(33,-57*Posmultiplier, Math.toRadians(-15*Posmultiplier));
+        Pose intake4donePose = new Pose(64, -61.5*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose intake4Poseback = new Pose(55, -61.5*Posmultiplier, Math.toRadians(0*Posmultiplier));
 
         Pose intake1donePose = new Pose(-3, -55*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake2donePose = new Pose(23, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
