@@ -37,7 +37,7 @@ public class AutoStartFarLL extends LinearOpMode {
     Shooter shooter;
     Spindexer spindexer;
     public boolean shooterButton = false;
-    public double shootWaitTime = 0.43;
+    public double shootWaitTime = 0.3;
 
 
     public static Shooter.Goal shooterTarget = Shooter.Goal.BLUE;
@@ -249,6 +249,18 @@ public class AutoStartFarLL extends LinearOpMode {
                 .build();
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         StateMachine autoMachine = new StateMachineBuilder() //Autonomia
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.4)
@@ -262,7 +274,7 @@ public class AutoStartFarLL extends LinearOpMode {
                     follower.followPath(toScore, true);
                     shooter.setHood(0.67);
                     shooter.setTargetVelocity(1940);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-108*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-113*Posmultiplier));
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.5)
@@ -273,13 +285,19 @@ public class AutoStartFarLL extends LinearOpMode {
 
                 .state(AutoStates.SHOOT1)
                 .onEnter(()->{
+                    if (Posmultiplier==1) {
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-113+90-follower.getHeading()));
+                    }else{
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(113-90-follower.getHeading()));
+
+                    }
                     shooterButton=true;
                 })
                 .transition(()->stateMachine.getState()== States.Intake)
 
                 .state(AutoStates.MOVETOINTAKE1)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-107 *Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-110 *Posmultiplier));
 
                     PathChain toIntake = follower.pathBuilder()
                             .addPath(new BezierCurve(follower.getPose(), intake1Pose, intake1donePose))
@@ -337,13 +355,19 @@ public class AutoStartFarLL extends LinearOpMode {
 
                 .state(AutoStates.SHOOT2)
                 .onEnter(()->{
+                    if (Posmultiplier==1) {
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-113+90-follower.getHeading()));
+                    }else{
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(113-90-follower.getHeading()));
+
+                    }
                     shooterButton=true;
 
                 })
                 .transition(()->stateMachine.getState()== States.Intake)
                 .state(AutoStates.MOVETOINTAKE2)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-108*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-114*Posmultiplier));
 
                     PathChain toIntakeHuman = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), intakeHuman))
@@ -399,6 +423,12 @@ public class AutoStartFarLL extends LinearOpMode {
 
                 .state(AutoStates.SHOOT3)
                 .onEnter(()->{
+                    if (Posmultiplier==1) {
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-113+90-follower.getHeading()));
+                    }else{
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(113-90-follower.getHeading()));
+
+                    }
                     shooterButton=true;
 
                 })
@@ -491,11 +521,16 @@ public class AutoStartFarLL extends LinearOpMode {
 
                 .state(AutoStates.SHOOT4)
                 .onEnter(()->{
+                    if (Posmultiplier==1) {
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-113+90-follower.getHeading()));
+                    }else{
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(113-90-follower.getHeading()));
+
+                    }
                     shooterButton=true;
 
                 })
                 .transition(()->stateMachine.getState()== States.Intake)
-                .transitionTimed(1.67)
 
 
 
@@ -578,11 +613,16 @@ public class AutoStartFarLL extends LinearOpMode {
 
                 .state(AutoStates.SHOOT5)
                 .onEnter(()->{
+                    if (Posmultiplier==1) {
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-113+90-follower.getHeading()));
+                    }else{
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(113-90-follower.getHeading()));
+
+                    }
                     shooterButton=true;
 
                 })
                 .transition(()->stateMachine.getState()== States.Intake)
-                .transitionTimed(1.67)
 
 
 
@@ -664,6 +704,12 @@ public class AutoStartFarLL extends LinearOpMode {
 
                 .state(AutoStates.SHOOT6)
                 .onEnter(()->{
+                    if (Posmultiplier==1) {
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-113+90-follower.getHeading()));
+                    }else{
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(113-90-follower.getHeading()));
+
+                    }
                     shooterButton=true;
 
                 })
