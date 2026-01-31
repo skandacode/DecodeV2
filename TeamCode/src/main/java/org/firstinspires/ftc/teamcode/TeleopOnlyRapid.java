@@ -48,6 +48,10 @@ public class TeleopOnlyRapid extends LinearOpMode {
         Shoot,
     }
 
+    public enum clearStates{
+        IDLE, EJECT1, EJECT2, EJECT3
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
@@ -113,32 +117,32 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .build();
 
         StateMachine clearMachine = new StateMachineBuilder()
-                .state("IDLE")
-                .transition(()->gamepad1.touchpad)
+                .state(clearStates.IDLE)
+                .transition(()->gamepad2.a)
 
-                .state("Eject1")
+                .state(clearStates.EJECT1)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    intakes.setBadIntakePower(-1);
-                    intakes.setGoodIntakePower(-1);
+                    intakes.setBadIntakePower(-0.6);
+                    intakes.setGoodIntakePower(-0.67);
                 })
                 .transitionTimed(0.5)
 
-                .state("Eject2")
+                .state(clearStates.EJECT2)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
-                    intakes.setBadIntakePower(-1);
-                    intakes.setGoodIntakePower(-1);
+                    intakes.setBadIntakePower(-0.46);
+                    intakes.setGoodIntakePower(-0.67);
                 })
                 .transitionTimed(0.5)
 
-                .state("Eject3")
+                .state(clearStates.EJECT3)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    intakes.setBadIntakePower(-1);
-                    intakes.setGoodIntakePower(-1);
+                    intakes.setBadIntakePower(-0.46);
+                    intakes.setGoodIntakePower(-0.67);
                 })
-                .transitionTimed(0.5, "IDLE", ()->{
+                .transitionTimed(0.5, clearStates.IDLE, ()->{
                     intakes.setGoodIntakePower(1);
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(true);
@@ -217,10 +221,10 @@ public class TeleopOnlyRapid extends LinearOpMode {
             if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
                 Shooter.powerOffset += powerOffsetIncrements;
             }
-            if (gamepadEx.isDown(GamepadKeys.Button.OPTIONS)){
-                intakes.setBadIntakePower(-1);
+            if (gamepadEx.isDown(GamepadKeys.Button.OPTIONS) || clearMachine.getState() != clearStates.IDLE){
+                intakes.setBadIntakePower(-0.4);
             }else{
-                intakes.setBadIntakePower(-0);
+                intakes.setBadIntakePower(0);
             }
 
             if (intakes.getGoodIntakeCurrent()>Intakes.goodIntake3ThreshCurrent){
