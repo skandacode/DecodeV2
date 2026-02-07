@@ -23,6 +23,7 @@ public class Testing extends LinearOpMode {
 
     public static Spindexer.SpindexerPosition spindexerPosition = Spindexer.SpindexerPosition.Shoot1;
     public static double turretPosition = 0.5;
+    public static double hoodPos = 0.5;
 
     public static int shooterTargetVelocity = 0;
 
@@ -48,6 +49,7 @@ public class Testing extends LinearOpMode {
             spindexer.setLowerGateOpen(lowerGateOpen);
             spindexer.setKickerPos(kick);
             shooter.setUpperGateOpen(upperGateOpen);
+            shooter.setHood(hoodPos);
 
             shooter.setTurretPos(turretPosition);
 
