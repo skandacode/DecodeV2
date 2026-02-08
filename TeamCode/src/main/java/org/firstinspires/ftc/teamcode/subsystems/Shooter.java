@@ -152,7 +152,12 @@ public class Shooter {
         this.vx = computedVx;
         this.vy = computedVy;
 
-        Pose realTarget = new Pose(target.getX() - this.vx * ShooterTables.balltimeinair, target.getY() - this.vy * ShooterTables.balltimeinair, target.getHeading());
+        double precomputedDistance = getAngleDistance(currPosition, target)[1];
+
+        Pose realTarget = new Pose(
+                target.getX() - this.vx * ShooterTables.getBalltimeinair(precomputedDistance),
+                target.getY() - this.vy * ShooterTables.getBalltimeinair(precomputedDistance),
+                target.getHeading());
 
 
         double[] angleDistance = getAngleDistance(currPosition, realTarget);

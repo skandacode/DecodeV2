@@ -42,5 +42,7 @@ public class ShooterTables {
 
     public static double hoodAdjustDistanceThreshold = 10;
 
-    public static double balltimeinair = 0.6;
+    public static double getBalltimeinair(double distance){
+        return 0.6;
+    }
 }

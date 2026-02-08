@@ -15,11 +15,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
+import org.firstinspires.ftc.teamcode.pedroPathing.PanelsDrawing;
+import org.firstinspires.ftc.teamcode.pedroPathing.PositionLogger;
+import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,6 +43,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
     public static double targetX = -53;
     public static double targetY = 63;
+
+    PositionLogger positionLogger;
 
 
     public enum States{
@@ -64,6 +70,13 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 controlhub = hub;
                 break;
             }
+        }
+
+        try {
+            positionLogger = new PositionLogger("TeleopOnlyRapid.log");
+        } catch (java.io.IOException e) {
+            System.out.println("Logger failed to Initialize");
+            positionLogger = null;
         }
 
         GamepadEx gamepadEx = new GamepadEx(gamepad1);
@@ -251,9 +264,24 @@ public class TeleopOnlyRapid extends LinearOpMode {
             telemetry.addData("Loop time", loopTime);
             intakes.update();
             spindexer.update();
+            PanelsDrawing.drawDebug(follower);
+            try {
+                if (positionLogger != null){
+                    positionLogger.logPose(follower.getPose());
+                }
+            } catch (IOException ignored) {
+
+            }
             shooter.update();
             telemetry.update();
             prevGoodIntakeCurrent = intakes.getGoodIntakeCurrent();
+        }
+        try {
+            if (positionLogger != null){
+                positionLogger.close();
+            }
+        } catch (IOException ignored) {
+
         }
     }
 }
