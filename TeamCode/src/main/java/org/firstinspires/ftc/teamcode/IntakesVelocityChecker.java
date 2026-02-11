@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 
 @TeleOp
 @Configurable
+@Disabled
 public class IntakesVelocityChecker extends LinearOpMode {
     Intakes intakes;
     Spindexer spindexer;
@@ -46,13 +48,6 @@ public class IntakesVelocityChecker extends LinearOpMode {
             intakes.update();
             spindexer.update();
             shooter.update();
-
-            telemetry.addData("Good Intake Velocity", intakes.getGoodIntakeVelocity());
-            telemetry.addData("Bad Intake Velocity", intakes.getBadIntakeVelocity());
-
-            telemetry.addData("Good Intake Current Draw", intakes.getGoodIntakeCurrentDraw());
-            telemetry.addData("Bad Intake Current Draw", intakes.getBadIntakeCurrentDraw());
-
 
             telemetry.update();
         }

@@ -63,13 +63,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
-        LynxModule controlhub = null;
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-            if (hub.isParent()) {
-                controlhub = hub;
-                break;
-            }
         }
 
         try {
@@ -86,15 +81,11 @@ public class TeleopOnlyRapid extends LinearOpMode {
         shooter = new Shooter(hardwareMap);
         follower = createFollower(hardwareMap);
 
-        ElapsedTime currentMonitoringTime = new ElapsedTime();
-
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
         GamepadKeys.Button restartIntake = GamepadKeys.Button.Y;
-
-
 
         follower.setStartingPose(Position.pose);
 
@@ -188,16 +179,10 @@ public class TeleopOnlyRapid extends LinearOpMode {
         follower.startTeleopDrive();
 
         long lastLoopTime = System.nanoTime();
-        double prevGoodIntakeCurrent = 0.0;
         while (opModeIsActive()) {
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
             }
-            if (currentMonitoringTime.milliseconds()>150){
-                intakes.updateCurrent();
-                currentMonitoringTime.reset();
-            }
-
             gamepadEx.readButtons();
             follower.update();
             Position.pose = follower.getPose();
@@ -239,14 +224,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
             }else{
                 intakes.setBadIntakePower(0);
             }
-
-            if (intakes.getGoodIntakeCurrent()>Intakes.goodIntake3ThreshCurrent){
-                if (prevGoodIntakeCurrent<Intakes.goodIntake3ThreshCurrent){
-                    gamepad1.rumble(Gamepad.RUMBLE_DURATION_CONTINUOUS);
-                }
-            }else{
-                gamepad1.stopRumble();
-            }
             stateMachine.update();
             clearMachine.update();
 
@@ -274,7 +251,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
             }
             shooter.update();
             telemetry.update();
-            prevGoodIntakeCurrent = intakes.getGoodIntakeCurrent();
         }
         try {
             if (positionLogger != null){

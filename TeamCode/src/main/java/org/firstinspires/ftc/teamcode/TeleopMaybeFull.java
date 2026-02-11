@@ -39,23 +39,28 @@ public class TeleopMaybeFull extends LinearOpMode {
 
     public static double shootWaitTime = 0.26;
 
+    private boolean is_split = false; //if 2 in good and other ball goes in from back
+    private boolean using_spindexer = false;
+
+
     public enum States{
         Intake,
         TwoInGood,
-        HoldBalls,
-        OpenLowerGate, //if 2 go in good intake
-        Increment1, //switch from Shoot1 to Intake2
+
+        Increment0,
+        Increment1,
         Wait1,
-        Increment2, //switch from Intake2 to Intake3
+        Increment2,
         Wait2,
-        Increment3, //switch from Intake3 to 4
+        Increment3,
 
         WaitForShoot,
 
         Kick1,
         ShootSpin1,
+        Kick2,
         ShootSpin2,
-
+        Kick3,
 
         OpenUpperGate,
         Shoot,
@@ -66,13 +71,8 @@ public class TeleopMaybeFull extends LinearOpMode {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
-        LynxModule controlhub = null;
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-            if (hub.isParent()) {
-                controlhub = hub;
-                break;
-            }
         }
 
         GamepadEx gamepadEx = new GamepadEx(gamepad1);
@@ -97,43 +97,51 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .state(States.Intake)
                 .onEnter(()->{
                     intakes.setGoodIntakePower(1);
-                    intakes.setBadIntakePower(0.2);
-
+                    intakes.setBadIntakePower(0.5);
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(false);
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    using_spindexer = false;
+                    is_split = false;
                 })
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-                .transition(()->intakes.getGoodIntakeCurrent()>4, States.TwoInGood)
-                .transition(()->gamepadEx.getTrigger(backIntakeButton)>0.5, States.Increment1)
-                .transition(()->gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
-
-
-                .state(States.HoldBalls)
-                .onEnter(()->intakes.setGoodIntakePower(0.1))
-                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-                .transition(()->gamepadEx.getButton(restartIntakeButton), States.Intake)
-
+                .transition(()->intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.TwoInGood)
+                .transition(()->intakes.getBadBeamBreak(), States.Increment0)
 
                 .state(States.TwoInGood)
                 .onEnter(()->{
                     spindexer.setLowerGateOpen(true);
+                    shooter.setUpperGateOpen(false);
                 })
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-                .transition(()->intakes.getGoodIntakeCurrent()<4, States.Intake)
+                .transition(()->intakes.getGoodBeamBreakOutside(), States.WaitForShoot)
+                .transition(()-> intakes.getBadBeamBreak(), States.WaitForShoot, ()-> is_split = true)
 
-                .state(States.Increment1)
+                .state(States.Increment0)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
                     intakes.setBadIntakePower(1);
+                    intakes.setGoodIntakePower(0.3);
+                    using_spindexer = true;
                 })
-                .transition(()->!(gamepadEx.getTrigger(backIntakeButton)>0.5), States.Intake)
-                .transition(()->intakes.getBadIntakeDetected(), States.Wait1)
+                .transitionTimed(0.3)
 
                 .state(States.Wait1)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
+                })
+                .transitionTimed(shootWaitTime, States.Increment1)
+
+                .state(States.Increment1)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
+                })
+                .transition(()->intakes.getBadIntakeDetected(), States.Wait2)
+
+                .state(States.Wait2)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake4);
                 })
                 .transitionTimed(shootWaitTime, States.Increment2)
 
@@ -160,40 +168,57 @@ public class TeleopMaybeFull extends LinearOpMode {
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     intakes.setBadIntakePower(0.3);
                 })
-                .transition(()->gamepadEx.isDown(shooterButton), States.Kick1)
+                .transition(()->gamepadEx.isDown(shooterButton) && !(using_spindexer || is_split), States.OpenUpperGate)
+                .transition(()->gamepadEx.isDown(shooterButton) && using_spindexer, States.Kick1)
 
-                .state(States.Kick1)
-                .onEnter(()->{
-                    spindexer.setLowerGateOpen(true);
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(0.3, States.ShootSpin1)
-
-                .state(States.ShootSpin1)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                })
-                .transitionTimed(0.3, States.ShootSpin2)
-
-                .state(States.ShootSpin2)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
-                })
-                .transitionTimed(0.3, States.Intake)
 
                 .state(States.OpenUpperGate)
                 .onEnter(()->{
                     spindexer.setLowerGateOpen(true);
                     shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(0.1, States.Shoot)
+                .transitionTimed(0.2)
 
                 .state(States.Shoot)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.5, States.Intake)
+                .transitionTimed(0.4, States.Intake)
+
+                .state(States.Kick1)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                    spindexer.setLowerGateOpen(true);
+                    shooter.setUpperGateOpen(true);
+                    spindexer.setKickerPos(true);
+                })
+                .transitionTimed(shootWaitTime, States.ShootSpin1)
+
+                .state(States.ShootSpin1)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    spindexer.setKickerPos(false);
+                })
+                .transitionTimed(shootWaitTime, States.Kick2)
+
+                .state(States.Kick2)
+                .onEnter(()->{
+                    spindexer.setKickerPos(true);
+                })
+                .transitionTimed(shootWaitTime, States.ShootSpin2)
+
+                .state(States.ShootSpin2)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    spindexer.setKickerPos(false);
+                })
+                .transitionTimed(shootWaitTime, States.Kick3)
+
+                .state(States.Kick3)
+                .onEnter(()->{
+                    spindexer.setKickerPos(true);
+                })
+                .transitionTimed(shootWaitTime, States.Intake)
                 .build();
 
         while (opModeInInit()) {
@@ -223,7 +248,6 @@ public class TeleopMaybeFull extends LinearOpMode {
 
             gamepadEx.readButtons();
             follower.update();
-            intakes.updateCurrent();
 
             Position.pose = follower.getPose();
             telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, target)));
@@ -262,8 +286,6 @@ public class TeleopMaybeFull extends LinearOpMode {
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
             telemetry.addData("State", stateMachine.getState());
-            telemetry.addData("Good intake current", intakes.getGoodIntakeCurrent());
-            telemetry.addData("Bad intake current", intakes.getBadIntakeCurrent());
 
 
             long currentTime = System.nanoTime();
