@@ -13,11 +13,11 @@ public class Spindexer {
     ServoEx lowerGate;
     ServoEx kicker;
 
-    public static double kickerKickPos = 0.74;
-    public static double kickerIdlePos = 0.89;
+    public static double kickerKickPos = 0.45;
+    public static double kickerIdlePos = 0.71;
 
-    public static double lowerGateOpen = 0.67;
-    public static double lowerGateClosed = 0.55;
+    public static double lowerGateOpen = 0.825;
+    public static double lowerGateClosed = 0.7;
 
     public boolean is_kick = false;
 

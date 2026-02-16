@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
+import org.firstinspires.ftc.teamcode.subsystems.Tilt;
 
 
 @Configurable
@@ -17,6 +18,7 @@ public class Testing extends LinearOpMode {
     Intakes intakes;
     Spindexer spindexer;
     Shooter shooter;
+    Tilt tilt;
 
     public static double goodIntakePower = 0.0;
     public static double badIntakePower = 0.0;
@@ -31,12 +33,15 @@ public class Testing extends LinearOpMode {
     public static boolean lowerGateOpen = false;
     public static boolean upperGateOpen = false;
 
+    public static boolean tilted = false;
+
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         intakes = new Intakes(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
         shooter = new Shooter(hardwareMap);
+        tilt = new Tilt(hardwareMap);
 
         waitForStart();
 
@@ -53,12 +58,29 @@ public class Testing extends LinearOpMode {
 
             shooter.setTurretPos(turretPosition);
 
+            if (tilted){
+                tilt.tilt();
+            }else{
+                tilt.retract();
+            }
+
+            tilt.update();
+
             intakes.update();
             spindexer.update();
             shooter.update();
 
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
             telemetry.addData("Shooter Target Velocity", shooterTargetVelocity);
+
+            telemetry.addData("Bad intake distance", intakes.getBadIntakeDistance());
+            telemetry.addData("Good intake distance", intakes.getGoodIntakeDistance());
+
+            telemetry.addData("Bad beam break", intakes.getBadBeamBreak());
+            telemetry.addData("Good inside beam break", intakes.getGoodBeamBreakInside());
+            telemetry.addData("Good outside beam break", intakes.getGoodBeamBreakOutside());
+
+
 
             telemetry.update();
         }

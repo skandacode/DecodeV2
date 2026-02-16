@@ -15,7 +15,7 @@ import solverslib.hardware.motors.Motor;
 @Configurable
 public class Shooter {
 
-    private Motor shooterMotor1, shooterMotor2;
+    private Motor shooterMotor1, shooterMotor2, shooterEncoder;
     private ServoEx turret, hood;
 
     private ServoEx upperGate;
@@ -39,12 +39,12 @@ public class Shooter {
     public static boolean enablePIDF = true;
 
     // --- Turret bounds ---
-    public static double turretUpperBound = 0.95;
-    public static double turretLowerBound = 0.05;
+    public static double turretUpperBound = 1;
+    public static double turretLowerBound = 0;
 
     // --- Hood bounds ---
 
-    public static double hoodLowerBound = 0.355;
+    public static double hoodLowerBound = 0.36;
     public static double hoodUpperBound = 0.82;
 
     // --- Low-pass filter coefficient (for smoothing) ---
@@ -52,8 +52,8 @@ public class Shooter {
     private double smoothedVelocity = 0.0;
 
     public enum Goal{
-        RED (new Pose(-53, 63)),
-        BLUE (new Pose(-53, -63));
+        RED (new Pose(-53, 58)),
+        BLUE (new Pose(-53, -58));
 
         Pose position;
         Goal(Pose pose) {
@@ -64,8 +64,8 @@ public class Shooter {
     public static double powerOffset = 0;
     public static double turretOffset = 0;
 
-    public static double upperGateOpenPos = 0.89;
-    public static double upperGateClosedPos = 0.73;
+    public static double upperGateOpenPos = 0.98;
+    public static double upperGateClosedPos = 0.77;
 
     private double prevX, prevY;
     private long prevPosTime;
@@ -77,6 +77,9 @@ public class Shooter {
     public Shooter(HardwareMap hardwareMap) {
         shooterMotor1 = new Motor(hardwareMap, "outtakemotor1");
         shooterMotor2 = new Motor(hardwareMap, "outtakemotor2");
+
+        shooterEncoder = new Motor(hardwareMap, "badIntakeMotor");
+
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         upperGate = new ServoEx(hardwareMap, "upperGate");
@@ -202,7 +205,7 @@ public class Shooter {
 
     public void update() {
         // Measure velocity
-        currentVelocity = Math.abs(shooterMotor2.getVelocity());
+        currentVelocity = Math.abs(shooterEncoder.getVelocity());
         smoothedVelocity = ALPHA * currentVelocity + (1 - ALPHA) * smoothedVelocity;
 
         double outputPower;
