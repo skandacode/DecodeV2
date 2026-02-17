@@ -13,7 +13,7 @@ public class Tilt {
     public static double up2 = 1;
 
     public static double down1 = 1;
-    public static double down2 = 1;
+    public static double down2 = 0;
 
 
     public Tilt(HardwareMap hwMap){
