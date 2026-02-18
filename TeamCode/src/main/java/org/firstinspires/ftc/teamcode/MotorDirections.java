@@ -9,7 +9,6 @@ import solverslib.hardware.motors.Motor;
 
 @TeleOp
 @Configurable
-@Disabled
 public class MotorDirections extends LinearOpMode {
     Motor frontLeft, frontRight, backLeft, backRight;
     public static double frontLeftPower = 0.0;

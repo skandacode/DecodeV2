@@ -52,8 +52,8 @@ public class Shooter {
     private double smoothedVelocity = 0.0;
 
     public enum Goal{
-        RED (new Pose(-53, 58)),
-        BLUE (new Pose(-53, -58));
+        RED (new Pose(-56, 64)),
+        BLUE (new Pose(-56, -64));
 
         Pose position;
         Goal(Pose pose) {
@@ -65,7 +65,7 @@ public class Shooter {
     public static double turretOffset = 0;
 
     public static double upperGateOpenPos = 0.98;
-    public static double upperGateClosedPos = 0.77;
+    public static double upperGateClosedPos = 0.79;
 
     private double prevX, prevY;
     private long prevPosTime;
@@ -133,7 +133,7 @@ public class Shooter {
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*0.003222222222222222+0.511111111;
+        return deg*-0.003222222222222222+0.5;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){

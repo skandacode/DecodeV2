@@ -13,7 +13,7 @@ public class ShooterTables {
                 - 0.42124;
     }
     public static double getShooterVelocity(double distance) {
-        double increase = 0;
+        double increase = 40;
         if (distance>120){
             increase = 0;
         }
@@ -38,7 +38,7 @@ public class ShooterTables {
         return error * hoodAngleChangePer100ticksPerSecondError/100;
     }
 
-    public static double hoodAngleChangePer100ticksPerSecondError = 0.03;
+    public static double hoodAngleChangePer100ticksPerSecondError = 0.00;
 
     public static double hoodAdjustDistanceThreshold = 10;
 
