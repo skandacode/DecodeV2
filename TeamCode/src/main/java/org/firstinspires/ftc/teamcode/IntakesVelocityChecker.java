@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 
 @TeleOp
 @Configurable
-@Disabled
 public class IntakesVelocityChecker extends LinearOpMode {
     Intakes intakes;
     Spindexer spindexer;
@@ -44,6 +43,12 @@ public class IntakesVelocityChecker extends LinearOpMode {
             intakes.setBadIntakePower(badPower);
 
             telemetry.addData("Bad Intake Distance", intakes.getBadIntakeDistance());
+            telemetry.addData("Good Intake Distance", intakes.getGoodIntakeDistance());
+
+            telemetry.addData("Bad intake Beam break", intakes.getBadBeamBreak());
+            telemetry.addData("Good inside intake Beam break", intakes.getGoodBeamBreakInside());
+            telemetry.addData("Good outside Beam break", intakes.getGoodBeamBreakOutside());
+
 
             intakes.update();
             spindexer.update();

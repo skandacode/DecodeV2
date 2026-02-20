@@ -22,7 +22,7 @@ public class Intakes {
     RevColorSensorV3 goodIntakeSensor;
 
     public static double badIntakeSensorThresh = 2;
-    public static double goodIntakeSensorThresh = 2;
+    public static double goodIntakeSensorThresh = 3.1;
 
 
     public Intakes(HardwareMap hardwareMap) {
