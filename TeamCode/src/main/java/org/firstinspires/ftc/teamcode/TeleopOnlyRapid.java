@@ -22,10 +22,12 @@ import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
+import org.firstinspires.ftc.teamcode.subsystems.Tilt;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import solverslib.gamepad.GamepadEx;
 import solverslib.gamepad.GamepadKeys;
@@ -36,13 +38,13 @@ public class TeleopOnlyRapid extends LinearOpMode {
     Spindexer spindexer;
     Shooter shooter;
     Follower follower;
+    Tilt tilt;
 
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
     public static double turretOffsetIncrements = 2;//0000000000 why not 0 bum bum bum
 
-    public static double targetX = -53;
-    public static double targetY = 63;
+    public static Pose relocalizePos = new Pose(60, -0, Math.toRadians(180));
 
     PositionLogger positionLogger;
 
@@ -80,6 +82,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
         spindexer = new Spindexer(hardwareMap);
         shooter = new Shooter(hardwareMap);
         follower = createFollower(hardwareMap);
+        tilt = new Tilt(hardwareMap);
+
 
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
@@ -203,7 +207,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
             follower.setTeleOpDrive(forward, -1*strafe, -1*turn, true);
 
             if (gamepadEx.wasJustPressed(positionResetButton)){
-                follower.setPose(new Pose(70, 0, Math.toRadians(180)));
+                follower.setPose(relocalizePos);
                 Shooter.powerOffset=0;
                 Shooter.turretOffset=0;
             }
@@ -218,6 +222,11 @@ public class TeleopOnlyRapid extends LinearOpMode {
             }
             if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
                 Shooter.powerOffset += powerOffsetIncrements;
+            }
+            if (gamepadEx.isDown(GamepadKeys.Button.TOUCHPAD)){
+                tilt.tilt();
+            }else{
+                tilt.retract();
             }
             if (gamepadEx.isDown(GamepadKeys.Button.OPTIONS) || clearMachine.getState() != clearStates.IDLE){
                 intakes.setBadIntakePower(-0.4);

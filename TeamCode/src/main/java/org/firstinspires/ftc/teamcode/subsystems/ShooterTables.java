@@ -6,22 +6,24 @@ import com.bylazar.configurables.annotations.Configurable;
 public class ShooterTables {
 
     public static double getHoodPosition(double distance) {
-        return -(1.20625e-8) * Math.pow(distance, 4)
-                + 0.00000491312 * Math.pow(distance, 3)
-                - 0.000708347 * Math.pow(distance, 2)
-                + 0.0448109 * distance
-                - 0.42124;
+        return -(4.27737e-9) * Math.pow(distance, 4)
+                + 0.00000188378 * Math.pow(distance, 3)
+                - 0.000311533 * Math.pow(distance, 2)
+                + 0.0249263 * distance
+                - 0.12009;
     }
     public static double getShooterVelocity(double distance) {
-        double increase = 40;
+        double increase = 0;
         if (distance>120){
             increase = 0;
         }
-        return 0.00000914568 * Math.pow(distance, 4)
-                - 0.00357266 * Math.pow(distance, 3)
-                + 0.478749 * Math.pow(distance, 2)
-                - 17.54123 * distance
-                + 1378.74048 + increase;
+        return 4.68162e-9 * Math.pow(distance, 6)
+                - 0.00000309277 * Math.pow(distance, 5)
+                + 0.000797735 * Math.pow(distance, 4)
+                - 0.102784 * Math.pow(distance, 3)
+                + 6.96598 * Math.pow(distance, 2)
+                - 227.03405 * distance
+                + 3936.46218 + increase;
     }
 
     public static double actualShooterVelocityNoLoad(double targetVelocity) {
