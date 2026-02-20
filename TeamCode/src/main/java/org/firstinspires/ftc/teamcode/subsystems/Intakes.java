@@ -45,6 +45,14 @@ public class Intakes {
         badIntakeMotor.set(power);
     }
 
+    public double getGoodCurrent(){
+        return goodIntakeMotor.getCurrentDraw();
+    }
+
+    public double getBadCurrent(){
+        return badIntakeMotor.getCurrentDraw();
+    }
+
     public boolean getBadIntakeDetected(){
         return getBadIntakeDistance()<badIntakeSensorThresh;
     }

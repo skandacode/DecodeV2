@@ -244,4 +244,8 @@ public class Shooter {
     public double getVy() {
         return vy;
     }
+
+    public double getShooterCurrent(){
+        return shooterMotor1.getCurrentDraw()+shooterMotor2.getCurrentDraw();
+    }
 }
