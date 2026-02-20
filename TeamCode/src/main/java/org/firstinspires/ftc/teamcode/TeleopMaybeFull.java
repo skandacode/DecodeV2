@@ -15,16 +15,21 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
+import org.firstinspires.ftc.teamcode.pedroPathing.PanelsDrawing;
+import org.firstinspires.ftc.teamcode.pedroPathing.PositionLogger;
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
+import org.firstinspires.ftc.teamcode.subsystems.Tilt;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import solverslib.gamepad.GamepadEx;
 import solverslib.gamepad.GamepadKeys;
+import solverslib.gamepad.ToggleButtonReader;
 
 @Configurable
 @TeleOp
@@ -33,6 +38,7 @@ public class TeleopMaybeFull extends LinearOpMode {
     Spindexer spindexer;
     Shooter shooter;
     Follower follower;
+    Tilt tilt;
 
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
@@ -43,6 +49,9 @@ public class TeleopMaybeFull extends LinearOpMode {
     private boolean is_split = false; //if 2 in good and other ball goes in from back
     private boolean using_spindexer = false;
 
+    public static Pose relocalizePos = new Pose(60, -0, Math.toRadians(180));
+
+    PositionLogger positionLogger;
 
     public enum States{
         Intake,
@@ -83,13 +92,21 @@ public class TeleopMaybeFull extends LinearOpMode {
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
-
+        try {
+            positionLogger = new PositionLogger("TeleopFull.log");
+        } catch (java.io.IOException e) {
+            System.out.println("Logger failed to Initialize");
+            positionLogger = null;
+        }
         GamepadEx gamepadEx = new GamepadEx(gamepad1);
+        GamepadEx gamepadEx2 = new GamepadEx(gamepad2);
+
 
         intakes = new Intakes(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
         shooter = new Shooter(hardwareMap);
         follower = createFollower(hardwareMap);
+        tilt = new Tilt(hardwareMap);
 
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.TOUCHPAD;
@@ -97,6 +114,7 @@ public class TeleopMaybeFull extends LinearOpMode {
         GamepadKeys.Trigger backIntakeButton = GamepadKeys.Trigger.RIGHT_TRIGGER;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
         GamepadKeys.Button restartIntakeButton = GamepadKeys.Button.Y;
+        GamepadKeys.Button tiltButton = GamepadKeys.Button.LEFT_BUMPER;
 
 
 
@@ -316,12 +334,17 @@ public class TeleopMaybeFull extends LinearOpMode {
         follower.startTeleopDrive();
 
         long lastLoopTime = System.nanoTime();
+
+        boolean intakeStopped = false;
+        boolean tilted = false;
+        tilt.retract();
         while (opModeIsActive()) {
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
             }
 
             gamepadEx.readButtons();
+            gamepadEx2.readButtons();
             follower.update();
 
             Position.pose = follower.getPose();
@@ -340,22 +363,52 @@ public class TeleopMaybeFull extends LinearOpMode {
             follower.setTeleOpDrive(forward, -1*strafe, -1*turn, true);
 
             if (gamepadEx.wasJustPressed(positionResetButton)){
-                follower.setPose(new Pose(65, 0, Math.toRadians(180)));
+                follower.setPose(relocalizePos);
+                Shooter.powerOffset=0;
+                Shooter.turretOffset=0;
             }
-            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)){
+            if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)){
                 Shooter.powerOffset -= powerOffsetIncrements;
             }
-            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)){
+            if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)){
                 Shooter.turretOffset -= turretOffsetIncrements;
             }
-            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)){
+            if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)){
                 Shooter.turretOffset += turretOffsetIncrements;
             }
-            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
+            if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
                 Shooter.powerOffset += powerOffsetIncrements;
             }
 
-            stateMachine.update();
+            if (gamepadEx.isDown(stopIntakeButton)){
+                intakeStopped = true;
+            }
+            if (gamepadEx.wasJustPressed(restartIntakeButton)){
+                intakeStopped = false;
+                stateMachine.setState(stateMachine.getStateEnum());
+            }
+
+            if (!intakeStopped) {
+                stateMachine.update();
+            }else{
+                intakes.setGoodIntakePower(0);
+                intakes.setBadIntakePower(0);
+            }
+            if (gamepad1.options){
+                intakes.setGoodIntakePower(-0.5);
+                intakes.setBadIntakePower(-0.5);
+            }
+            if (gamepadEx.wasJustPressed(GamepadKeys.Button.X)){
+                using_spindexer = true;
+            }
+            if (gamepadEx.wasJustPressed(tiltButton)) {
+                tilted = !tilted;
+                if (tilted) {
+                    tilt.tilt();
+                } else {
+                    tilt.retract();
+                }
+            }
 
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
@@ -373,7 +426,23 @@ public class TeleopMaybeFull extends LinearOpMode {
             intakes.update();
             spindexer.update();
             shooter.update();
+            tilt.update();
             telemetry.update();
+            try {
+                if (positionLogger != null){
+                    positionLogger.logPose(follower.getPose());
+                }
+            } catch (IOException ignored) {
+
+            }
+            PanelsDrawing.drawDebug(follower);
+        }
+        try {
+            if (positionLogger != null){
+                positionLogger.close();
+            }
+        } catch (IOException ignored) {
+
         }
     }
 }
