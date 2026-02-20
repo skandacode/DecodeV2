@@ -47,4 +47,6 @@ public class ShooterTables {
     public static double getBalltimeinair(double distance){
         return 0.6;
     }
+
+    public static double instantShotCompensation = 0.05;
 }

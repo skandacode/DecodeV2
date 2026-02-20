@@ -78,6 +78,18 @@ public class Shooter {
     private double vx = 0.0;
     private double vy = 0.0;
 
+    // angular velocity field
+    private double omega = 0.0;
+    private double prevHeading = 0.0;
+    private long prevHeadingTime = 0;
+
+    // acceleration fields
+    private double ax = 0.0;
+    private double ay = 0.0;
+    private double prevVx = 0.0;
+    private double prevVy = 0.0;
+    private long prevVelTime = 0;
+
     public Shooter(HardwareMap hardwareMap) {
         shooterMotor1 = new Motor(hardwareMap, "outtakemotor1");
         shooterMotor2 = new Motor(hardwareMap, "outtakemotor2");
@@ -98,6 +110,11 @@ public class Shooter {
         prevPosTime = System.nanoTime();
         prevX = 0.0;
         prevY = 0.0;
+        prevVelTime = System.nanoTime();
+        prevVx = 0.0;
+        prevVy = 0.0;
+        prevHeadingTime = System.nanoTime();
+        prevHeading = 0.0;
     }
 
     public void setUpperGateOpen(boolean open){
@@ -155,9 +172,32 @@ public class Shooter {
             computedVy = (currPosition.getY() - prevY) / dt;
         }
 
+        // calculate acceleration the same way velocity is calculated
+        double dtVel = (currTime - prevVelTime) / 1e9;
+        double computedAx = 0.0;
+        double computedAy = 0.0;
+        if (prevVelTime != 0 && dtVel > 1e-6) {
+            computedAx = (computedVx - prevVx) / dtVel;
+            computedAy = (computedVy - prevVy) / dtVel;
+        }
+
         // store to instance fields for external access if needed
         this.vx = computedVx;
         this.vy = computedVy;
+        this.ax = computedAx;
+        this.ay = computedAy;
+
+        // calculate angular velocity of heading the same way linear velocity is calculated
+        double dtHeading = (currTime - prevHeadingTime) / 1e9;
+        double computedOmega = 0.0;
+        if (prevHeadingTime != 0 && dtHeading > 1e-6) {
+            double dHeading = currPosition.getHeading() - prevHeading;
+            // wrap to [-π, π] to handle crossing ±π boundary
+            while (dHeading > Math.PI) dHeading -= 2 * Math.PI;
+            while (dHeading < -Math.PI) dHeading += 2 * Math.PI;
+            computedOmega = dHeading / dtHeading;
+        }
+        this.omega = computedOmega;
 
         double precomputedDistance = getAngleDistance(currPosition, target)[1];
 
@@ -186,6 +226,13 @@ public class Shooter {
         prevX = currPosition.getX();
         prevY = currPosition.getY();
         prevPosTime = currTime;
+        // update previous velocity/time for next acceleration calculation
+        prevVx = this.vx;
+        prevVy = this.vy;
+        prevVelTime = currTime;
+        // update previous heading/time for next angular velocity calculation
+        prevHeading = currPosition.getHeading();
+        prevHeadingTime = currTime;
     }
 
     public void setTargetVelocity(double target) {
@@ -225,11 +272,15 @@ public class Shooter {
         }
 
         setDirectPower(outputPower);
-        shooterMotor1.update();
-        shooterMotor2.update();
         upperGate.update();
+        update_motors();
         turret.update();
         hood.update();
+    }
+
+    public void update_motors(){
+        shooterMotor1.update();
+        shooterMotor2.update();
     }
 
     public double getTargetVelo() {
@@ -243,6 +294,20 @@ public class Shooter {
 
     public double getVy() {
         return vy;
+    }
+
+    // getters for ax and ay
+    public double getAx() {
+        return ax;
+    }
+
+    public double getAy() {
+        return ay;
+    }
+
+    // getter for angular velocity (rad/s)
+    public double getOmega() {
+        return omega;
     }
 
     public double getShooterCurrent(){

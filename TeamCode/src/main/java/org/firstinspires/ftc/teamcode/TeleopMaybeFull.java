@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.subsystems.Tilt;
 
 import java.io.IOException;
+import java.security.cert.PKIXRevocationChecker;
 import java.util.Arrays;
 import java.util.List;
 
@@ -132,7 +133,7 @@ public class TeleopMaybeFull extends LinearOpMode {
                     using_spindexer = false;
                     is_split = false;
                 })
-                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
                 .transition(()->intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.Transitionto2)
                 .transition(()->intakes.getBadBeamBreak(), States.Increment0)
 
@@ -148,7 +149,8 @@ public class TeleopMaybeFull extends LinearOpMode {
                     spindexer.setLowerGateOpen(true);
                     shooter.setUpperGateOpen(false);
                 })
-                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
+                .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
                 .transition(()->intakes.getGoodBeamBreakOutside(), States.BeforeWaitForShoot)
                 .transition(()-> intakes.getBadBeamBreak(), States.BeforeWaitForShoot, ()-> is_split = true)
 
@@ -336,7 +338,11 @@ public class TeleopMaybeFull extends LinearOpMode {
         long lastLoopTime = System.nanoTime();
 
         boolean intakeStopped = false;
+        boolean intakeReversed = false;
         boolean tilted = false;
+        double goodMotorPowerBeforeStop = 0;
+        double badMotorPowerBeforeStop = 0;
+
         tilt.retract();
         while (opModeIsActive()) {
             for (LynxModule hub : allHubs) {
@@ -380,26 +386,44 @@ public class TeleopMaybeFull extends LinearOpMode {
                 Shooter.powerOffset += powerOffsetIncrements;
             }
 
-            if (gamepadEx.isDown(stopIntakeButton)){
-                intakeStopped = true;
+            if (gamepadEx.wasJustPressed(GamepadKeys.Button.OPTIONS) && !intakeStopped){
+                goodMotorPowerBeforeStop = intakes.goodPower;
+                badMotorPowerBeforeStop = intakes.badPower;
+                intakes.setGoodIntakePower(-0.5);
+                intakes.setBadIntakePower(-0.5);
+                intakeReversed = true;
             }
-            if (gamepadEx.wasJustPressed(restartIntakeButton)){
-                intakeStopped = false;
-                stateMachine.setState(stateMachine.getStateEnum());
+            if (gamepadEx.wasJustReleased(GamepadKeys.Button.OPTIONS)){
+                intakes.setGoodIntakePower(goodMotorPowerBeforeStop);
+                intakes.setBadIntakePower(goodMotorPowerBeforeStop);
+                intakeReversed = false;
             }
 
-            if (!intakeStopped) {
+            if (gamepadEx.wasJustPressed(stopIntakeButton) && !intakeReversed){
+                if (intakes.goodPower != 0 || intakes.badPower != 0) {
+                    goodMotorPowerBeforeStop = intakes.goodPower;
+                    badMotorPowerBeforeStop = intakes.badPower;
+                }
+                intakeStopped = true;
+            }
+
+            if (gamepadEx.wasJustPressed(restartIntakeButton)){
+                intakeStopped = false;
+                intakes.setGoodIntakePower(goodMotorPowerBeforeStop);
+                intakes.setBadIntakePower(badMotorPowerBeforeStop);
+            }
+
+            if (!intakeStopped && !tilted) {
                 stateMachine.update();
             }else{
                 intakes.setGoodIntakePower(0);
                 intakes.setBadIntakePower(0);
             }
-            if (gamepad1.options){
-                intakes.setGoodIntakePower(-0.5);
-                intakes.setBadIntakePower(-0.5);
-            }
             if (gamepadEx.wasJustPressed(GamepadKeys.Button.X)){
                 using_spindexer = true;
+            }
+            if (tilted){
+                shooter.setDirectPower(0);
             }
             if (gamepadEx.wasJustPressed(tiltButton)) {
                 tilted = !tilted;
@@ -425,7 +449,11 @@ public class TeleopMaybeFull extends LinearOpMode {
             telemetry.addData("Loop time", loopTime);
             intakes.update();
             spindexer.update();
-            shooter.update();
+            if (!tilted) {
+                shooter.update();
+            }else{
+                shooter.update_motors();
+            }
             tilt.update();
             telemetry.update();
             try {

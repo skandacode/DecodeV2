@@ -24,6 +24,8 @@ public class Intakes {
     public static double badIntakeSensorThresh = 2;
     public static double goodIntakeSensorThresh = 3.1;
 
+    public double goodPower, badPower;
+
 
     public Intakes(HardwareMap hardwareMap) {
         goodIntakeMotor = new Motor(hardwareMap, "goodIntakeMotor");
@@ -39,9 +41,11 @@ public class Intakes {
     }
 
     public void setGoodIntakePower(double power) {
+        goodPower = power;
         goodIntakeMotor.set(power);
     }
     public void setBadIntakePower(double power) {
+        badPower = power;
         badIntakeMotor.set(power);
     }
 
