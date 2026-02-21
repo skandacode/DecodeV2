@@ -7,11 +7,9 @@ import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.ams.AMSColorSensor;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
@@ -24,13 +22,11 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.subsystems.Tilt;
 
 import java.io.IOException;
-import java.security.cert.PKIXRevocationChecker;
 import java.util.Arrays;
 import java.util.List;
 
 import solverslib.gamepad.GamepadEx;
 import solverslib.gamepad.GamepadKeys;
-import solverslib.gamepad.ToggleButtonReader;
 
 @Configurable
 @TeleOp
@@ -90,12 +86,16 @@ public class TeleopMaybeFull extends LinearOpMode {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        LynxModule controlhub = null;
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+            if (hub.isParent()){
+                controlhub = hub;
+            }
         }
         try {
             positionLogger = new PositionLogger("TeleopFull.log");
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             System.out.println("Logger failed to Initialize");
             positionLogger = null;
         }
@@ -354,10 +354,13 @@ public class TeleopMaybeFull extends LinearOpMode {
 
         tilt.retract();
         while (opModeIsActive()) {
-            for (LynxModule hub : allHubs) {
-                hub.clearBulkCache();
+            if (controlhub != null){
+                controlhub.clearBulkCache();
+            }else {
+                for (LynxModule hub : allHubs) {
+                    hub.clearBulkCache();
+                }
             }
-
             gamepadEx.readButtons();
             gamepadEx2.readButtons();
             follower.update();
