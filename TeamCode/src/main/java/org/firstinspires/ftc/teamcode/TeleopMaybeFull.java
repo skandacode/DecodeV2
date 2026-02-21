@@ -45,7 +45,7 @@ public class TeleopMaybeFull extends LinearOpMode {
     public static double powerOffsetIncrements = 20;
     public static double turretOffsetIncrements = 2;
 
-    public static double shootWaitTime = 0.26;
+    public static double shootWaitTime = 0.28;
 
     private boolean is_split = false; //if 2 in good and other ball goes in from back
     private boolean using_spindexer = false;
@@ -117,7 +117,7 @@ public class TeleopMaybeFull extends LinearOpMode {
         GamepadKeys.Button restartIntakeButton = GamepadKeys.Button.Y;
         GamepadKeys.Button tiltButton = GamepadKeys.Button.LEFT_BUMPER;
 
-
+        boolean[] backStopped = {false};
 
         follower.setStartingPose(Position.pose);
 
@@ -125,7 +125,11 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .state(States.Intake)
                 .onEnter(()->{
                     intakes.setGoodIntakePower(1);
-                    intakes.setBadIntakePower(0.5);
+                    if (backStopped[0]){
+                        intakes.setBadIntakePower(0);
+                    }else {
+                        intakes.setBadIntakePower(0.5);
+                    }
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(false);
                     spindexer.setKickerPos(false);
@@ -208,8 +212,9 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .state(States.BeforeWaitForShoot)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    intakes.setGoodIntakePower(1);
                 })
-                .transitionTimed(0.1, States.WaitForShoot)
+                .transitionTimed(0.3, States.WaitForShoot)
 
                 .state(States.WaitForShoot)
                 .onEnter(()->{
@@ -219,8 +224,11 @@ public class TeleopMaybeFull extends LinearOpMode {
                     }else{
                         intakes.setBadIntakePower(0);
                     }
-                    intakes.setGoodIntakePower(0.1);
-
+                    if (gamepadEx.isDown(GamepadKeys.Button.Y)){
+                        intakes.setGoodIntakePower(1);
+                    }else {
+                        intakes.setGoodIntakePower(0.1);
+                    }
                 })
                 .transition(()->gamepadEx.isDown(shooterButton) && !(using_spindexer || is_split), States.OpenUpperGate)
                 .transition(()->gamepadEx.isDown(shooterButton) && using_spindexer, States.Kick1)
@@ -299,7 +307,7 @@ public class TeleopMaybeFull extends LinearOpMode {
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
                     intakes.setBadIntakePower(1);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.4)
 
                 .state(States.MoveBack)
                 .onEnter(()->{
@@ -342,6 +350,7 @@ public class TeleopMaybeFull extends LinearOpMode {
         boolean tilted = false;
         double goodMotorPowerBeforeStop = 0;
         double badMotorPowerBeforeStop = 0;
+        boolean prevTriggerPressed = false;
 
         tilt.retract();
         while (opModeIsActive()) {
@@ -373,16 +382,16 @@ public class TeleopMaybeFull extends LinearOpMode {
                 Shooter.powerOffset=0;
                 Shooter.turretOffset=0;
             }
-            if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)){
+            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_DOWN) || gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)){
                 Shooter.powerOffset -= powerOffsetIncrements;
             }
-            if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)){
+            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_LEFT) || gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)){
                 Shooter.turretOffset -= turretOffsetIncrements;
             }
-            if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)){
+            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT) || gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)){
                 Shooter.turretOffset += turretOffsetIncrements;
             }
-            if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
+            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_UP) || gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
                 Shooter.powerOffset += powerOffsetIncrements;
             }
 
@@ -406,8 +415,10 @@ public class TeleopMaybeFull extends LinearOpMode {
                 }
                 intakeStopped = true;
             }
-
-            if (gamepadEx.wasJustPressed(restartIntakeButton)){
+            if (gamepadEx.isDown(shooterButton)){
+                intakeStopped = false;
+            }
+            if ((gamepadEx.wasJustPressed(restartIntakeButton)) && stateMachine.getState() != States.WaitForShoot){
                 intakeStopped = false;
                 intakes.setGoodIntakePower(goodMotorPowerBeforeStop);
                 intakes.setBadIntakePower(badMotorPowerBeforeStop);
@@ -433,6 +444,12 @@ public class TeleopMaybeFull extends LinearOpMode {
                     tilt.retract();
                 }
             }
+
+            boolean currTrigger = gamepadEx.getTrigger(backIntakeButton)>0.5;
+            if (currTrigger != prevTriggerPressed){
+                backStopped[0] = currTrigger;
+            }
+            prevTriggerPressed = currTrigger;
 
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
