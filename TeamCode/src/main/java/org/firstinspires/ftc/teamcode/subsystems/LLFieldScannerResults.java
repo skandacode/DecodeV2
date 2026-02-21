@@ -9,8 +9,8 @@ import com.bylazar.configurables.annotations.Configurable;
 public class LLFieldScannerResults {
     public final double tx, ty;
 
-    public static double cameraHeight = 11.8;
-    public static double horizontalOffset = 5;
+    public static double cameraHeight = 8;
+    public static double horizontalOffset = 0;
 
     public LLFieldScannerResults(double tx, double ty) {
         this.tx = tx;
