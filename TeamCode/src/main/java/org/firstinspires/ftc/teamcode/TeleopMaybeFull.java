@@ -74,7 +74,7 @@ public class TeleopMaybeFull extends LinearOpMode {
         OpenUpperGate,//rapid 3
         Shoot,
 
-        OpenUpperGate2,
+        OpenUpperGate2,//split
         Shoot2,
         CollectBack,
         MoveBack,
