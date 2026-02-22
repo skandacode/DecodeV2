@@ -27,8 +27,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 import java.util.List;
 
 @Configurable
-@Autonomous(name = "AutoFarFarLLLLLLLL", group = "Auto")
-public class AutoStartFarLL extends LinearOpMode {
+@Autonomous(name = "old far far", group = "Auto")
+public class AutoStartFarllOLD extends LinearOpMode {
     private Follower follower;
     Intakes intakes;
     String colorAlliance = "BLUE";
@@ -474,7 +474,7 @@ public class AutoStartFarLL extends LinearOpMode {
 
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.3)
+                .transitionTimed(2)
                 .transition(()->stateMachine.getState()== States.WaitForShoot)
                 .state(AutoStates.Out3)
                 .onEnter(()->{
@@ -623,7 +623,6 @@ public class AutoStartFarLL extends LinearOpMode {
 
                 })
                 .transition(()->stateMachine.getState()== States.Intake)
-
 
 
                 .state(AutoStates.MOVETOINTAKE5)
