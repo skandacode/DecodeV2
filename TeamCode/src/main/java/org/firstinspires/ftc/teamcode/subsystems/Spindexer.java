@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import solverslib.hardware.ServoEx;
@@ -13,8 +14,9 @@ public class Spindexer {
     ServoEx lowerGate;
     ServoEx kicker;
 
-    public static double kickerKickPos = 0.23;
-    public static double kickerIdlePos = 0.14;
+
+    public static double kickerKickPos = 0.085;
+    public static double kickerIdlePos = 0;
 
     public static double lowerGateOpen = 0.825;
     public static double lowerGateClosed = 0.7;
@@ -22,15 +24,15 @@ public class Spindexer {
     public boolean is_kick = false;
 
     public enum SpindexerPosition {
-        Shoot0(0.17),
-        Shoot1(0.38),
-        Shoot2(0.59),
-        Shoot3(0.81),
-        Shoot4(1.0),
-        Intake1(0.05),
-        Intake2(0.28),
-        Intake3(0.5),
-        Intake4(0.72);
+        Shoot0(0.11),
+        Shoot1(0.33),
+        Shoot2(0.55),
+        Shoot3(0.76),
+        Shoot4(0.985),
+        Intake1(0),
+        Intake2(0.23),
+        Intake3(0.45),
+        Intake4(0.67);
 
 
         public final double position;
@@ -87,4 +89,5 @@ public class Spindexer {
             lowerGate.setPosition(lowerGateClosed);
         }
     }
+
 }

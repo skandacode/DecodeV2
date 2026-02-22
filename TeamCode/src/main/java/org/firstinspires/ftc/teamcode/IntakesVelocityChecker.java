@@ -22,7 +22,11 @@ public class IntakesVelocityChecker extends LinearOpMode {
     public static double badPower = 0.0;
     public static boolean kick = false;
     public static boolean lowerGateOpen = true;
+
+    public static boolean useRawSpindexerPos = false;
     public static Spindexer.SpindexerPosition spindexerPosition = Spindexer.SpindexerPosition.Shoot1;
+    public static double rawSpindexerPosition = 0;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -35,7 +39,11 @@ public class IntakesVelocityChecker extends LinearOpMode {
 
         while (opModeIsActive()){
             spindexer.setKickerPos(kick);
-            spindexer.setPosition(spindexerPosition);
+            if (useRawSpindexerPos){
+                spindexer.setPosition(rawSpindexerPosition);
+            }else {
+                spindexer.setPosition(spindexerPosition);
+            }
             shooter.setUpperGateOpen(false);
             spindexer.setLowerGateOpen(lowerGateOpen);
 

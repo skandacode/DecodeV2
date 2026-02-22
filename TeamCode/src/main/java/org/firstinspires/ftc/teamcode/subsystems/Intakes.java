@@ -22,7 +22,9 @@ public class Intakes {
     RevColorSensorV3 goodIntakeSensor;
 
     public static double badIntakeSensorThresh = 2;
-    public static double goodIntakeSensorThresh = 3.1;
+    public static double goodIntakeSensorThresh = 3.3;
+    public static double goodIntakeSensorThreshBottom = 2.6;
+
 
     public double goodPower, badPower;
 
@@ -68,7 +70,7 @@ public class Intakes {
         return badIntakeSensor.getDistance(DistanceUnit.CM);
     }
     public boolean getGoodIntakeDetected(){
-        return getGoodIntakeDistance()<goodIntakeSensorThresh;
+        return getGoodIntakeDistance()<goodIntakeSensorThresh && getGoodIntakeDistance()>goodIntakeSensorThreshBottom;
     }
 
     public double getGoodIntakeDistance(){
