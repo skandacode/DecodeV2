@@ -42,17 +42,19 @@ public class AutoStartFarShootFar extends LinearOpMode {
 
 
     public enum AutoStates {
-        MOVETOSHOOT1, wait1, SHOOT1,
-        MOVETOINTAKE1, Out1, INTAKE1,
-        MOVETOSHOOT2, wait2, SHOOT2,
+        MOVETOSHOOT1, wait1, preSHOOT1,SHOOT1,
+        MOVETOINTAKE1,
+        MOVETOSHOOT2, wait2, preSHOOT2,SHOOT2,
         MOVETOINTAKE2, Out2, INTAKE2,
-        MOVETOSHOOT3, wait3,SHOOT3,
+        MOVETOSHOOT3, wait3,preSHOOT3, SHOOT3,
         MOVETOINTAKE3, Out3, INTAKE3,
-        MOVETOSHOOT4, wait4,SHOOT4,
+        MOVETOSHOOT4, wait4,preSHOOT4, SHOOT4,
         MOVETOINTAKE4, Out4,INTAKE4,
-        MOVETOSHOOT5, wait5,SHOOT5,
+        MOVETOSHOOT5, wait5,preSHOOT5, SHOOT5,
         MOVETOINTAKE5, Out5,INTAKE5,
-        MOVETOSHOOT6, wait6,SHOOT6,
+        MOVETOSHOOT6, wait6,preSHOOT6, SHOOT6,
+        MOVETOINTAKE6, Out6,INTAKE6,
+        MOVETOSHOOT7, wait7,preSHOOT7, SHOOT7,
         park
     }
     public enum States{
@@ -87,7 +89,6 @@ public class AutoStartFarShootFar extends LinearOpMode {
         while (opModeInInit()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             follower.update();
-            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
             telemetry.addData("Init Pose: ", follower.getPose());
             telemetry.addData("ALLIANCE: ", colorAlliance);
             if (gamepad1.a){
@@ -100,6 +101,10 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 shooterTarget = Shooter.Goal.RED;
                 Posmultiplier=-1;
             }
+            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+            spindexer.setKickerPos(false);
+            shooter.setUpperGateOpen(false);
+            spindexer.setLowerGateOpen(true);
             telemetry.update();
             spindexer.update();
         }
@@ -107,175 +112,63 @@ public class AutoStartFarShootFar extends LinearOpMode {
         waitForStart();
 
 
-        Pose startPose = new Pose(60, -15*Posmultiplier, Math.toRadians(90*Posmultiplier));
-        Pose shootPose = new Pose(53, -12*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose startPose = new Pose(60, -15*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose shootPose = new Pose(56, -12*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
-        Pose intakeHuman = new Pose(61, -63*Posmultiplier, Math.toRadians(90*Posmultiplier));
-        Pose intakeHumanOut = new Pose(59, -60*Posmultiplier, Math.toRadians(90*Posmultiplier));
-        Pose intake1Pose = new Pose(31, -17*Posmultiplier, Math.toRadians(90*Posmultiplier));
+        Pose intakeHuman = new Pose(61, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intakeHumanOut = new Pose(59, -60*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake1Pose = new Pose(31, -17*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake1donePose = new Pose(31, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
-        Pose intake1donePose = new Pose(33, -63*Posmultiplier, Math.toRadians(90*Posmultiplier));
-        Pose leave = new Pose(40, -30*Posmultiplier, Math.toRadians(90*Posmultiplier));
+
+        Pose intakemidPose = new Pose(47, -17*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intakemiddonePose = new Pose(47, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose leave = new Pose(40, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
 
 
         follower.setStartingPose(startPose);
-
-
-        StateMachine stateMachine = new StateMachineBuilder()
-                .state(States.Intake)
-                .loop(()->{
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setLowerGateOpen(false);
-                    spindexer.setKickerPos(false);
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake1);
-                    intakes.setGoodIntakePower(0.2);
-                    intakes.setBadIntakePower(1);
-                })
-                .transition(()->shooterButton, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from intake to wait for shoot because shooter button pressed and not rapid fire");
-                })
-                .transition(()->intakes.getBadIntakeDetected(), States.Wait1, ()->{
-                    System.out.println("Transitioned from intake to wait1 because bad intake detected and not rapid fire");
-                })
-
-                .state(States.Wait1)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
-                })
-                .transitionTimed(shootWaitTime, States.Increment2, ()->{
-                    System.out.println("Transitioned from wait1 to increment2 because time elapsed");
-                })
-                .transition(()->shooterButton, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from wait1 to wait for shoot because shooter button pressed");
-                })
-
-                .state(States.Increment2)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
-                })
-                .transition(()->intakes.getBadIntakeDetected(), States.Wait2, ()->{
-                    System.out.println("Transitioned from increment2 to wait2 because bad intake detected");
-                })
-                .transition(()->shooterButton, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from increment2 to wait for shoot because shooter button pressed");
-                })
-
-                .state(States.Wait2)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
-                })
-                .transitionTimed(shootWaitTime, States.Increment3, ()->{
-                    System.out.println("Transitioned from wait2 to increment3 because time elapsed");
-                })
-                .transition(()->shooterButton, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from wait2 to wait for shoot because shooter button pressed");
-                })
-
-                .state(States.Increment3)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
-                })
-                .transition(()->intakes.getBadIntakeDetected(), States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from increment3 to wait for shoot because bad intake detected");
-                })
-                .transition(()->shooterButton, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from increment3 to wait for shoot because shooter button pressed");
-                })
-
-                .state(States.WaitForShoot)
-                .loop(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    intakes.setBadIntakePower(0.3);
-                    intakes.setGoodIntakePower(1);
-
-                    shooter.setUpperGateOpen(true);
-                })
-                .transition(()->shooterButton, States.Kick1)
-
-                .state(States.Kick1)
-                .onEnter(()->{
-                    shooterButton=false;
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    spindexer.setLowerGateOpen(true);
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(shootWaitTime, States.ShootSpin1)
-
-                .state(States.ShootSpin1)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    spindexer.setKickerPos(false);
-                })
-                .transitionTimed(shootWaitTime, States.Kick2)
-
-                .state(States.Kick2)
-                .onEnter(()->{
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(shootWaitTime, States.ShootSpin2)
-
-                .state(States.ShootSpin2)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                    spindexer.setKickerPos(false);
-                })
-                .transitionTimed(shootWaitTime, States.Kick3)
-
-                .state(States.Kick3)
-                .onEnter(()->{
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(shootWaitTime, States.Intake)
-
-                .state(States.OpenUpperGate)
-                .onEnter(()->{
-                    shooterButton=false;
-                    spindexer.setLowerGateOpen(true);
-                    shooter.setUpperGateOpen(true);
-                })
-                .transitionTimed(0.2, States.Have3WaitShoot)
-
-                .state(States.Have3WaitShoot)
-                .onEnter(()->{
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(1.2, States.Intake)
-                .build();
-
 
         StateMachine autoMachine = new StateMachineBuilder() //Autonomia
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.4)
                 .state(AutoStates.MOVETOSHOOT1)
                 .onEnter(()->{
+                    intakes.setGoodIntakePower(1);
+                    spindexer.setKickerPos(false);
                     PathChain toScore = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), shootPose))
                             .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
                             .setBrakingStrength(3)
                             .build();
                     follower.followPath(toScore, true);
-                    shooter.setHood(0.67);
-                    shooter.setTargetVelocity(1970);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-111*Posmultiplier));
+                    shooter.setHood(0.8);
+                    shooter.setTargetVelocity(2000);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(63.5*Posmultiplier));
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.5)
 
                 .state(AutoStates.wait1)
                 .transition(()->Math.abs(shooter.getTargetVelo()-shooter.getCurrentVelocity())<20)
-                .transitionTimed(2.5)
-
+                .transitionTimed(2.4)
+                .state(AutoStates.preSHOOT1)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.2)
                 .state(AutoStates.SHOOT1)
                 .onEnter(()->{
-                    shooterButton=true;
+                    spindexer.setKickerPos(true);
                 })
-                .transition(()->stateMachine.getState()==States.Intake)
+                .transitionTimed(0.5)
+
 
                 .state(AutoStates.MOVETOINTAKE1)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-109 *Posmultiplier));
+                    spindexer.setKickerPos(false);
+                    shooter.setUpperGateOpen(false);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(64.5 *Posmultiplier));
 
                     PathChain toIntake = follower.pathBuilder()
                             .addPath(new BezierCurve(follower.getPose(), intake1Pose, intake1donePose))
@@ -285,36 +178,7 @@ public class AutoStartFarShootFar extends LinearOpMode {
                     follower.followPath(toIntake, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.4)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
-
-                .state(AutoStates.Out1)
-                .onEnter(()->{
-                    PathChain toIntakeback = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), intake1Pose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),intake1donePose.getHeading())
-                            .setBrakingStrength(3)
-                            .setNoDeceleration()
-                            .build();
-                    follower.followPath(toIntakeback, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(0.3)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
-
-                .state(AutoStates.INTAKE1)
-                .onEnter(()->{
-
-                    PathChain toIntake = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), intake1donePose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),intake1donePose.getHeading())
-                            .setBrakingStrength(3)
-                            .build();
-                    follower.followPath(toIntake, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(1)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
+                .transitionTimed(1.7)
 
                 .state(AutoStates.MOVETOSHOOT2)
                 .onEnter(()->{
@@ -331,15 +195,21 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 .state(AutoStates.wait2)
                 .transitionTimed(0.2)
 
+                .state(AutoStates.preSHOOT2)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.2)
                 .state(AutoStates.SHOOT2)
                 .onEnter(()->{
-                    shooterButton=true;
-
+                    spindexer.setKickerPos(true);
                 })
-                .transition(()->stateMachine.getState()==States.Intake)
+                .transitionTimed(0.5)
                 .state(AutoStates.MOVETOINTAKE2)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-111*Posmultiplier));
+                    shooter.setUpperGateOpen(false);
+                    spindexer.setKickerPos(false);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(62.5*Posmultiplier));
 
                     PathChain toIntakeHuman = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), intakeHuman))
@@ -350,7 +220,6 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.3)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
 
                 .state(AutoStates.Out2)
                 .onEnter(()->{
@@ -363,7 +232,6 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.3)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
 
                 .state(AutoStates.INTAKE2)
                 .onEnter(()->{
@@ -376,8 +244,6 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.6)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
-
                 .state(AutoStates.MOVETOSHOOT3)
                 .onEnter(()->{
                     PathChain toScore = follower.pathBuilder()
@@ -393,23 +259,28 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 .state(AutoStates.wait3)
                 .transitionTimed(0.2)
 
+                .state(AutoStates.preSHOOT3)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.2)
                 .state(AutoStates.SHOOT3)
                 .onEnter(()->{
-                    shooterButton=true;
-
+                    spindexer.setKickerPos(true);
                 })
-                .transition(()->stateMachine.getState()==States.Intake)
+                .transitionTimed(0.5)
                 .state(AutoStates.MOVETOINTAKE3)
                 .onEnter(()->{
+                    spindexer.setKickerPos(false);
+                    shooter.setUpperGateOpen(false);
                     PathChain toIntakeHuman = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), intake1donePose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),intake1donePose.getHeading())
+                            .addPath(new BezierLine(follower.getPose(), intakemiddonePose))
+                            .setLinearHeadingInterpolation(follower.getHeading(),intakemiddonePose.getHeading())
                             .build();
                     follower.followPath(toIntakeHuman, true);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.3)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
                 .state(AutoStates.Out3)
                 .onEnter(()->{
                     PathChain toIntakeout = follower.pathBuilder()
@@ -421,7 +292,6 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.4)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
 
                 .state(AutoStates.INTAKE3)
                 .onEnter(()->{
@@ -433,7 +303,6 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.6)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
 
                 .state(AutoStates.MOVETOSHOOT4)
                 .onEnter(()->{
@@ -450,14 +319,20 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 .state(AutoStates.wait4)
                 .transitionTimed(0.2)
 
+                .state(AutoStates.preSHOOT4)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.2)
                 .state(AutoStates.SHOOT4)
                 .onEnter(()->{
-                    shooterButton=true;
-
+                    spindexer.setKickerPos(true);
                 })
-                .transition(()->stateMachine.getState()==States.Intake)
+                .transitionTimed(0.5)
                 .state(AutoStates.MOVETOINTAKE4)
                 .onEnter(()->{
+                    spindexer.setKickerPos(false);
+                    shooter.setUpperGateOpen(false);
                     PathChain toIntakeHuman = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), intakeHuman))
                             .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
@@ -466,7 +341,6 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(2)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
                 .state(AutoStates.MOVETOSHOOT5)
                 .onEnter(()->{
                     PathChain toScore = follower.pathBuilder()
@@ -482,14 +356,20 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 .state(AutoStates.wait5)
                 .transitionTimed(0.2)
 
+                .state(AutoStates.preSHOOT5)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.2)
                 .state(AutoStates.SHOOT5)
                 .onEnter(()->{
-                    shooterButton=true;
-
+                    spindexer.setKickerPos(true);
                 })
-                .transition(()->stateMachine.getState()==States.Intake)
+                .transitionTimed(0.5)
                 .state(AutoStates.MOVETOINTAKE5)
                 .onEnter(()->{
+                    spindexer.setKickerPos(false);
+                    shooter.setUpperGateOpen(false);
                     PathChain toIntakeHuman = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), intakeHuman))
                             .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
@@ -518,7 +398,6 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.6)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
                 .state(AutoStates.MOVETOSHOOT6)
                 .onEnter(()->{
                     PathChain toScore = follower.pathBuilder()
@@ -526,7 +405,7 @@ public class AutoStartFarShootFar extends LinearOpMode {
                             .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
                             .setBrakingStrength(0.7)
                             .build();
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-105.6*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(63*Posmultiplier));
 
                     follower.followPath(toScore, true);
                 })
@@ -534,17 +413,81 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 .transitionTimed(2.5)
 
                 .state(AutoStates.wait6)
-                .transition(()->stateMachine.getState()==States.WaitForShoot)
                 .transitionTimed(0.4)
 
+                .state(AutoStates.preSHOOT6)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.2)
                 .state(AutoStates.SHOOT6)
                 .onEnter(()->{
-                    shooterButton=true;
+                    spindexer.setKickerPos(true);
                 })
-                .transition(()->stateMachine.getState()==States.Intake)
+                .transitionTimed(0.5)
+                .state(AutoStates.MOVETOINTAKE6)
+                .onEnter(()->{
+                    spindexer.setKickerPos(false);
+                    shooter.setUpperGateOpen(false);
+                    PathChain toIntakeHuman = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), intakemiddonePose))
+                            .setLinearHeadingInterpolation(follower.getHeading(),intakemiddonePose.getHeading())
+                            .build();
+                    follower.followPath(toIntakeHuman, true);
+                })
+                .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.6)
+                .state(AutoStates.Out6)
+                .onEnter(()->{
+                    PathChain toIntakeHuman = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), intakeHumanOut))
+                            .setLinearHeadingInterpolation(follower.getHeading(),intakeHumanOut.getHeading())
+                            .build();
+                    follower.followPath(toIntakeHuman, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(0.4)
+                .state(AutoStates.INTAKE6)
+                .onEnter(()->{
+                    PathChain toIntakeHuman = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), intakeHuman))
+                            .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
+                            .build();
+                    follower.followPath(toIntakeHuman, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(0.6)
+                .state(AutoStates.MOVETOSHOOT7)
+                .onEnter(()->{
+                    PathChain toScore = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), shootPose))
+                            .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
+                            .setBrakingStrength(0.7)
+                            .build();
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(63*Posmultiplier));
+
+                    follower.followPath(toScore, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(2.5)
+
+                .state(AutoStates.wait7)
+                .transitionTimed(0.4)
+
+                .state(AutoStates.preSHOOT7)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.2)
+                .state(AutoStates.SHOOT7)
+                .onEnter(()->{
+                    spindexer.setKickerPos(true);
+                })
+                .transitionTimed(0.5)
                 .state(AutoStates.park)
                 .onEnter(()->{
+                    shooter.setUpperGateOpen(false);
+                    spindexer.setKickerPos(false);
                     PathChain park = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), leave))
                             .setLinearHeadingInterpolation(follower.getHeading(),leave.getHeading())
@@ -554,19 +497,15 @@ public class AutoStartFarShootFar extends LinearOpMode {
                 })
                 .build();
 
-        stateMachine.start();
         autoMachine.start();
-        stateMachine.setState(States.WaitForShoot);
         while (opModeIsActive()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             Position.pose = follower.getPose();
-            stateMachine.update();
             autoMachine.update();
             follower.update();
             intakes.update();
             shooter.update();
             spindexer.update();
-            telemetry.addData("State: ", stateMachine.getState());
             telemetry.addData("State auto: ", autoMachine.getState());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());

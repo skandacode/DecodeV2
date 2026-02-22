@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 import java.util.List;
 
 @Configurable
-@Autonomous(name = "AutoStartFarIndex15", group = "Auto")
+@Autonomous(name = "AutoStartFarIndex18", group = "Auto")
 public class AutoStartFarShootColsePush18 extends LinearOpMode {
     private Follower follower;
     public static int[] shootorder = {0, 1, 2};
@@ -38,10 +38,10 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
     Spindexer spindexer;
     public int pattern = 1;
     public boolean shooterButton = false;
-    public double shootWaitTime = 0.23;
+    public double shootWaitTime = 0.28;
+    public double intakeWaitTime = 0.35;
+
     public static boolean rapidFire = true;
-    public static boolean forceWait = false;
-    Runnable setForcewaitTrue = () -> forceWait = true;
 
 
     public static Shooter.Goal shooterTarget = Shooter.Goal.BLUE;
@@ -61,20 +61,28 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
         INTAKE5,
         MOVETOSHOOT6, wait6,SHOOT6,
     }
+
     public enum States{
+        BeforeIntake,
         Intake,
+
+
+        Increment1,
         Wait1,
-        Increment2, //switch from Intake2 to Intake3
+        Increment2,
         Wait2,
-        Increment3, //switch from Intake3 to 4
+
+        BeforeWaitForShoot,
         WaitForShoot,
-        Kick1,
+
+        Kick1,//spindex shoot
         ShootSpin1,
         Kick2,
         ShootSpin2,
         Kick3,
-        OpenUpperGate,
-        Shoot,
+
+        OpenUpperGate,//rapid 3
+        Shoot
     }
 
 
@@ -91,11 +99,17 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
         spindexer = new Spindexer(hardwareMap);
         follower = createFollower(hardwareMap);
 
+
         while (opModeInInit()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             follower.update();
             int currpattern = limelightCamera.getMotif();
-            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+            shooter.setUpperGateOpen(false);
+            spindexer.setLowerGateOpen(true);
+            spindexer.setKickerPos(false);
+            shooter.setTurretPos(shooter.convertDegreestoServoPos(0));
+            shooter.setHood(0.7);
             if (currpattern != 0){
                 pattern = currpattern;
             }else{
@@ -116,6 +130,7 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
             }
             telemetry.update();
             spindexer.update();
+            shooter.update();
         }
 
         waitForStart();
@@ -126,15 +141,17 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
         Pose startPose = new Pose(60, -15*Posmultiplier, Math.toRadians(180*Posmultiplier));
         Pose pushPose = new Pose(58, -24*Posmultiplier, Math.toRadians(180*Posmultiplier));
         Pose shootPosepreload = new Pose(45, -12*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose shootPose1 = new Pose(-8, -14*Posmultiplier, Math.toRadians(-29.5*Posmultiplier));
+        Pose shootPose1 = new Pose(-8, -14*Posmultiplier, Math.toRadians(-20*Posmultiplier));
         Pose shootPose2 = new Pose(-9, -16*Posmultiplier, Math.toRadians(-30*Posmultiplier));
         Pose shootPose3 = new Pose(-5, -19*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose shootPose4 = new Pose(-22, -22*Posmultiplier, Math.toRadians(-32*Posmultiplier));
         Pose shootPoseleave = new Pose(-39, -16*Posmultiplier, Math.toRadians(-29*Posmultiplier));
 
+        Pose intake1backControl = new Pose(40, -20*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
         Pose intake1Pose = new Pose(34, -34*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake2Pose = new Pose(44, -61*Posmultiplier, Math.toRadians(-24*Posmultiplier));
+        Pose intake2ControlPose = new Pose(44, -61*Posmultiplier, Math.toRadians(-24*Posmultiplier));
+        Pose intake2Pose = new Pose(30, -30*Posmultiplier, Math.toRadians(-24*Posmultiplier));
         Pose intake3Pose = new Pose(10,-34*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake4Pose = new Pose(-11,-34*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake5Pose = new Pose(26,-56*Posmultiplier, Math.toRadians(-20*Posmultiplier));
@@ -161,17 +178,19 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
                 .setLinearHeadingInterpolation(shootPosepreload.getHeading(), intake1donePose.getHeading())
                 .build();
         PathChain toShoot1 = follower.pathBuilder()
-                .addPath(new BezierLine(intake1donePose, shootPose1))
-                .setLinearHeadingInterpolation(intake1donePose.getHeading(), shootPose1.getHeading())
+                .addPath(new BezierCurve(intake1donePose, intake1backControl,shootPose1))
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .setBrakingStrength(1.5)
                 .build();
         PathChain toIntake2 = follower.pathBuilder()
-                .addPath(new BezierCurve(shootPose1, intake2Pose,intake2donePose))
-                .setLinearHeadingInterpolation(shootPose1.getHeading(), intake2donePose.getHeading())
+                .addPath(new BezierCurve(shootPose1, intake2Pose,intake2ControlPose, intake2donePose))
+                .setTangentHeadingInterpolation()
                 .build();
         PathChain toShoot2 = follower.pathBuilder()
-                .addPath(new BezierLine(intake2donePose, shootPose2))
+                .addPath(new BezierCurve(intake2donePose, intake2ControlPose,intake2Pose,shootPose2))
                 .setTangentHeadingInterpolation()
+                .setReversed()
                 .setBrakingStrength(1.5)
                 .build();
         PathChain toIntake3 = follower.pathBuilder()
@@ -179,11 +198,11 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
                 .setLinearHeadingInterpolation(shootPose2.getHeading(), intake3donePose.getHeading())
                 .build();
         PathChain toGateBack = follower.pathBuilder()
-                .addPath(new BezierCurve(intake3donePose, opengateback))
+                .addPath(new BezierLine(intake3donePose, opengateback))
                 .setLinearHeadingInterpolation(intake3donePose.getHeading(), opengateback.getHeading())
                 .build();
         PathChain toGateForward = follower.pathBuilder()
-                .addPath(new BezierCurve(opengateback, opengate))
+                .addPath(new BezierLine(opengateback, opengate))
                 .setLinearHeadingInterpolation(opengateback.getHeading(), opengate.getHeading())
                 .build();
         PathChain toShoot3 = follower.pathBuilder()
@@ -207,6 +226,7 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
         PathChain toShootleave = follower.pathBuilder()
                 .addPath(new BezierLine(intake4donePose, shootPoseleave))
                 .setTangentHeadingInterpolation()
+                .setReversed()
                 .setBrakingStrength(1.5)
                 .build();
 
@@ -214,133 +234,133 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
 
 
         StateMachine stateMachine = new StateMachineBuilder()
-                .state(States.Intake)
+                .state(States.BeforeIntake)
                 .loop(()->{
+                    if (rapidFire) {
+                        if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()) {
+                            System.out.println("all detected");
+                            intakes.setGoodIntakePower(0.2);
+                        } else {
+                            intakes.setGoodIntakePower(1);
+                        }
+                    }else{
+                        intakes.setGoodIntakePower(1);
+                    }
+                    intakes.setBadIntakePower(-0.2);
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(rapidFire);
                     spindexer.setKickerPos(false);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                })
+                .transition(()->shooterButton, States.WaitForShoot)
+                .transitionTimed(0.4, States.Intake)
 
+
+                .state(States.Intake)
+                .loop(()->{
                     if (rapidFire) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-
-                        intakes.setGoodIntakePower(1);
-                        intakes.setBadIntakePower(-0.1);
+                        if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()) {
+                            System.out.println("all detected");
+                            intakes.setGoodIntakePower(0.2);
+                        } else {
+                            intakes.setGoodIntakePower(1);
+                        }
                     }else{
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Intake1);
-                        intakes.setGoodIntakePower(0.2);
-                        intakes.setBadIntakePower(1);
+                        intakes.setGoodIntakePower(1);
                     }
+                    intakes.setBadIntakePower(-0.2);
+                    shooter.setUpperGateOpen(false);
+                    spindexer.setLowerGateOpen(rapidFire);
+                    spindexer.setKickerPos(false);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                 })
-                .transition(()->shooterButton && rapidFire, States.OpenUpperGate)
-                .transition(()->shooterButton && !rapidFire, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from intake to wait for shoot because shooter button pressed and not rapid fire");
-                })
-                .transition(()->intakes.getBadIntakeDetected() && !rapidFire, States.Wait1, ()->{
-                    System.out.println("Transitioned from intake to wait1 because bad intake detected and not rapid fire");
-                })
-                .transition(()->forceWait, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from intake to wait for shoot because force wait true");
-                })
+                .transition(()->shooterButton, States.WaitForShoot)
+                .transition(()->!rapidFire && intakes.getGoodIntakeDetected(), States.Wait1)
 
                 .state(States.Wait1)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
-                .transitionTimed(shootWaitTime, States.Increment2, ()->{
-                    System.out.println("Transitioned from wait1 to increment2 because time elapsed");
-                })
-                .transition(()->shooterButton, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from wait1 to wait for shoot because shooter button pressed");
-                })
-                .transition(()->forceWait, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from wait1 to wait for shoot because force wait true");
-                })
+                .transitionTimed(intakeWaitTime, States.Increment1)
+                .transition(()->shooterButton, States.WaitForShoot)
 
-                .state(States.Increment2)
+                .state(States.Increment1)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
-                .transition(()->intakes.getBadIntakeDetected(), States.Wait2, ()->{
-                    System.out.println("Transitioned from increment2 to wait2 because bad intake detected");
-                })
-                .transition(()->shooterButton, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from increment2 to wait for shoot because shooter button pressed");
-                })
-                .transition(()->forceWait, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from increment2 to wait for shoot because force wait true");
-                })
+                .transition(()->intakes.getGoodIntakeDetected(), States.Wait2)
+                .transition(()->shooterButton, States.WaitForShoot)
 
                 .state(States.Wait2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    intakes.setBadIntakePower(0.3);
                 })
-                .transitionTimed(shootWaitTime, States.Increment3, ()->{
-                    System.out.println("Transitioned from wait2 to increment3 because time elapsed");
-                })
-                .transition(()->shooterButton, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from wait2 to wait for shoot because shooter button pressed");
-                })
-                .transition(()->forceWait, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from wait2 to wait for shoot because force wait true");
-                })
+                .transitionTimed(intakeWaitTime, States.Increment2)
+                .transition(()->shooterButton, States.WaitForShoot)
 
-                .state(States.Increment3)
+                .state(States.Increment2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
-                .transition(()->intakes.getBadIntakeDetected(), States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from increment3 to wait for shoot because bad intake detected");
-                })
-                .transition(()->shooterButton, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from increment3 to wait for shoot because shooter button pressed");
-                })
-                .transition(()->forceWait, States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from increment3 to wait for shoot because force wait true");
-                })
-
+                .transition(()->intakes.getGoodIntakeDetected(), States.WaitForShoot)
+                .transition(()->shooterButton, States.WaitForShoot)
 
                 .state(States.WaitForShoot)
-                .loop(()->{
-                    if (shootorder[0]==0){
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    }else if (shootorder[0]==1){
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    }else{
+                .onEnter(()->{
+                    if (shootorder[0] == 2) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    }else if (shootorder[0] == 1) {
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    }else if (shootorder[0] == 0) {
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }
-                    intakes.setBadIntakePower(0.3);
-                    intakes.setGoodIntakePower(1);
-
-                    shooter.setUpperGateOpen(true);
-                    forceWait = false;
                 })
-                .transition(()->shooterButton, States.Kick1)
+                .transition(()->shooterButton && rapidFire, States.OpenUpperGate)
+                .transition(()->shooterButton && !rapidFire, States.Kick1)
+                .onExit(()->{
+                    shooterButton = false;
+                })
+
+
+                .state(States.OpenUpperGate)
+                .onEnter(()->{
+                    intakes.setGoodIntakePower(1);
+                    spindexer.setLowerGateOpen(true);
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.2)
+
+                .state(States.Shoot)
+                .onEnter(()->{
+                    spindexer.setKickerPos(true);
+                })
+                .transitionTimed(0.4, States.Intake)
 
                 .state(States.Kick1)
                 .onEnter(()->{
-                    forceWait = false;
-                    shooterButton=false;
-                    if (shootorder[0]==0){
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    }else if (shootorder[0]==1){
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    }else{
+                    if (shootorder[0] == 2) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    }else if (shootorder[0] == 1) {
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    }else if (shootorder[0] == 0) {
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }
                     spindexer.setLowerGateOpen(true);
                     shooter.setUpperGateOpen(true);
                     spindexer.setKickerPos(true);
+                    intakes.setGoodIntakePower(1);
                 })
                 .transitionTimed(shootWaitTime, States.ShootSpin1)
 
                 .state(States.ShootSpin1)
                 .onEnter(()->{
-                    if (shootorder[1]==0){
+                    if (shootorder[1] == 2) {
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    }else if (shootorder[1] == 1) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    }else if (shootorder[1]==1){
+                    }else if (shootorder[1] == 0) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    }else{
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
                     }
                     spindexer.setKickerPos(false);
                 })
@@ -354,12 +374,12 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
 
                 .state(States.ShootSpin2)
                 .onEnter(()->{
-                    if (shootorder[2]==0){
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot4);
-                    }else if (shootorder[2]==1){
+                    if (shootorder[2] == 2) {
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    }else if (shootorder[2] == 1) {
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    }else if (shootorder[2] == 0) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    }else{
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
                     }
                     spindexer.setKickerPos(false);
                 })
@@ -369,21 +389,7 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(shootWaitTime, States.Intake)
-
-                .state(States.OpenUpperGate)
-                .onEnter(()->{
-                    shooterButton=false;
-                    spindexer.setLowerGateOpen(true);
-                    shooter.setUpperGateOpen(true);
-                })
-                .transitionTimed(0.2, States.Shoot)
-
-                .state(States.Shoot)
-                .onEnter(()->{
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(1.2, States.Intake)
+                .transitionTimed(shootWaitTime, States.BeforeIntake)
                 .build();
 
 
@@ -393,7 +399,7 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
                     follower.followPath(toPush, true);
                     shooter.setHood(0.8);
                     shooter.setTargetVelocity(2000);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-30*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(50*Posmultiplier));
                     rapidFire=true;
                 })
 
@@ -426,7 +432,7 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
                 .onEnter(()->{
                     shooter.setHood(0.67);
                     shooter.setTargetVelocity(1300);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(140*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(90*Posmultiplier));
                     follower.followPath(toShoot1, true);
                 })
                 .transition(()->follower.atParametricEnd())
@@ -485,7 +491,7 @@ public class AutoStartFarShootColsePush18 extends LinearOpMode {
 
                 .state(AutoStates.MOVETOSHOOT4)
                 .onEnter(()->{
-                    follower.followPath(toShoot4, true);
+                    follower.followPath(toShoot3, true);
                     if (pattern==1){
                         shootorder = new int[]{1, 2, 0};
                     }else if (pattern==2){
