@@ -27,8 +27,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 import java.util.List;
 
 @Configurable
-@Autonomous(name = "AutoFarFarLL", group = "Auto")
-public class AutoStartFarShootFarLL extends LinearOpMode {
+@Autonomous(name = "AutoFarFarLLNormalGate", group = "Auto")
+public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
     private Follower follower;
     Intakes intakes;
     String colorAlliance = "BLUE";
@@ -118,7 +118,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
 
         Pose startPose = new Pose(60, -15*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose shootPose = new Pose(58, -12*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose shootPose = new Pose(57, -19*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intakeHuman = new Pose(58, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake1Pose = new Pose(31, -17*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake1donePose = new Pose(31, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
@@ -147,8 +147,8 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                             .build();
                     follower.followPath(toScore, true);
                     shooter.setHood(0.8);
-                    shooter.setTargetVelocity(2100);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(65*Posmultiplier));
+                    shooter.setTargetVelocity(2050);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(70*Posmultiplier));
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.5)
@@ -172,9 +172,9 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setKickerPos(false);
                     shooter.setUpperGateOpen(false);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(67.5 *Posmultiplier));
-                    shooter.setHood(0.84);
-                    shooter.setTargetVelocity(2020);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(71 *Posmultiplier));
+                    shooter.setHood(0.8);
+                    shooter.setTargetVelocity(1990);
 
                     PathChain toIntake = follower.pathBuilder()
                             .addPath(new BezierCurve(follower.getPose(), intake1Pose, intake1donePose))
@@ -217,17 +217,15 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                     spindexer.setKickerPos(false);
                     shooter.setTargetVelocity(2000);
 
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(63.5*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
 
                     PathChain toIntakeHuman = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), intakeHuman))
                             .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
-                            .setNoDeceleration()
                             .build();
                     follower.followPath(toIntakeHuman, true);
                 })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.3)
+                .transitionTimed(1.7)
 
                 .state(AutoStates.MOVETOSHOOT3)
                 .onEnter(()->{
@@ -256,7 +254,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .transitionTimed(0.5)
                 .state(AutoStates.MOVETOINTAKE3)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(63.5*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
@@ -316,12 +314,12 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .transitionTimed(0.5)
                 .state(AutoStates.MOVETOINTAKE4)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(63.5*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
                     PathChain toIntake = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), intakeHuman))
-                            .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
+                            .addPath(new BezierCurve(follower.getPose(), intakemidPose, intakemiddonePose))
+                            .setLinearHeadingInterpolation(follower.getHeading(),intakemiddonePose.getHeading())
                             .build();
                     follower.followPath(toIntake, true);
 
@@ -356,7 +354,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .state(AutoStates.MOVETOINTAKE5)
                 .onEnter(()->{
                     shooter.setTargetVelocity(2020);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(66.5*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(70*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
@@ -378,8 +376,8 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                     }else{
                         PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierCurve(follower.getPose(), intake1Pose,intake1donePose))
-                                .setLinearHeadingInterpolation(follower.getHeading(),intake1donePose.getHeading())
+                                .addPath(new BezierLine(follower.getPose(), intakeHuman))
+                                .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
                                 .build();
                         follower.followPath(toIntake, true);
                         System.out.println("Detected at NULL");
@@ -397,7 +395,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                             .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
                             .setBrakingStrength(0.7)
                             .build();
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(65*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(70*Posmultiplier));
 
                     follower.followPath(toScore, true);
                 })
@@ -422,8 +420,8 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
                     PathChain toIntake = follower.pathBuilder()
-                            .addPath(new BezierCurve(follower.getPose(), intake1Pose,intake1donePose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),intake1donePose.getHeading())
+                            .addPath(new BezierLine(follower.getPose(),intakeHuman))
+                            .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
                             .build();
                     follower.followPath(toIntake, true);
 
@@ -437,7 +435,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                             .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
                             .setBrakingStrength(0.7)
                             .build();
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(70*Posmultiplier));
 
                     follower.followPath(toScore, true);
                 })

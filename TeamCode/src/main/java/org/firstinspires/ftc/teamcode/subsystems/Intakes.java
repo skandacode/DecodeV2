@@ -22,8 +22,8 @@ public class Intakes {
     RevColorSensorV3 goodIntakeSensor;
 
     public static double badIntakeSensorThresh = 2;
-    public static double goodIntakeSensorThresh = 3.3;
-    public static double goodIntakeSensorThreshBottom = 2.6;
+    public static double goodIntakeSensorThresh = 2.7;
+    public static double goodIntakeSensorThreshBottom = 2.3;
 
 
     public double goodPower, badPower;

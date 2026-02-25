@@ -69,7 +69,7 @@ public class Shooter {
     public static double turretOffset = 0;
 
     public static double upperGateOpenPos = 0.98;
-    public static double upperGateClosedPos = 0.79;
+    public static double upperGateClosedPos = 0.8;
 
     private double prevX, prevY;
     private long prevPosTime;
