@@ -75,7 +75,7 @@ public class StateMachineTesting extends LinearOpMode {
         waitForStart();
         System.out.println("started");
         StateMachine stateMachine = new StateMachineBuilder()
-                .state(States.BeforeIntake)
+                .state(AutoStartFarShootClosePush15.States.BeforeIntake)
                 .loop(()->{
                     if (rapidFire) {
                         if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()) {
@@ -93,11 +93,11 @@ public class StateMachineTesting extends LinearOpMode {
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                 })
-                .transition(()->shooterButton, States.WaitForShoot)
-                .transitionTimed(0.4, States.Intake)
+                .transition(()->shooterButton, AutoStartFarShootClosePush15.States.WaitForShoot)
+                .transitionTimed(0.4, AutoStartFarShootClosePush15.States.Intake)
 
 
-                .state(States.Intake)
+                .state(AutoStartFarShootClosePush15.States.Intake)
                 .loop(()->{
                     if (rapidFire) {
                         if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()) {
@@ -115,39 +115,39 @@ public class StateMachineTesting extends LinearOpMode {
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                 })
-                .transition(()->shooterButton, States.WaitForShoot)
-                .transition(()->!rapidFire && intakes.getGoodIntakeDetected(), States.Wait1)
+                .transition(()->shooterButton, AutoStartFarShootClosePush15.States.WaitForShoot)
+                .transition(()->!rapidFire && intakes.getGoodIntakeDetected(), AutoStartFarShootClosePush15.States.Wait1)
 
-                .state(States.Wait1)
+                .state(AutoStartFarShootClosePush15.States.Wait1)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
-                .transitionTimed(intakeWaitTime, States.Increment1)
-                .transition(()->shooterButton, States.WaitForShoot)
+                .transitionTimed(intakeWaitTime, AutoStartFarShootClosePush15.States.Increment1)
+                .transition(()->shooterButton, AutoStartFarShootClosePush15.States.WaitForShoot)
 
-                .state(States.Increment1)
+                .state(AutoStartFarShootClosePush15.States.Increment1)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
-                .transition(()->intakes.getGoodIntakeDetected(), States.Wait2)
-                .transition(()->shooterButton, States.WaitForShoot)
+                .transition(()->intakes.getGoodIntakeDetected(), AutoStartFarShootClosePush15.States.Wait2)
+                .transition(()->shooterButton, AutoStartFarShootClosePush15.States.WaitForShoot)
 
-                .state(States.Wait2)
+                .state(AutoStartFarShootClosePush15.States.Wait2)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                     intakes.setBadIntakePower(0.3);
                 })
-                .transitionTimed(intakeWaitTime, States.Increment2)
-                .transition(()->shooterButton, States.WaitForShoot)
+                .transitionTimed(intakeWaitTime, AutoStartFarShootClosePush15.States.Increment2)
+                .transition(()->shooterButton, AutoStartFarShootClosePush15.States.WaitForShoot)
 
-                .state(States.Increment2)
+                .state(AutoStartFarShootClosePush15.States.Increment2)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
-                .transition(()->intakes.getGoodIntakeDetected(), States.WaitForShoot)
-                .transition(()->shooterButton, States.WaitForShoot)
+                .transition(()->intakes.getGoodIntakeDetected(), AutoStartFarShootClosePush15.States.WaitForShoot)
+                .transition(()->shooterButton, AutoStartFarShootClosePush15.States.WaitForShoot)
 
-                .state(States.WaitForShoot)
+                .state(AutoStartFarShootClosePush15.States.WaitForShoot)
                 .onEnter(()->{
                     if (shootorder[0] == 2) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
@@ -157,14 +157,14 @@ public class StateMachineTesting extends LinearOpMode {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }
                 })
-                .transition(()->shooterButton && rapidFire, States.OpenUpperGate)
-                .transition(()->shooterButton && !rapidFire, States.Kick1)
+                .transition(()->shooterButton && rapidFire, AutoStartFarShootClosePush15.States.OpenUpperGate)
+                .transition(()->shooterButton && !rapidFire, AutoStartFarShootClosePush15.States.Kick1)
                 .onExit(()->{
                     shooterButton = false;
                 })
 
 
-                .state(States.OpenUpperGate)
+                .state(AutoStartFarShootClosePush15.States.OpenUpperGate)
                 .onEnter(()->{
                     intakes.setGoodIntakePower(1);
                     spindexer.setLowerGateOpen(true);
@@ -172,13 +172,13 @@ public class StateMachineTesting extends LinearOpMode {
                 })
                 .transitionTimed(0.2)
 
-                .state(States.Shoot)
+                .state(AutoStartFarShootClosePush15.States.Shoot)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.4, States.Intake)
+                .transitionTimed(0.4, AutoStartFarShootClosePush15.States.Intake)
 
-                .state(States.Kick1)
+                .state(AutoStartFarShootClosePush15.States.Kick1)
                 .onEnter(()->{
                     if (shootorder[0] == 2) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
@@ -192,9 +192,9 @@ public class StateMachineTesting extends LinearOpMode {
                     spindexer.setKickerPos(true);
                     intakes.setGoodIntakePower(1);
                 })
-                .transitionTimed(shootWaitTime, States.ShootSpin1)
+                .transitionTimed(shootWaitTime, AutoStartFarShootClosePush15.States.ShootSpin1)
 
-                .state(States.ShootSpin1)
+                .state(AutoStartFarShootClosePush15.States.ShootSpin1)
                 .onEnter(()->{
                     if (shootorder[1] == 2) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
@@ -205,15 +205,15 @@ public class StateMachineTesting extends LinearOpMode {
                     }
                     spindexer.setKickerPos(false);
                 })
-                .transitionTimed(shootWaitTime, States.Kick2)
+                .transitionTimed(shootWaitTime, AutoStartFarShootClosePush15.States.Kick2)
 
-                .state(States.Kick2)
+                .state(AutoStartFarShootClosePush15.States.Kick2)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(shootWaitTime, States.ShootSpin2)
+                .transitionTimed(shootWaitTime, AutoStartFarShootClosePush15.States.ShootSpin2)
 
-                .state(States.ShootSpin2)
+                .state(AutoStartFarShootClosePush15.States.ShootSpin2)
                 .onEnter(()->{
                     if (shootorder[2] == 2) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
@@ -224,13 +224,13 @@ public class StateMachineTesting extends LinearOpMode {
                     }
                     spindexer.setKickerPos(false);
                 })
-                .transitionTimed(shootWaitTime, States.Kick3)
+                .transitionTimed(shootWaitTime, AutoStartFarShootClosePush15.States.Kick3)
 
-                .state(States.Kick3)
+                .state(AutoStartFarShootClosePush15.States.Kick3)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(shootWaitTime, States.BeforeIntake)
+                .transitionTimed(shootWaitTime, AutoStartFarShootClosePush15.States.BeforeIntake)
                 .build();
 
 

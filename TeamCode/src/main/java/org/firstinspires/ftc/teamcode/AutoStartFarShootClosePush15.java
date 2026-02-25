@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 import java.util.List;
 
 @Configurable
-@Autonomous(name = "AutoStartFarIndex15", group = "Auto")
+@Autonomous(name = "AutoStartFarIndexFULL15", group = "Auto")
 public class AutoStartFarShootClosePush15 extends LinearOpMode {
     private Follower follower;
     public static int[] shootorder = {0, 1, 2};
@@ -38,7 +38,7 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
     Spindexer spindexer;
     public int pattern = 1;
     public boolean shooterButton = false;
-    public double shootWaitTime = 0.28;
+    public double shootWaitTime = 0.3;
     public double intakeWaitTime = 0.35;
 
     public static boolean rapidFire = true;
@@ -50,16 +50,15 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
     public enum AutoStates {
         PUSH,
         MOVETOSHOOT1, wait1, SHOOT1,
-        INTAKE1,
+        INTAKE1, backIntake1, inIntake1,
         MOVETOSHOOT2, wait2, SHOOT2,
-        INTAKE2,
+        INTAKE2, INTAKE2INSLOW, BACK, GATE, waitgate,
         MOVETOSHOOT3, wait3,SHOOT3,
-        INTAKE3, BACK, GATE, waitgate,
+        INTAKE3, INTAKE3INSLOW,
         MOVETOSHOOT4, wait4,SHOOT4,
-        INTAKE4,
+        INTAKE4,INTAKE4INSLOW,
         MOVETOSHOOT5, wait5,SHOOT5,
         INTAKE5,
-        MOVETOSHOOT6, wait6,SHOOT6,
     }
 
     public enum States{
@@ -136,31 +135,28 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
         waitForStart();
 
 
-        Pose opengate = new Pose(2, -57*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose opengate = new Pose(0, -58*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose opengateback = new Pose(3, -42*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose startPose = new Pose(60, -15*Posmultiplier, Math.toRadians(180*Posmultiplier));
         Pose pushPose = new Pose(58, -24*Posmultiplier, Math.toRadians(180*Posmultiplier));
-        Pose shootPosepreload = new Pose(53, -15*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose shootPose1 = new Pose(45, -15*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose shootPose2 = new Pose(-5, -19*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose shootPosepreload = new Pose(58, -15*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose shootPose1 = new Pose(47, -15*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose shootPose2 = new Pose(-8, -19*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose shootPose3 = new Pose(-5, -19*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose shootPose4 = new Pose(-22, -22*Posmultiplier, Math.toRadians(-32*Posmultiplier));
         Pose shootPoseleave = new Pose(-39, -16*Posmultiplier, Math.toRadians(-29*Posmultiplier));
 
         Pose intake1backControl = new Pose(40, -20*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose toShoot2Control = new Pose(30, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose toShoot2Control = new Pose(10, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
-        Pose intake1Pose = new Pose(60, -34*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake2Pose = new Pose(10, -30*Posmultiplier, Math.toRadians(-24*Posmultiplier));
-        Pose intake3Pose = new Pose(30,-34*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake4Pose = new Pose(-11,-34*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake5Pose = new Pose(26,-56*Posmultiplier, Math.toRadians(-20*Posmultiplier));
+        Pose intake1Pose = new Pose(60, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake2Pose = new Pose(11, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake3Pose = new Pose(31,-30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake4Pose = new Pose(-14,-30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
-        Pose intake1donePose = new Pose(60, -64*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake2donePose = new Pose(11, -63*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose intake1donePose = new Pose(60, -62*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake2donePose = new Pose(11, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake3donePose = new Pose(31, -64*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake4donePose = new Pose(-14, -56*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake5donePose = new Pose(56,-62*Posmultiplier, Math.toRadians(-10*Posmultiplier));
 
 
         PathChain toPush = follower.pathBuilder()
@@ -178,14 +174,17 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .setLinearHeadingInterpolation(shootPosepreload.getHeading(), intake1donePose.getHeading())
                 .build();
         PathChain toShoot1 = follower.pathBuilder()
-                .addPath(new BezierCurve(intake1donePose, intake1backControl,shootPose1))
-                .setTangentHeadingInterpolation()
-                .setReversed()
+                .addPath(new BezierLine(intake1donePose,shootPose1))
+                .setLinearHeadingInterpolation(intake1donePose.getHeading(),shootPose1.getHeading())
                 .setBrakingStrength(1.5)
                 .build();
         PathChain toIntake2 = follower.pathBuilder()
-                .addPath(new BezierCurve(shootPose1, intake2Pose, intake2donePose))
-                .setTangentHeadingInterpolation()
+                .addPath(new BezierLine(shootPose1, intake2Pose))
+                .setLinearHeadingInterpolation(shootPose1.getHeading(),intake2Pose.getHeading())
+                .build();
+        PathChain toIntake2in = follower.pathBuilder()
+                .addPath(new BezierLine(intake2Pose, intake2donePose))
+                .setLinearHeadingInterpolation(intake2Pose.getHeading(),intake2donePose.getHeading())
                 .build();
         PathChain toGateBack = follower.pathBuilder()
                 .addPath(new BezierLine(intake2donePose, opengateback))
@@ -202,8 +201,12 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .setBrakingStrength(1.5)
                 .build();
         PathChain toIntake3 = follower.pathBuilder()
-                .addPath(new BezierCurve(shootPose2, intake3Pose,intake3donePose))
-                .setLinearHeadingInterpolation(shootPose2.getHeading(), intake3donePose.getHeading())
+                .addPath(new BezierLine(shootPose2, intake3Pose))
+                .setLinearHeadingInterpolation(shootPose2.getHeading(), intake3Pose.getHeading())
+                .build();
+        PathChain toIntake3in = follower.pathBuilder()
+                .addPath(new BezierLine(intake3Pose,intake3donePose))
+                .setLinearHeadingInterpolation(intake3Pose.getHeading(), intake3donePose.getHeading())
                 .build();
         PathChain toShoot3 = follower.pathBuilder()
                 .addPath(new BezierCurve(intake3donePose, intake3Pose, shootPose3))
@@ -215,18 +218,8 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .setLinearHeadingInterpolation(shootPose3.getHeading(), intake4donePose.getHeading())
                 .build();
         PathChain toShoot4 = follower.pathBuilder()
-                .addPath(new BezierLine(intake4donePose, shootPose4))
-                .setLinearHeadingInterpolation(intake4donePose.getHeading(), shootPose4.getHeading())
-                .setBrakingStrength(1.5)
-                .build();
-        PathChain toIntake5 = follower.pathBuilder()
-                .addPath(new BezierCurve(shootPose4, intake5Pose,intake5donePose))
-                .setLinearHeadingInterpolation(shootPose4.getHeading(), intake5donePose.getHeading())
-                .build();
-        PathChain toShootleave = follower.pathBuilder()
-                .addPath(new BezierLine(intake5donePose, shootPoseleave))
-                .setTangentHeadingInterpolation()
-                .setReversed()
+                .addPath(new BezierLine(intake4donePose, shootPoseleave))
+                .setLinearHeadingInterpolation(intake4donePose.getHeading(), shootPoseleave.getHeading())
                 .setBrakingStrength(1.5)
                 .build();
 
@@ -399,7 +392,7 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                     follower.followPath(toPush, true);
                     shooter.setHood(0.8);
                     shooter.setTargetVelocity(2000);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(50*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(63*Posmultiplier));
                     rapidFire=true;
                 })
 
@@ -410,7 +403,7 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                     follower.followPath(toShootpreload, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1)
+                .transitionTimed(0.7)
 
                 .state(AutoStates.wait1)
                 .transitionTimed(1.5)
@@ -423,14 +416,26 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
 
                 .state(AutoStates.INTAKE1)
                 .onEnter(()->{
+                    shooter.setHood(0.8);
+                    shooter.setTargetVelocity(1930);
                     follower.followPath(toIntake1, true);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.5)
+                .state(AutoStates.backIntake1)
+                .onEnter(()->{
+                    follower.followPath(toShoot1, true);
+                })
+                .transitionTimed(0.4)
+                .state(AutoStates.inIntake1)
+                .onEnter(()->{
+                    follower.followPath(toIntake1, true);
+                })
+                .transitionTimed(0.6)
 
                 .state(AutoStates.MOVETOSHOOT2)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(90*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
                     follower.followPath(toShoot1, true);
                 })
                 .transition(()->follower.atParametricEnd())
@@ -444,34 +449,24 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .transitionTimed(1.2)
                 .state(AutoStates.INTAKE2)
                 .onEnter(()->{
+                    rapidFire=false;
                     follower.followPath(toIntake2, true);
                 })
-
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(2)
-                .state(AutoStates.MOVETOSHOOT3)
+                .transitionTimed(1.5)
+                .state(AutoStates.INTAKE2INSLOW)
                 .onEnter(()->{
-                    shooter.setHood(0.67);
-                    shooter.setTargetVelocity(1300);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(140*Posmultiplier));
-                    follower.followPath(toShoot2, true);
+                    if (pattern==1){
+                        shootorder = new int[]{1, 2, 0};
+                    }else if (pattern==2){
+                        shootorder = new int[]{0, 1, 2};
+                    }else{
+                        shootorder = new int[]{2, 0, 1};
+                    }
+                    follower.followPath(toIntake2in, 0.6,true);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(2.5)
-                .state(AutoStates.wait3)
-                .transitionTimed(0.2)
-                .state(AutoStates.SHOOT3)
-                .onEnter(()->{
-                    rapidFire=false;
-                    shooterButton=true;
-                })
-                .transitionTimed(1.2)
-                .state(AutoStates.INTAKE3)
-                .onEnter(()->{
-                    follower.followPath(toIntake3, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2)
                 .state(AutoStates.BACK)
                 .onEnter(()->{
                     follower.followPath(toGateBack, true);
@@ -484,35 +479,60 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .transitionTimed(0.4)
                 .state(AutoStates.waitgate)
                 .onEnter(()->{
+                    intakes.setGoodIntakePower(0);
                 })
                 .transitionTimed(1.5)
 
+                .state(AutoStates.MOVETOSHOOT3)
+                .onEnter(()->{
+                    intakes.setGoodIntakePower(1);
+                    shooter.setHood(0.63);
+                    shooter.setTargetVelocity(1420);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(110*Posmultiplier));
+                    follower.followPath(toShoot2, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(2.5)
+                .state(AutoStates.wait3)
+                .transitionTimed(0.2)
+                .state(AutoStates.SHOOT3)
+                .onEnter(()->{
+                    rapidFire=false;
+                    shooterButton=true;
+                })
+                .transitionTimed(1.6)
+                .state(AutoStates.INTAKE3)
+                .onEnter(()->{
+                    follower.followPath(toIntake3, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(2)
+                .state(AutoStates.INTAKE3INSLOW)
+                .onEnter(()->{
+                    if (pattern==1){
+                        shootorder = new int[]{0, 1, 2};
+                    }else if (pattern==2){
+                        shootorder = new int[]{2, 0, 1};
+                    }else{
+                        shootorder = new int[]{1, 2, 0};
+                    }
+                    follower.followPath(toIntake3in, 0.6,true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(2)
                 .state(AutoStates.MOVETOSHOOT4)
                 .onEnter(()->{
+                    shooter.setHood(0.64);
+                    shooter.setTargetVelocity(1450);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(51*Posmultiplier));
                     follower.followPath(toShoot3, true);
-                    if (pattern==1){
-                        shootorder = new int[]{1, 2, 0};
-                    }else if (pattern==2){
-                        shootorder = new int[]{0, 1, 2};
-                    }else{
-                        shootorder = new int[]{2, 0, 1};
-                    }
+
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.2)
 
                 .state(AutoStates.wait4)
                 .onEnter(()->{
-                    if (pattern==1){
-                        shootorder = new int[]{1, 2, 0};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    }else if (pattern==2){
-                        shootorder = new int[]{0, 1, 2};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    }else{
-                        shootorder = new int[]{2, 0, 1};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
-                    }
                 })
                 .transitionTimed(0.4)
                 .state(AutoStates.SHOOT4)
@@ -523,7 +543,17 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
 
                 .state(AutoStates.INTAKE4)
                 .onEnter(()->{
-                    follower.followPath(toIntake4, true);
+                    shooter.setHood(0.62);
+                    shooter.setTargetVelocity(1350);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(95*Posmultiplier));
+                    follower.followPath(toIntake4, 0.5,true);
+                    if (pattern==1){
+                        shootorder = new int[]{2, 0, 1};
+                    }else if (pattern==2){
+                        shootorder = new int[]{1, 2, 0};
+                    }else{
+                        shootorder = new int[]{0, 1, 2};
+                    }
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(3)
@@ -538,48 +568,11 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
 
                 .state(AutoStates.wait5)
                 .onEnter(()->{
-                    if (pattern==3){
-                        shootorder = new int[]{0, 1, 2};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    }else if (pattern==1){
-                        shootorder = new int[]{2, 0, 1};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
-                    }else{
-                        shootorder = new int[]{1, 2, 0};
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    }
                 })
                 .transitionTimed(0.3)
 
                 .state(AutoStates.SHOOT5)
                 .onEnter(()->{
-                    rapidFire=true;
-                    shooterButton=true;
-                })
-                .transitionTimed(1.55)
-                .transition(()->stateMachine.getStateEnum() == States.Intake)
-
-                .state(AutoStates.INTAKE5)
-                .onEnter(()->{
-                    follower.followPath(toIntake5, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.3)
-
-                .state(AutoStates.MOVETOSHOOT6)
-                .onEnter(()->{
-                    follower.followPath(toShootleave, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2)
-                .state(AutoStates.wait6)
-                .onEnter(()->{
-                })
-                .transitionTimed(0.4)
-
-                .state(AutoStates.SHOOT6)
-                .onEnter(()->{
-                    spindexer.setKickerPos(true);
                     shooterButton=true;
                 })
                 .build();
