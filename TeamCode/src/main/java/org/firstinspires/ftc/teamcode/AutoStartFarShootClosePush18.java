@@ -27,7 +27,7 @@ import java.util.List;
 
 @Configurable
 @Autonomous(name = "AutoStartFarIndex18", group = "Auto")
-public class AutoStartFarShootColsePush18 extends LinearOpMode {
+public class AutoStartFarShootClosePush18 extends LinearOpMode {
     private Follower follower;
     public static int[] shootorder = {0, 1, 2};
     LimelightCamera limelightCamera;
