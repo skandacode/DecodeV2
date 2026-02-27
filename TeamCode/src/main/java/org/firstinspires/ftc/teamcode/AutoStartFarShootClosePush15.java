@@ -68,7 +68,10 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
         Increment2,
         Wait2,
 
-        BeforeWaitForShoot,
+        ToIntake2,
+        PulseEject,
+        BackToShoot0,
+
         WaitForShoot,
 
         Kick1,//spindex shoot
@@ -273,7 +276,6 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                     spindexer.setLowerGateOpen(rapidFire);
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                 })
                 .transition(()->shooterButton, States.WaitForShoot)
                 .transition(()->!rapidFire && intakes.getGoodIntakeDetected(), States.Wait1)
@@ -304,8 +306,27 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
-                .transition(()->intakes.getGoodIntakeDetected(), States.WaitForShoot)
+                .transition(()->intakes.getGoodIntakeDetected(), States.PulseEject)
                 .transition(()->shooterButton, States.WaitForShoot)
+
+                .state(States.ToIntake2)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
+                })
+                .transitionTimed(0.3, States.PulseEject)
+
+                .state(States.PulseEject)
+                .onEnter(()->{
+                    intakes.setGoodIntakePower(-1);
+                })
+                .transitionTimed(0.4)
+
+                .state(States.BackToShoot0)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    intakes.setGoodIntakePower(0.5);
+                })
+                .transitionTimed(0.3, States.WaitForShoot)
 
                 .state(States.WaitForShoot)
                 .onEnter(()->{
