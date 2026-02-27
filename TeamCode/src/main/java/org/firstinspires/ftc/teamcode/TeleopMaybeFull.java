@@ -110,7 +110,7 @@ public class TeleopMaybeFull extends LinearOpMode {
         tilt = new Tilt(hardwareMap);
 
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
-        GamepadKeys.Button positionResetButton = GamepadKeys.Button.TOUCHPAD;
+        GamepadKeys.Button positionResetButton = GamepadKeys.Button.SHARE;
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Trigger backIntakeButton = GamepadKeys.Trigger.RIGHT_TRIGGER;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
