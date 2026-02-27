@@ -106,7 +106,7 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
             }
             spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
             spindexer.setKickerPos(false);
-            shooter.setTurretPos(0.5);
+            shooter.setTurretPos(shooter.convertDegreestoServoPos(0));
             shooter.setUpperGateOpen(false);
             spindexer.setLowerGateOpen(true);
             shooter.update();
@@ -147,13 +147,16 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                             .build();
                     follower.followPath(toScore, true);
                     shooter.setHood(0.8);
-                    shooter.setTargetVelocity(2050);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(70*Posmultiplier));
+                    shooter.setTargetVelocity(2030);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(67*Posmultiplier));
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(0.5)
 
                 .state(AutoStates.wait1)
+                .onEnter(()->{
+                    shooter.aimAtTarget(follower.getPose(),shooterTarget);
+                })
                 .transition(()->Math.abs(shooter.getTargetVelo()-shooter.getCurrentVelocity())<20)
                 .transitionTimed(2.5)
                 .state(AutoStates.preSHOOT1)
@@ -172,9 +175,9 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setKickerPos(false);
                     shooter.setUpperGateOpen(false);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(71 *Posmultiplier));
-                    shooter.setHood(0.8);
-                    shooter.setTargetVelocity(1990);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(67 *Posmultiplier));
+                    shooter.setHood(0.795);
+                    shooter.setTargetVelocity(1960);
 
                     PathChain toIntake = follower.pathBuilder()
                             .addPath(new BezierCurve(follower.getPose(), intake1Pose, intake1donePose))
@@ -199,6 +202,9 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .transitionTimed(2.5)
 
                 .state(AutoStates.wait2)
+                .onEnter(()->{
+                    shooter.aimAtTarget(follower.getPose(),shooterTarget);
+                })
                 .transitionTimed(0.2)
 
                 .state(AutoStates.preSHOOT2)
@@ -217,7 +223,7 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                     spindexer.setKickerPos(false);
                     shooter.setTargetVelocity(2000);
 
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
 
                     PathChain toIntakeHuman = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), intakeHuman))
@@ -240,6 +246,9 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .transitionTimed(2.5)
 
                 .state(AutoStates.wait3)
+                .onEnter(()->{
+                    shooter.aimAtTarget(follower.getPose(),shooterTarget);
+                })
                 .transitionTimed(0.2)
 
                 .state(AutoStates.preSHOOT3)
@@ -254,7 +263,7 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .transitionTimed(0.5)
                 .state(AutoStates.MOVETOINTAKE3)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
@@ -300,6 +309,9 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .transitionTimed(2.5)
 
                 .state(AutoStates.wait4)
+                .onEnter(()->{
+                    shooter.aimAtTarget(follower.getPose(),shooterTarget);
+                })
                 .transitionTimed(0.2)
 
                 .state(AutoStates.preSHOOT4)
@@ -314,7 +326,7 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .transitionTimed(0.5)
                 .state(AutoStates.MOVETOINTAKE4)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
                     PathChain toIntake = follower.pathBuilder()
@@ -339,6 +351,9 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .transitionTimed(2.5)
 
                 .state(AutoStates.wait5)
+                .onEnter(()->{
+                    shooter.aimAtTarget(follower.getPose(),shooterTarget);
+                })
                 .transitionTimed(0.2)
 
                 .state(AutoStates.preSHOOT5)
@@ -354,7 +369,7 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .state(AutoStates.MOVETOINTAKE5)
                 .onEnter(()->{
                     shooter.setTargetVelocity(2020);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(70*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
@@ -395,7 +410,7 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                             .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
                             .setBrakingStrength(0.7)
                             .build();
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(70*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
 
                     follower.followPath(toScore, true);
                 })
@@ -403,6 +418,9 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .transitionTimed(2.5)
 
                 .state(AutoStates.wait6)
+                .onEnter(()->{
+                    shooter.aimAtTarget(follower.getPose(),shooterTarget);
+                })
                 .transitionTimed(0.4)
 
                 .state(AutoStates.preSHOOT6)
@@ -435,7 +453,7 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                             .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
                             .setBrakingStrength(0.7)
                             .build();
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(70*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
 
                     follower.followPath(toScore, true);
                 })
@@ -443,6 +461,9 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .transitionTimed(2.5)
 
                 .state(AutoStates.wait7)
+                .onEnter(()->{
+                    shooter.aimAtTarget(follower.getPose(),shooterTarget);
+                })
                 .transitionTimed(0.4)
 
                 .state(AutoStates.preSHOOT7)

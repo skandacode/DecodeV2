@@ -51,8 +51,8 @@ public class Shooter {
     public static double ALPHA = 0.3;
     private double smoothedVelocity = 0.0;
 
-    public static Pose RedGoalPose = new Pose(-63, 70);
-    public static Pose BlueGoalPose = new Pose(-63, -70);
+    public static Pose RedGoalPose = new Pose(-63, 66);
+    public static Pose BlueGoalPose = new Pose(-63, -66);
 
 
     public enum Goal{
@@ -154,7 +154,7 @@ public class Shooter {
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*-0.003222222222222222+0.5;
+        return deg*-0.003222222222222222+0.49;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){

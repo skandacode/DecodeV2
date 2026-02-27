@@ -85,7 +85,11 @@ public class AutoStartClose18LotsOfGates extends LinearOpMode {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             follower.update();
             spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-
+            shooter.setUpperGateOpen(false);
+            spindexer.setLowerGateOpen(true);
+            spindexer.setKickerPos(false);
+            shooter.setTurretPos(shooter.convertDegreestoServoPos(shooter.convertDegreestoServoPos(0*Posmultiplier)));
+            shooter.setHood(0.6);
             telemetry.addData("Pattern", pattern);
             telemetry.addData("Init Pose: ", follower.getPose());
             telemetry.addData("ALLIANCE: ", colorAlliance);
@@ -99,6 +103,7 @@ public class AutoStartClose18LotsOfGates extends LinearOpMode {
                 shooterTarget = Shooter.Goal.RED;
                 Posmultiplier=-1;
             }
+            shooter.update();
             telemetry.update();
             spindexer.update();
         }
@@ -116,8 +121,8 @@ public class AutoStartClose18LotsOfGates extends LinearOpMode {
         Pose shootPose = new Pose(-16, -16*Posmultiplier, Math.toRadians(-40*Posmultiplier));
         Pose shootPose2nd = new Pose(-0, -17*Posmultiplier, Math.toRadians(-50*Posmultiplier));
         Pose shootPoseleave = new Pose(-30, -16*Posmultiplier, Math.toRadians(-23*Posmultiplier));
-        Pose gateBack = new Pose(0,-40*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose gateIn = new Pose(0,-56*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose gateBack = new Pose(12,-40*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose gateIn = new Pose(12,-58*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
         Pose intake1Pose = new Pose(-3, -27*Posmultiplier, Math.toRadians(-80*Posmultiplier));
         Pose intake2Pose = new Pose(23, -29*Posmultiplier, Math.toRadians(-80*Posmultiplier));
@@ -196,7 +201,7 @@ public class AutoStartClose18LotsOfGates extends LinearOpMode {
                     spindexer.setLowerGateOpen(true);
                     intakes.setGoodIntakePower(1);
                     follower.followPath(toShoot, true);
-                    shooter.setHood(0.67);
+                    shooter.setHood(0.64);
                     shooter.setTargetVelocity(1480);
                     shooter.setTurretPos(shooter.convertDegreestoServoPos(74*Posmultiplier));
                 })
@@ -237,8 +242,8 @@ public class AutoStartClose18LotsOfGates extends LinearOpMode {
 
                 .state(AutoStates.MOVETOSHOOT2)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(93*Posmultiplier));
-                    shooter.setHood(0.62);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(87*Posmultiplier));
+                    shooter.setHood(0.61);
                     shooter.setTargetVelocity(1450);
                     follower.followPath(toScore1, true);
                 })
@@ -278,7 +283,7 @@ public class AutoStartClose18LotsOfGates extends LinearOpMode {
 
                 .state(AutoStates.MOVETOSHOOT3)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(67*Posmultiplier));
                     shooter.setHood(0.66);
                     shooter.setTargetVelocity(1480);
 
@@ -424,7 +429,6 @@ public class AutoStartClose18LotsOfGates extends LinearOpMode {
                     shooter.setTargetVelocity(1420);
                     follower.followPath(toScoreGateleave, true);
                 })
-                .transition(()->follower.atParametricEnd())
                 .transitionTimed(2)
                 .state(AutoStates.wait6)
                 .onEnter(()->{
