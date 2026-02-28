@@ -111,18 +111,18 @@ public class AutoStartClose18LotsOfGates extends LinearOpMode {
         waitForStart();
 
 
-        Pose gateintake = new Pose(18, -58*Posmultiplier, Math.toRadians(77*Posmultiplier));
+        Pose gateintake = new Pose(15, -58*Posmultiplier, Math.toRadians(77*Posmultiplier));
 
-        Pose gateintakeback = new Pose(22, -60*Posmultiplier, Math.toRadians(-140*Posmultiplier));
+        Pose gateintakeback = new Pose(20, -60*Posmultiplier, Math.toRadians(-140*Posmultiplier));
 
-        Pose gateintakecontrol = new Pose(26, -42*Posmultiplier, Math.toRadians(77*Posmultiplier));
+        Pose gateintakecontrol = new Pose(24, -42*Posmultiplier, Math.toRadians(77*Posmultiplier));
         Pose startPose = new Pose(-40, -55*Posmultiplier, Math.toRadians(-36.3*Posmultiplier));
 
         Pose shootPose = new Pose(-16, -16*Posmultiplier, Math.toRadians(-40*Posmultiplier));
         Pose shootPose2nd = new Pose(-0, -17*Posmultiplier, Math.toRadians(-50*Posmultiplier));
         Pose shootPoseleave = new Pose(-30, -16*Posmultiplier, Math.toRadians(-23*Posmultiplier));
-        Pose gateBack = new Pose(12,-40*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose gateIn = new Pose(12,-58*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose gateBack = new Pose(16,-40*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose gateIn = new Pose(7,-58*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
         Pose intake1Pose = new Pose(-3, -27*Posmultiplier, Math.toRadians(-80*Posmultiplier));
         Pose intake2Pose = new Pose(23, -29*Posmultiplier, Math.toRadians(-80*Posmultiplier));
@@ -203,7 +203,7 @@ public class AutoStartClose18LotsOfGates extends LinearOpMode {
                     follower.followPath(toShoot, true);
                     shooter.setHood(0.64);
                     shooter.setTargetVelocity(1480);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(74*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(76*Posmultiplier));
                 })
 
                 .transitionTimed(1.3)
@@ -283,7 +283,7 @@ public class AutoStartClose18LotsOfGates extends LinearOpMode {
 
                 .state(AutoStates.MOVETOSHOOT3)
                 .onEnter(()->{
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(67*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(60*Posmultiplier));
                     shooter.setHood(0.66);
                     shooter.setTargetVelocity(1480);
 

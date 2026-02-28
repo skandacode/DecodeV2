@@ -131,21 +131,21 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
         waitForStart();
 
 
-        Pose opengate = new Pose(1.3, -58.5*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose opengateback = new Pose(3, -40*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose opengate = new Pose(-4, -58.5*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose opengateback = new Pose(-3, -40*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose startPose = new Pose(60, -15*Posmultiplier, Math.toRadians(180*Posmultiplier));
         Pose pushPose = new Pose(58, -24*Posmultiplier, Math.toRadians(180*Posmultiplier));
         Pose shootPose = new Pose(-8, -19*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose leave = new Pose(4, -19*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose shootleave = new Pose(-40, -19*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
         Pose toShoot2Control = new Pose(10, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
         Pose intake1Pose = new Pose(-14, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake2Pose = new Pose(8, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake2Pose = new Pose(9, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake3Pose = new Pose(32,-30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
         Pose intake1donePose = new Pose(-14, -62*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake2donePose = new Pose(11, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake2donePose = new Pose(12, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake3donePose = new Pose(32, -64*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
 
@@ -155,7 +155,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .setBrakingStrength(1.5)
                 .build();
         PathChain toShootpreload = follower.pathBuilder()
-                .addPath(new BezierLine(pushPose, shootPose))
+                .addPath(new BezierCurve(pushPose, startPose,shootPose))
                 .setLinearHeadingInterpolation(pushPose.getHeading(), shootPose.getHeading())
                 .setBrakingStrength(1.5)
                 .build();
@@ -170,6 +170,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
         PathChain ingate = follower.pathBuilder()
                 .addPath(new BezierLine(opengateback,opengate))
                 .setLinearHeadingInterpolation(opengateback.getHeading(), opengate.getHeading())
+                .setBrakingStrength(0.4)
                 .build();
         PathChain toShoot1 = follower.pathBuilder()
                 .addPath(new BezierCurve(opengate,opengateback,shootPose))
@@ -187,8 +188,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
 
         PathChain toShoot2 = follower.pathBuilder()
                 .addPath(new BezierCurve(intake2donePose,intake2Pose, shootPose))
-                .setTangentHeadingInterpolation()
-                .setReversed()
+                .setLinearHeadingInterpolation(intake2donePose.getHeading(),shootPose.getHeading())
                 .setBrakingStrength(1.5)
                 .build();
         PathChain toIntake3 = follower.pathBuilder()
@@ -200,16 +200,10 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .setLinearHeadingInterpolation(intake3Pose.getHeading(), intake3donePose.getHeading())
                 .build();
         PathChain toShoot3 = follower.pathBuilder()
-                .addPath(new BezierCurve(intake3donePose, intake3Pose, shootPose))
-                .setLinearHeadingInterpolation(opengate.getHeading(), shootPose.getHeading())
+                .addPath(new BezierCurve(intake3donePose, intake3Pose, shootleave))
+                .setLinearHeadingInterpolation(opengate.getHeading(), shootleave.getHeading())
                 .setBrakingStrength(1.5)
                 .build();
-        PathChain toLeave = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose, leave))
-                .setLinearHeadingInterpolation(opengate.getHeading(), leave.getHeading())
-                .setBrakingStrength(1.5)
-                .build();
-
 
         follower.setStartingPose(startPose);
 
@@ -401,8 +395,8 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                     rapidFire=true;
                     follower.followPath(toPush, true);
                     shooter.setHood(0.63);
-                    shooter.setTargetVelocity(1370);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(45*Posmultiplier));
+                    shooter.setTargetVelocity(1420);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(52*Posmultiplier));
                 })
 
                 .transition(()->follower.atParametricEnd())
@@ -417,7 +411,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .state(AutoStates.wait1)
                 .onEnter(()->{
                 })
-                .transitionTimed(0.4)
+                .transitionTimed(0.8)
 
                 .state(AutoStates.SHOOT1)
                 .onEnter(()->{
@@ -438,7 +432,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                     follower.followPath(toIntake1, 0.5,true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(2)
+                .transitionTimed(1.6)
                 .state(AutoStates.BACK)
                 .onEnter(()->{
                     follower.followPath(toIntake1backgate, true);
@@ -446,6 +440,9 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .transitionTimed(0.4)
                 .state(AutoStates.GATE)
                 .onEnter(()->{
+                    shooter.setHood(0.63);
+                    shooter.setTargetVelocity(1430);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(49*Posmultiplier));
                     follower.followPath(ingate, true);
                 })
                 .transitionTimed(0.7)
@@ -468,7 +465,8 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .onEnter(()->{
                     shooterButton=true;
                 })
-                .transitionTimed(2)
+                .transitionTimed(3)
+                .transition(()->stateMachine.getStateEnum() == States.Intake)
                 .state(AutoStates.INTAKE2)
                 .onEnter(()->{
                     follower.followPath(toIntake2, true);
@@ -501,7 +499,8 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                     rapidFire=false;
                     shooterButton=true;
                 })
-                .transitionTimed(2.5)
+                .transition(()->stateMachine.getStateEnum() == States.Intake)
+                .transitionTimed(3)
                 .state(AutoStates.INTAKE3)
                 .onEnter(()->{
                     follower.followPath(toIntake3, true);
@@ -523,6 +522,9 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .transitionTimed(2)
                 .state(AutoStates.MOVETOSHOOT4)
                 .onEnter(()->{
+                    shooter.setHood(0.53);
+                    shooter.setTargetVelocity(1250);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(29*Posmultiplier));
                     follower.followPath(toShoot3, true);
                 })
                 .transition(()->follower.atParametricEnd())
@@ -535,13 +537,6 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .onEnter(()->{
                     shooterButton=true;
                 })
-                .transitionTimed(2.6)
-                .state(AutoStates.leave)
-                .onEnter(()->{
-                    follower.followPath(toLeave, true);
-
-                })
-
                 .build();
 
         stateMachine.start();
