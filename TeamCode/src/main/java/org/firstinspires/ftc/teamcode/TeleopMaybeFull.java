@@ -16,6 +16,7 @@ import com.sfdev.assembly.state.StateMachineBuilder;
 import org.firstinspires.ftc.teamcode.pedroPathing.PanelsDrawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.PositionLogger;
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
+import org.firstinspires.ftc.teamcode.subsystems.LEDIndicator;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
@@ -35,6 +36,7 @@ public class TeleopMaybeFull extends LinearOpMode {
     Spindexer spindexer;
     Shooter shooter;
     Follower follower;
+    LEDIndicator indicator;
     Tilt tilt;
 
     public static Shooter.Goal target = Shooter.Goal.BLUE;
@@ -454,13 +456,34 @@ public class TeleopMaybeFull extends LinearOpMode {
             }
             prevTriggerPressed = currTrigger;
 
+            int currBallsRapid = 0;
+            if (stateMachine.getState() == States.TwoInGood){
+                currBallsRapid = 1;
+                if (intakes.getGoodBeamBreakInside()){
+                    currBallsRapid = 2;
+                    if (intakes.getGoodBeamBreakOutside()){
+                        currBallsRapid = 3;
+                    }
+                }
+            }
+
+            if (currBallsRapid == 0){
+                indicator.setRed();
+            }else if (currBallsRapid == 1){
+                indicator.setOrange();
+            }else if (currBallsRapid == 2){
+                indicator.setYellow();
+            }else {
+                indicator.setGreen();
+            }
+
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
             telemetry.addData("State", stateMachine.getState());
             telemetry.addData("is_split", is_split);
             telemetry.addData("using_spindexer", using_spindexer);
-
+            telemetry.addData("Curr balls in rapid side", currBallsRapid);
 
 
             long currentTime = System.nanoTime();
@@ -469,6 +492,7 @@ public class TeleopMaybeFull extends LinearOpMode {
             telemetry.addData("Loop time", loopTime);
             intakes.update();
             spindexer.update();
+            indicator.update();
             if (!tilted) {
                 shooter.update();
             }else{

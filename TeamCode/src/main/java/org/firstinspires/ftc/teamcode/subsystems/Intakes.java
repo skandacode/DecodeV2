@@ -21,6 +21,9 @@ public class Intakes {
     RevColorSensorV3 badIntakeSensor;
     RevColorSensorV3 goodIntakeSensor;
 
+    private double cachedGoodDistance;
+    private double cachedBadDistance;
+
     public static double badIntakeSensorThresh = 2;
     public static double goodIntakeSensorThresh = 3.2;
 
@@ -39,6 +42,7 @@ public class Intakes {
         badBeamBreak = hardwareMap.touchSensor.get("badBeamBreak");
         goodBeamBreakInside = hardwareMap.touchSensor.get("goodBeamBreakInside");
         goodBeamBreakOutside = hardwareMap.touchSensor.get("goodBeamBreakOutside");
+        update();
     }
 
     public void setGoodIntakePower(double power) {
@@ -66,7 +70,7 @@ public class Intakes {
         //not detected ~ 2.8
         //nothing at all ~3.2
         //detected ~1
-        return badIntakeSensor.getDistance(DistanceUnit.CM);
+        return cachedBadDistance;
     }
     public boolean getGoodIntakeDetected(){
         double distance = getGoodIntakeDistance();
@@ -75,12 +79,14 @@ public class Intakes {
     }
 
     public double getGoodIntakeDistance(){
-        return goodIntakeSensor.getDistance(DistanceUnit.CM);
+        return cachedGoodDistance;
     }
 
     public void update() {
         goodIntakeMotor.update();
         badIntakeMotor.update();
+        cachedGoodDistance = goodIntakeSensor.getDistance(DistanceUnit.CM);
+        cachedBadDistance = badIntakeSensor.getDistance(DistanceUnit.CM);
     }
     public boolean getBadBeamBreak(){
         return badBeamBreak.isPressed();
