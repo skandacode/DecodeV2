@@ -17,13 +17,18 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.ErrorCalculator;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ftc.PoseConverter;
 import com.pedropathing.geometry.*;
+import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.*;
 import com.pedropathing.paths.*;
 import com.pedropathing.telemetry.SelectableOpMode;
 import com.pedropathing.util.*;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,9 +133,11 @@ public class Tuning extends SelectableOpMode {
  * @version 1.0, 5/6/2024
  */
 class LocalizationTest extends OpMode {
+    Limelight3A limelight;
     @Override
     public void init() {
         follower.setStartingPose(new Pose(72,72));
+        Localizer localizer = follower.poseTracker.getLocalizer();
     }
 
     /** This initializes the PoseUpdater, the mecanum drive motors, and the Panels telemetry. */
@@ -155,6 +162,8 @@ class LocalizationTest extends OpMode {
      */
     @Override
     public void loop() {
+
+        Localizer localizer = follower.poseTracker.getLocalizer();
         follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
         follower.update();
 
@@ -205,6 +214,7 @@ class ForwardTuner extends OpMode {
      */
     @Override
     public void loop() {
+
         follower.update();
 
         telemetryM.debug("Distance Moved: " + (follower.getPose().getX() - 72));

@@ -6,24 +6,34 @@ import com.bylazar.configurables.annotations.Configurable;
 public class ShooterTables {
 
     public static double getHoodPosition(double distance) {
-        return -(4.27737e-9) * Math.pow(distance, 4)
-                + 0.00000188378 * Math.pow(distance, 3)
-                - 0.000311533 * Math.pow(distance, 2)
-                + 0.0249263 * distance
-                - 0.12009;
+        double increasehood = 0;
+        if (distance>110){
+            increasehood = 0.02;
+        }
+        return 2.1664635e-14*Math.pow(distance,8)
+                - 1.6743242e-11*Math.pow(distance,7)
+                + 5.5440512e-9*Math.pow(distance,6)
+                - 0.0000010256883*Math.pow(distance,5)
+                + 0.00011577729*Math.pow(distance,4)
+                - 0.0081510486*Math.pow(distance,3)
+                + 0.34883167*Math.pow(distance,2)
+                - 8.2726411*distance
+                + 83.409692+increasehood;
     }
     public static double getShooterVelocity(double distance) {
         double increase = 0;
-        if (distance>120){
-            increase = 0;
+        if (distance>110){
+            increase = 40;
         }
-        return 4.68162e-9 * Math.pow(distance, 6)
-                - 0.00000309277 * Math.pow(distance, 5)
-                + 0.000797735 * Math.pow(distance, 4)
-                - 0.102784 * Math.pow(distance, 3)
-                + 6.96598 * Math.pow(distance, 2)
-                - 227.03405 * distance
-                + 3936.46218 + increase;
+        return 4.9163953e-12*Math.pow(distance,8)
+                - 3.7741923e-9*Math.pow(distance,7)
+                + 0.0000012447575*Math.pow(distance,6)
+                - 0.00023019349*Math.pow(distance,5)
+                + 0.02609685*Math.pow(distance,4)
+                - 1.8565751*Math.pow(distance,3)
+                + 80.853514*Math.pow(distance,2)
+                - 1957.78206*distance
+                + 21157.554 + increase;
     }
 
     public static double actualShooterVelocityNoLoad(double targetVelocity) {
