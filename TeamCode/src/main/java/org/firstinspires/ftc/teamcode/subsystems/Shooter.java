@@ -200,10 +200,25 @@ public class Shooter {
         this.omega = computedOmega;
 
         double precomputedDistance = getAngleDistance(currPosition, target)[1];
+        double tFlight = ShooterTables.getBalltimeinair(precomputedDistance);
+        double tDelay = ShooterTables.instantShotCompensation;
+
+        // The ball inherits the robot's velocity at the moment it launches, NOT
+        // at the moment we compute the aim. During the mechanical delay (tDelay)
+        // the robot accelerates, so the launch velocity is:
+        //   v_launch = v_now + a * tDelay
+        //
+        // Two sources of positional offset:
+        // 1) Robot physically moves during tDelay:  v_now*tDelay + 0.5*a*tDelay²
+        // 2) Ball drifts during tFlight at the launch velocity:  v_launch * tFlight
+        //
+        // Total offset = v_now*(tDelay + tFlight) + a*tDelay*(0.5*tDelay + tFlight)
+        double offsetX = this.vx * (tDelay + tFlight) + this.ax * tDelay * (0.5 * tDelay + tFlight);
+        double offsetY = this.vy * (tDelay + tFlight) + this.ay * tDelay * (0.5 * tDelay + tFlight);
 
         Pose realTarget = new Pose(
-                target.getX() - this.vx * ShooterTables.getBalltimeinair(precomputedDistance),
-                target.getY() - this.vy * ShooterTables.getBalltimeinair(precomputedDistance),
+                target.getX() - offsetX,
+                target.getY() - offsetY,
                 target.getHeading());
 
 
@@ -211,7 +226,10 @@ public class Shooter {
         double angle = angleDistance[0];
         double distance = angleDistance[1];
 
-        double servoPos = convertDegreestoServoPos(angle + turretOffset);
+        // Compensate turret angle for the robot's rotation during the mechanical
+        // delay only — once the ball leaves, the robot's rotation no longer matters.
+        double omegaCompensationDeg = Math.toDegrees(this.omega * tDelay);
+        double servoPos = convertDegreestoServoPos(angle + turretOffset + omegaCompensationDeg);
 
         double currVelo = getCurrentVelocity();
 
@@ -308,9 +326,5 @@ public class Shooter {
     // getter for angular velocity (rad/s)
     public double getOmega() {
         return omega;
-    }
-
-    public double getShooterCurrent(){
-        return shooterMotor1.getCurrentDraw()+shooterMotor2.getCurrentDraw();
     }
 }
