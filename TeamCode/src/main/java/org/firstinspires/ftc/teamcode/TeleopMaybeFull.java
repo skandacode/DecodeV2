@@ -479,17 +479,6 @@ public class TeleopMaybeFull extends LinearOpMode {
                 }
             }
 
-//
-//            if (intakes.getGoodIntakeDetected()){
-//                currBallsRapid = 1;
-//                if (stateMachine.getStateEnum() == States.TwoInGood){
-//                    currBallsRapid = 2;
-//                    if (intakes.getGoodBeamBreakOutside()){
-//                        currBallsRapid = 3;
-//                    }
-//                }
-//            }
-
             if (currBallsRapid == 0){
                 indicator.setRed();
             }else if (currBallsRapid == 1){

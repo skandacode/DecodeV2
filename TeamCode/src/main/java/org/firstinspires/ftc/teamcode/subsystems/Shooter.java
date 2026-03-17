@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.hardware.AnalogInput;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -90,6 +90,9 @@ public class Shooter {
     private double prevVy = 0.0;
     private long prevVelTime = 0;
 
+    private double prevTargetVelocity = 0.0;
+    private long prevTargetTime = 0;
+
     public Shooter(HardwareMap hardwareMap) {
         shooterMotor1 = new Motor(hardwareMap, "outtakemotor1");
         shooterMotor2 = new Motor(hardwareMap, "outtakemotor2");
@@ -115,6 +118,8 @@ public class Shooter {
         prevVy = 0.0;
         prevHeadingTime = System.nanoTime();
         prevHeading = 0.0;
+
+        prevTargetTime = System.nanoTime();
     }
 
     public void setUpperGateOpen(boolean open){
@@ -259,13 +264,22 @@ public class Shooter {
         currentVelocity = Math.abs(shooterEncoder.getVelocity());
         smoothedVelocity = ALPHA * currentVelocity + (1 - ALPHA) * smoothedVelocity;
 
+        long currTime = System.nanoTime();
+        double dt = (currTime - prevTargetTime) / 1e9;
+        double accel = 0.0;
+        if (prevTargetTime != 0 && dt > 0) {
+            accel = (targetVelocity - prevTargetVelocity) / dt;
+        }
+        prevTargetVelocity = targetVelocity;
+        prevTargetTime = currTime;
+
         double outputPower;
 
         if (targetVelocity <= 0) {
             outputPower = 0;
             smoothedVelocity = 0;
         } else {
-            outputPower = feedforward.calculate(targetVelocity);
+            outputPower = feedforward.calculate(targetVelocity, accel);
             if (enablePIDF){
                 outputPower += pidf.calculate(smoothedVelocity, targetVelocity);
             }
