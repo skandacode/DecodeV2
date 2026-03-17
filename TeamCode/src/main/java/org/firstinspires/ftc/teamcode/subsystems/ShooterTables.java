@@ -26,7 +26,7 @@ public class ShooterTables {
     public static double getShooterVelocity(double distance) {
         double increase = 0;
         if (distance>110){
-            increase = 30;
+            increase = 20;
         }
         else if (distance<70){
             increase = 10;
