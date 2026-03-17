@@ -10,6 +10,9 @@ public class ShooterTables {
         if (distance>110){
             increasehood = 0.02;
         }
+        if (distance<70){
+            increasehood = 0.02;
+        }
         return 2.1664635e-14*Math.pow(distance,8)
                 - 1.6743242e-11*Math.pow(distance,7)
                 + 5.5440512e-9*Math.pow(distance,6)
@@ -23,7 +26,10 @@ public class ShooterTables {
     public static double getShooterVelocity(double distance) {
         double increase = 0;
         if (distance>110){
-            increase = 40;
+            increase = 30;
+        }
+        else if (distance<70){
+            increase = 10;
         }
         return 4.9163953e-12*Math.pow(distance,8)
                 - 3.7741923e-9*Math.pow(distance,7)

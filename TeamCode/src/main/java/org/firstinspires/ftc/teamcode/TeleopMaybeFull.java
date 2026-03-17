@@ -108,6 +108,7 @@ public class TeleopMaybeFull extends LinearOpMode {
         intakes = new Intakes(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
         shooter = new Shooter(hardwareMap);
+        indicator = new LEDIndicator(hardwareMap);
         follower = createFollower(hardwareMap);
         tilt = new Tilt(hardwareMap);
 
@@ -154,6 +155,12 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setLowerGateOpen(true);
                     shooter.setUpperGateOpen(false);
+                    intakes.setGoodIntakePower(1);
+                    if (backStopped[0]){
+                        intakes.setBadIntakePower(0);
+                    }else {
+                        intakes.setBadIntakePower(0.5);
+                    }
                 })
                 .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
                 .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
@@ -216,7 +223,11 @@ public class TeleopMaybeFull extends LinearOpMode {
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     intakes.setGoodIntakePower(1);
                 })
-                .transitionTimed(0.3, States.WaitForShoot)
+                .transitionTimed(0.5, States.WaitForShoot)
+                .transition(()->gamepadEx.isDown(shooterButton) && !(using_spindexer || is_split), States.OpenUpperGate)
+                .transition(()->gamepadEx.isDown(shooterButton) && using_spindexer, States.Kick1)
+                .transition(()->gamepadEx.isDown(shooterButton) && is_split, States.OpenUpperGate2)
+
 
                 .state(States.WaitForShoot)
                 .onEnter(()->{
@@ -226,16 +237,11 @@ public class TeleopMaybeFull extends LinearOpMode {
                     }else{
                         intakes.setBadIntakePower(0);
                     }
-                    if (gamepadEx.isDown(GamepadKeys.Button.Y)){
-                        intakes.setGoodIntakePower(1);
-                    }else {
-                        intakes.setGoodIntakePower(0.1);
-                    }
                 })
                 .transition(()->gamepadEx.isDown(shooterButton) && !(using_spindexer || is_split), States.OpenUpperGate)
                 .transition(()->gamepadEx.isDown(shooterButton) && using_spindexer, States.Kick1)
                 .transition(()->gamepadEx.isDown(shooterButton) && is_split, States.OpenUpperGate2)
-
+                .transition(()->!intakes.getGoodBeamBreakOutside() && !(is_split || using_spindexer), States.TwoInGood)
 
 
                 .state(States.OpenUpperGate)
@@ -457,15 +463,32 @@ public class TeleopMaybeFull extends LinearOpMode {
             prevTriggerPressed = currTrigger;
 
             int currBallsRapid = 0;
-            if (stateMachine.getState() == States.TwoInGood){
-                currBallsRapid = 1;
-                if (intakes.getGoodBeamBreakInside()){
-                    currBallsRapid = 2;
-                    if (intakes.getGoodBeamBreakOutside()){
-                        currBallsRapid = 3;
-                    }
+            if (
+                    stateMachine.getStateEnum() == States.Transitionto2 ||
+                    stateMachine.getStateEnum() == States.TwoInGood ||
+                    stateMachine.getStateEnum() == States.BeforeWaitForShoot ||
+                    stateMachine.getStateEnum() == States.WaitForShoot
+            ){
+                currBallsRapid = 2;
+                if (intakes.getGoodBeamBreakOutside()){
+                    currBallsRapid = 3;
+                }
+            }else{
+                if (intakes.getGoodIntakeDetected()) {
+                    currBallsRapid = 1;
                 }
             }
+
+//
+//            if (intakes.getGoodIntakeDetected()){
+//                currBallsRapid = 1;
+//                if (stateMachine.getStateEnum() == States.TwoInGood){
+//                    currBallsRapid = 2;
+//                    if (intakes.getGoodBeamBreakOutside()){
+//                        currBallsRapid = 3;
+//                    }
+//                }
+//            }
 
             if (currBallsRapid == 0){
                 indicator.setRed();
