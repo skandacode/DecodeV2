@@ -69,7 +69,6 @@ public class TeleopMaybeFull extends LinearOpMode {
 
         Kick1,//spindex shoot
         ShootSpin1,
-        Kick2,
         ShootSpin2,
         Kick3,
 
@@ -271,20 +270,12 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .state(States.ShootSpin1)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    spindexer.setKickerPos(false);
-                })
-                .transitionTimed(shootWaitTime, States.Kick2)
-
-                .state(States.Kick2)
-                .onEnter(()->{
-                    spindexer.setKickerPos(true);
                 })
                 .transitionTimed(shootWaitTime, States.ShootSpin2)
 
                 .state(States.ShootSpin2)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot3);
-                    spindexer.setKickerPos(false);
                 })
                 .transitionTimed(shootWaitTime, States.Kick3)
 
@@ -465,9 +456,9 @@ public class TeleopMaybeFull extends LinearOpMode {
             int currBallsRapid = 0;
             if (
                     stateMachine.getStateEnum() == States.Transitionto2 ||
-                    stateMachine.getStateEnum() == States.TwoInGood ||
-                    stateMachine.getStateEnum() == States.BeforeWaitForShoot ||
-                    stateMachine.getStateEnum() == States.WaitForShoot
+                            stateMachine.getStateEnum() == States.TwoInGood ||
+                            stateMachine.getStateEnum() == States.BeforeWaitForShoot ||
+                            stateMachine.getStateEnum() == States.WaitForShoot
             ){
                 currBallsRapid = 2;
                 if (intakes.getGoodBeamBreakOutside()){
