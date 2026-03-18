@@ -61,7 +61,11 @@ public class ShooterTables {
     public static double hoodAdjustDistanceThreshold = 10;
 
     public static double getBalltimeinair(double distance){
-        return 0.6;
+        if (distance<110){
+        return 0.6;}
+        else{
+            return 1;
+        }
     }
 
     public static double instantShotCompensation = 0.05;

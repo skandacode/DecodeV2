@@ -417,6 +417,7 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .build();
 
 
+
         StateMachine autoMachine = new StateMachineBuilder() //Autonomia
                 .state(AutoStates.PUSH)
                 .onEnter(()->{
