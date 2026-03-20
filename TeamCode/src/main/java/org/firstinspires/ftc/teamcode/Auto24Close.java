@@ -13,6 +13,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
@@ -25,12 +26,11 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-
+@Disabled
 @Configurable
-@Autonomous(name = "AutoCloseGate", group = "Auto")
-public class AutoStartCloseGate extends LinearOpMode {
+@Autonomous(name = "Auto24", group = "Auto")
+public class Auto24Close extends LinearOpMode {
     private Follower follower;
     Intakes intakes;
     String colorAlliance = "BLUE";
@@ -49,14 +49,16 @@ public class AutoStartCloseGate extends LinearOpMode {
         MOVETOSHOOT2, wait2, SHOOT2,
         MOVETOINTAKE2,
         MOVETOSHOOT3, wait3,SHOOT3,
-        MOVETOINTAKE3, backupgate1,waitgate1, upgate,
+        MOVETOINTAKE3, backupgate1,waitgate1,
         MOVETOSHOOT4, wait4,SHOOT4,
         MOVETOINTAKE4,
         MOVETOSHOOT5, wait5,SHOOT5,
-        MOVETOINTAKE5, backupgate2,waitgate2, upgate1,
+        MOVETOINTAKE5, backupgate2,waitgate2,
         MOVETOSHOOT6, wait6,SHOOT6,
-        MOVETOINTAKE6, INTAKE6BACK, INTAKE6IN,
+        MOVETOINTAKE6,
         MOVETOSHOOT7, wait7,SHOOT7,
+        MOVETOINTAKE7,
+        MOVETOSHOOT8, wait8,SHOOT8,
         LEAVE
     }
     public enum States{
@@ -85,7 +87,6 @@ public class AutoStartCloseGate extends LinearOpMode {
             positionLogger = null;
         }
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
-        shooterTarget = Shooter.Goal.BLUE;
         List<LynxModule> hubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : hubs)
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
@@ -122,21 +123,21 @@ public class AutoStartCloseGate extends LinearOpMode {
         waitForStart();
 
 
-        Pose gateintake = new Pose(18.5, -57*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose gateintake = new Pose(19, -57*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
-        Pose gateintakeback = new Pose(25.5, -60*Posmultiplier, Math.toRadians(-130*Posmultiplier));
+        Pose gateintakeback = new Pose(25, -60*Posmultiplier, Math.toRadians(-130*Posmultiplier));
         Pose gateintakebackin = new Pose(24, -60*Posmultiplier, Math.toRadians(-130*Posmultiplier));
 
         Pose gateintakecontrol = new Pose(20, -42*Posmultiplier, Math.toRadians(77*Posmultiplier));
-        Pose startPose = new Pose(-30, -55*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose startPose = new Pose(-52, -58*Posmultiplier, Math.toRadians(0*Posmultiplier));
 
-        Pose shootPose = new Pose(-16, -16*Posmultiplier, Math.toRadians(-40*Posmultiplier));
+        Pose shootPose = new Pose(-40, -39*Posmultiplier, Math.toRadians(-0*Posmultiplier));
         Pose shootPose2nd = new Pose(-0, -17*Posmultiplier, Math.toRadians(-50*Posmultiplier));
         Pose shootPosegoingtolast = new Pose(-4, -20*Posmultiplier, Math.toRadians(-23*Posmultiplier));
         Pose shootPoseleave = new Pose(-30, -16*Posmultiplier, Math.toRadians(-23*Posmultiplier));
 
-        Pose intake1Pose = new Pose(-3, -27*Posmultiplier, Math.toRadians(-80*Posmultiplier));
-        Pose intake2Pose = new Pose(25, -29*Posmultiplier, Math.toRadians(-80*Posmultiplier));
+        Pose intake1Pose = new Pose(-35, -50*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose intake2Pose = new Pose(35, -50*Posmultiplier, Math.toRadians(0*Posmultiplier));
         Pose intake3Pose = new Pose(48,-20*Posmultiplier, Math.toRadians(-192*Posmultiplier));
         Pose intake3Poseback = new Pose(46,-40*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake4Pose = new Pose(40,-54*Posmultiplier, Math.toRadians(0*Posmultiplier));
@@ -144,8 +145,8 @@ public class AutoStartCloseGate extends LinearOpMode {
         Pose intake4Poseback = new Pose(60, -58*Posmultiplier, Math.toRadians(0*Posmultiplier));
         Pose intake4donePosemore = new Pose(70, -58*Posmultiplier, Math.toRadians(0*Posmultiplier));
 
-        Pose intake1donePose = new Pose(-3, -52*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake2donePose = new Pose(25, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake1donePose = new Pose(-18, -50*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose intake2donePose = new Pose(16, -51*Posmultiplier, Math.toRadians(0*Posmultiplier));
         Pose intake3donePose = new Pose(48, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose leave = new Pose(60, -46*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
@@ -157,14 +158,12 @@ public class AutoStartCloseGate extends LinearOpMode {
                 .build();
         PathChain toIntake1 = follower.pathBuilder()
                 .addPath(new BezierCurve(shootPose, intake1Pose, intake1donePose))
-                .setTangentHeadingInterpolation()
-                .setNoDeceleration()
+                .setLinearHeadingInterpolation(shootPose.getHeading(), intake1donePose.getHeading())
                 .build();
 
         PathChain toIntake2 = follower.pathBuilder()
-                .addPath(new BezierCurve(shootPose2nd, intake2Pose, intake2donePose))
-                .setTangentHeadingInterpolation()
-                .setBrakingStrength(0.6)
+                .addPath(new BezierCurve(shootPose, intake2Pose, intake2donePose))
+                .setLinearHeadingInterpolation(shootPose.getHeading(), intake2donePose.getHeading())
                 .build();
 
         PathChain toIntakeGate = follower.pathBuilder()
@@ -195,8 +194,8 @@ public class AutoStartCloseGate extends LinearOpMode {
 
 
         PathChain toScore1 = follower.pathBuilder()
-                .addPath(new BezierLine(intake1donePose, shootPose2nd))
-                .setLinearHeadingInterpolation(intake1donePose.getHeading(), shootPose2nd.getHeading())
+                .addPath(new BezierLine(intake1donePose, shootPose))
+                .setLinearHeadingInterpolation(intake1donePose.getHeading(), shootPose.getHeading())
                 .setBrakingStrength(1.6)
                 .build();
 
@@ -238,16 +237,12 @@ public class AutoStartCloseGate extends LinearOpMode {
                     spindexer.setLowerGateOpen(true);
                     intakes.setGoodIntakePower(1);
                     follower.followPath(toShoot, true);
-                    shooter.setHood(0.56);
-                    shooter.setTargetVelocity(1340);
-                    if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(79));
-                    }else{
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-85));
-                    }
+                    shooter.setHood(0.47);
+                    shooter.setTargetVelocity(1240);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(115*Posmultiplier));
                 })
 
-                .transitionTimed(1.6)
+                .transitionTimed(1)
                 .state(AutoStates.wait1)
                 .onEnter(()->{
                     shooter.setUpperGateOpen(true);
@@ -268,17 +263,13 @@ public class AutoStartCloseGate extends LinearOpMode {
                 })
 
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.2)
+                .transitionTimed(0.7)
 
                 .state(AutoStates.MOVETOSHOOT2)
                 .onEnter(()->{
-                    if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(93));
-                    }else{
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-98));
-                    }
-                    shooter.setHood(0.56);
-                    shooter.setTargetVelocity(1360);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(115*Posmultiplier));
+                    shooter.setHood(0.46);
+                    shooter.setTargetVelocity(1300);
                     follower.followPath(toScore1, true);
                 })
                 .transition(()->!follower.isBusy())
@@ -306,11 +297,8 @@ public class AutoStartCloseGate extends LinearOpMode {
 
                 .state(AutoStates.MOVETOSHOOT3)
                 .onEnter(()->{
-                    if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(72));
-                    }else{
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-78));
-                    }                    shooter.setHood(0.56);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
+                    shooter.setHood(0.56);
                     shooter.setTargetVelocity(1380);
 
                     follower.followPath(toScore2, true);
@@ -355,25 +343,9 @@ public class AutoStartCloseGate extends LinearOpMode {
 
                 })
                 .transitionTimed(0.7)
-                .state(AutoStates.upgate)
-                .onEnter(()->{
-
-                    PathChain tointakeinGate = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), gateintakebackin))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintakebackin.getHeading())
-                            .build();
-                    follower.followPath(tointakeinGate, true);
-
-
-                })
-                .transitionTimed(0.7)
                 .state(AutoStates.MOVETOSHOOT4)
                 .onEnter(()->{
-                    if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(91));
-                    }else{
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-97));
-                    }
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(91*Posmultiplier));
                     shooter.setTargetVelocity(1400);
                     follower.followPath(toScoreGate, true);
                 })
@@ -410,11 +382,7 @@ public class AutoStartCloseGate extends LinearOpMode {
 
                 .state(AutoStates.MOVETOSHOOT5)
                 .onEnter(()->{
-                    if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(93));
-                    }else{
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-97));
-                    }
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(93*Posmultiplier));
                     shooter.setHood(0.6);
                     shooter.setTargetVelocity(1380);
                     follower.followPath(toScore3, true);
@@ -464,26 +432,10 @@ public class AutoStartCloseGate extends LinearOpMode {
                     follower.followPath(toIntakeBackoutGate, true);
 
                 })
-                .transitionTimed(1)
-                .state(AutoStates.upgate1)
-                .onEnter(()->{
-
-                    PathChain tointakeinGate = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), gateintakebackin))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintakebackin.getHeading())
-                            .build();
-                    follower.followPath(tointakeinGate, true);
-
-
-                })
-                .transitionTimed(0.7)
+                .transitionTimed(1.2)
                 .state(AutoStates.MOVETOSHOOT6)
                 .onEnter(()->{
-                    if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(123));
-                    }else{
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-127));
-                    }
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(123*Posmultiplier));
                     shooter.setTargetVelocity(1360);
                     PathChain toScorenobackgate = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), shootPosegoingtolast))
@@ -514,37 +466,50 @@ public class AutoStartCloseGate extends LinearOpMode {
                     follower.followPath(toIntake4, true);
                 })
                 .transitionTimed(1.8)
-                .state(AutoStates.INTAKE6BACK)
-                .onEnter(()->{
-                    follower.followPath(toIntake4back, true);
-                })
-                .transitionTimed(0.12)
-                .state(AutoStates.INTAKE6IN)
-                .onEnter(()->{
-                    follower.followPath(toIntake4in, true);
-                })
-                .transitionTimed(0.4)
-
                 .state(AutoStates.MOVETOSHOOT7)
                 .onEnter(()->{
                     intakes.setBadIntakePower(-0.3);
-                    if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(86));
-                    }else{
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(-92));
-                    }
-                    shooter.setTargetVelocity(1280);
-                    shooter.setHood(0.53);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(86*Posmultiplier));
+                    shooter.setTargetVelocity(1300);
+                    shooter.setHood(0.57);
                     follower.followPath(toScore4, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.3)
+                .transitionTimed(2)
                 .state(AutoStates.wait7)
                 .onEnter(()->{
                     shooter.setUpperGateOpen(true);
                 })
                 .transitionTimed(0.1)
                 .state(AutoStates.SHOOT7)
+                .onEnter(()->{
+                    spindexer.setKickerPos(true);
+                })
+                .transitionTimed(0.4)
+
+                .state(AutoStates.MOVETOINTAKE7)
+                .onEnter(()->{
+                    spindexer.setKickerPos(false);
+                    shooter.setUpperGateOpen(false);
+                    follower.followPath(toIntake4, true);
+                })
+                .transitionTimed(1.8)
+                .state(AutoStates.MOVETOSHOOT8)
+                .onEnter(()->{
+                    intakes.setBadIntakePower(-0.3);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(86*Posmultiplier));
+                    shooter.setTargetVelocity(1300);
+                    shooter.setHood(0.57);
+                    follower.followPath(toScore4, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(2)
+                .state(AutoStates.wait8)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.1)
+                .state(AutoStates.SHOOT8)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })

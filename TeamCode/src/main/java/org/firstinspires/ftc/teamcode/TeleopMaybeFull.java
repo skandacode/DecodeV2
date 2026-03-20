@@ -231,8 +231,15 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .state(States.WaitForShoot)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    if (is_split || using_spindexer) {
+                    if (is_split) {
                         intakes.setBadIntakePower(0.1);
+                    }else{
+                        intakes.setBadIntakePower(0);
+                    }
+                })
+                .loop(()->{
+                    if (intakes.getBadBeamBreak()){
+                        intakes.setBadIntakePower(-0.8);
                     }else{
                         intakes.setBadIntakePower(0);
                     }
