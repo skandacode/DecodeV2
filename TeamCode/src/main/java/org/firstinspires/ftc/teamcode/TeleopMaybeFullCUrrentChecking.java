@@ -32,7 +32,7 @@ import solverslib.hardware.motors.Motor;
 
 @Configurable
 @TeleOp
-public class TeleopMaybeFull extends LinearOpMode {
+public class TeleopMaybeFullCUrrentChecking extends LinearOpMode {
     Intakes intakes;
     Spindexer spindexer;
     Shooter shooter;
@@ -42,7 +42,6 @@ public class TeleopMaybeFull extends LinearOpMode {
 
     Motor frontLeft, frontRight, backLeft, backRight;
     Motor frontIntake, backIntake, shooter1, shooter2;
-
 
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
@@ -56,8 +55,6 @@ public class TeleopMaybeFull extends LinearOpMode {
     public static Pose relocalizePos = new Pose(60, -0, Math.toRadians(180));
 
     PositionLogger positionLogger;
-
-    public static boolean telemetryCurrent = false;
 
     public enum States{
         Intake,
@@ -93,6 +90,17 @@ public class TeleopMaybeFull extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
+        frontLeft = new Motor(hardwareMap, "frontleft");
+        frontRight = new Motor(hardwareMap, "frontright");
+        backLeft = new Motor(hardwareMap, "backleft");
+        backRight = new Motor(hardwareMap, "backright");
+
+        frontIntake = new Motor(hardwareMap, "goodIntakeMotor");
+        backIntake = new Motor(hardwareMap, "badIntakeMotor");
+
+        shooter1 = new Motor(hardwareMap, "outtakemotor1");
+        shooter2 = new Motor(hardwareMap, "outtakemotor2");
+
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         LynxModule controlhub = null;
         for (LynxModule hub : allHubs) {
@@ -117,16 +125,6 @@ public class TeleopMaybeFull extends LinearOpMode {
         indicator = new LEDIndicator(hardwareMap);
         follower = createFollower(hardwareMap);
         tilt = new Tilt(hardwareMap);
-        frontLeft = new Motor(hardwareMap, "frontleft");
-        frontRight = new Motor(hardwareMap, "frontright");
-        backLeft = new Motor(hardwareMap, "backleft");
-        backRight = new Motor(hardwareMap, "backright");
-
-        frontIntake = new Motor(hardwareMap, "goodIntakeMotor");
-        backIntake = new Motor(hardwareMap, "badIntakeMotor");
-
-        shooter1 = new Motor(hardwareMap, "outtakemotor1");
-        shooter2 = new Motor(hardwareMap, "outtakemotor2");
 
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.SHARE;
@@ -135,6 +133,8 @@ public class TeleopMaybeFull extends LinearOpMode {
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
         GamepadKeys.Button restartIntakeButton = GamepadKeys.Button.Y;
         GamepadKeys.Button tiltButton = GamepadKeys.Button.LEFT_BUMPER;
+
+        boolean[] backStopped = {false};
 
         follower.setStartingPose(Position.pose);
 
@@ -156,7 +156,7 @@ public class TeleopMaybeFull extends LinearOpMode {
 
                 .state(States.Transitionto2)
                 .onEnter(()->{
-                    intakes.setGoodIntakePower(0.5);
+                    //intakes.setGoodIntakePower(0.5);
                     spindexer.setLowerGateOpen(true);
                     shooter.setUpperGateOpen(false);
                 })
@@ -166,7 +166,7 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setLowerGateOpen(true);
                     shooter.setUpperGateOpen(false);
-                    intakes.setGoodIntakePower(1);
+                    //intakes.setGoodIntakePower(0.8);
                     intakes.setBadIntakePower(0);
                 })
                 .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
@@ -252,11 +252,7 @@ public class TeleopMaybeFull extends LinearOpMode {
                     }else{
                         intakes.setBadIntakePower(0);
                     }
-                    if (!intakes.getGoodBeamBreakOutside()){
-                        intakes.setGoodIntakePower(0.8);
-                    }else{
-                        intakes.setGoodIntakePower(0);
-                    }
+
                 })
                 .transition(()->gamepadEx.isDown(shooterButton) && !(using_spindexer || is_split), States.OpenUpperGate)
                 .transition(()->gamepadEx.isDown(shooterButton) && using_spindexer, States.Kick1)
@@ -370,6 +366,7 @@ public class TeleopMaybeFull extends LinearOpMode {
         boolean tilted = false;
         double goodMotorPowerBeforeStop = 0;
         double badMotorPowerBeforeStop = 0;
+        boolean prevTriggerPressed = false;
 
         tilt.retract();
         while (opModeIsActive()) {
@@ -467,6 +464,12 @@ public class TeleopMaybeFull extends LinearOpMode {
                 }
             }
 
+            boolean currTrigger = gamepadEx.getTrigger(backIntakeButton)>0.5;
+            if (currTrigger != prevTriggerPressed){
+                backStopped[0] = currTrigger;
+            }
+            prevTriggerPressed = currTrigger;
+
             int currBallsRapid = 0;
             if (
                     stateMachine.getStateEnum() == States.Transitionto2 ||
@@ -502,40 +505,6 @@ public class TeleopMaybeFull extends LinearOpMode {
             telemetry.addData("using_spindexer", using_spindexer);
             telemetry.addData("Curr balls in rapid side", currBallsRapid);
 
-            telemetry.addData("Intake front power", intakes.goodPower);
-            telemetry.addData("Intake back power", intakes.badPower);
-
-            telemetry.addData("turret offset", Shooter.turretOffset);
-            telemetry.addData("power offset", Shooter.powerOffset);
-
-            if (telemetryCurrent) {
-                double totalCurrent = 0;
-                double frontLeftCurrent = frontLeft.getCurrentDraw();
-                double frontRightCurrent = frontRight.getCurrentDraw();
-                double backLeftCurrent = backLeft.getCurrentDraw();
-                double backRightCurrent = backRight.getCurrentDraw();
-
-
-                telemetry.addData("Front left current", frontLeftCurrent);
-                telemetry.addData("Front right current", frontRightCurrent);
-                telemetry.addData("Back left current", backLeftCurrent);
-                telemetry.addData("Back right current", backRightCurrent);
-
-                double frontIntakeCurrent = frontIntake.getCurrentDraw();
-                double backIntakeCurrent = backIntake.getCurrentDraw();
-                double shooter1Current = shooter1.getCurrentDraw();
-                double shooter2Current = shooter2.getCurrentDraw();
-
-                telemetry.addData("front intake current", frontIntakeCurrent);
-                telemetry.addData("back intake current", backIntakeCurrent);
-                telemetry.addData("shooter 1 current", shooter1Current);
-                telemetry.addData("shooter2 current", shooter2Current);
-
-                totalCurrent = frontLeftCurrent+frontRightCurrent+backLeftCurrent+backRightCurrent+frontIntakeCurrent+backIntakeCurrent+shooter1Current+shooter2Current;
-
-                telemetry.addData("total current", totalCurrent);
-            }
-
 
             long currentTime = System.nanoTime();
             double loopTime = (double) (currentTime - lastLoopTime) / 1_000_000.0;
@@ -549,6 +518,26 @@ public class TeleopMaybeFull extends LinearOpMode {
             }else{
                 shooter.update_motors();
             }
+            telemetry.addData("Front left current", frontLeft.getCurrentDraw());
+            telemetry.addData("Front right current", frontRight.getCurrentDraw());
+            telemetry.addData("Back left current", backLeft.getCurrentDraw());
+            telemetry.addData("Back right current", backRight.getCurrentDraw());
+
+
+            telemetry.addData("front intake current", frontIntake.getCurrentDraw());
+            telemetry.addData("back intake current", backIntake.getCurrentDraw());
+            telemetry.addData("shooter 1 current", shooter1.getCurrentDraw());
+            telemetry.addData("shooter2 current", shooter2.getCurrentDraw());
+
+
+            frontLeft.update();
+            frontRight.update();
+            backLeft.update();
+            backRight.update();
+            frontIntake.update();
+            backIntake.update();
+            shooter1.update();
+            shooter2.update();
             tilt.update();
             telemetry.update();
             try {

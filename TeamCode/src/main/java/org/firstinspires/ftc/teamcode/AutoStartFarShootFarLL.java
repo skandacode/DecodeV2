@@ -261,7 +261,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .state(AutoStates.MOVETOINTAKE3)
                 .onEnter(()->{
                     //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
-                    //shooter.setUpperGateOpen(false);
+                    shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
@@ -323,7 +323,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .state(AutoStates.MOVETOINTAKE4)
                 .onEnter(()->{
                     //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
-                    //shooter.setUpperGateOpen(false);
+                    shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
@@ -529,11 +529,11 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             Position.pose = follower.getPose();
             if (Posmultiplier==1) {
-                Shooter.powerOffset = 10;
+                Shooter.powerOffset = 0;
                 Shooter.turretOffset = -3;
             }else{
-                Shooter.powerOffset = 20;
-                Shooter.turretOffset = 0;
+                Shooter.powerOffset = 0;
+                Shooter.turretOffset = -1;
             }
             telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, shooterTarget)));
             shooter.aimAtTarget(Position.pose, shooterTarget);

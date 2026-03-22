@@ -441,7 +441,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .state(AutoStates.GATE)
                 .onEnter(()->{
                     shooter.setHood(0.63);
-                    shooter.setTargetVelocity(1430);
+                    shooter.setTargetVelocity(1410);
                     shooter.setTurretPos(shooter.convertDegreestoServoPos(49*Posmultiplier));
                     follower.followPath(ingate, true);
                 })
