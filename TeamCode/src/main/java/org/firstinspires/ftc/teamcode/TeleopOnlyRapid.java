@@ -131,7 +131,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .state(clearStates.EJECT1)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    intakes.setBadIntakePower(-0.6);
                     intakes.setGoodIntakePower(-0.67);
                 })
                 .transitionTimed(0.5)
@@ -139,7 +138,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .state(clearStates.EJECT2)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
-                    intakes.setBadIntakePower(-0.46);
                     intakes.setGoodIntakePower(-0.67);
                 })
                 .transitionTimed(0.5)
@@ -147,7 +145,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .state(clearStates.EJECT3)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    intakes.setBadIntakePower(-0.46);
                     intakes.setGoodIntakePower(-0.67);
                 })
                 .transitionTimed(0.5, clearStates.IDLE, ()->{
@@ -227,11 +224,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 tilt.tilt();
             }else{
                 tilt.retract();
-            }
-            if (gamepadEx.isDown(GamepadKeys.Button.OPTIONS) || clearMachine.getState() != clearStates.IDLE){
-                intakes.setBadIntakePower(-0.4);
-            }else{
-                intakes.setBadIntakePower(0);
             }
             stateMachine.update();
             clearMachine.update();

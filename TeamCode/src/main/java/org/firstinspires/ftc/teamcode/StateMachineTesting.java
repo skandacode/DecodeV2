@@ -247,7 +247,6 @@ public class StateMachineTesting extends LinearOpMode {
             telemetry.addData("State: ", stateMachine.getState());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
-            telemetry.addData("Bad Intake beam break", intakes.getBadBeamBreak());
             telemetry.addData("Good Inside Intake beam break", intakes.getGoodBeamBreakInside());
             telemetry.addData("Good Outside Intake beam break", intakes.getGoodBeamBreakOutside());
             telemetry.addData("Good intake distance", intakes.getGoodIntakeDistance());

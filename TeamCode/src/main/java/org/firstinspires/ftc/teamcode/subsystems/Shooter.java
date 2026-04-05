@@ -16,7 +16,7 @@ import solverslib.hardware.motors.Motor;
 public class Shooter {
 
     private Motor shooterMotor1, shooterMotor2, shooterEncoder;
-    private ServoEx turret, hood;
+    private ServoEx turret1, turret2, hood;
 
     private ServoEx upperGate;
 
@@ -68,8 +68,8 @@ public class Shooter {
     public static double powerOffset = 0;
     public static double turretOffset = 0;
 
-    public static double upperGateOpenPos = 0.98;
-    public static double upperGateClosedPos = 0.8;
+    public static double upperGateOpenPos = 0.53;
+    public static double upperGateClosedPos = 0.4;
 
     private double prevX, prevY;
     private long prevPosTime;
@@ -94,16 +94,18 @@ public class Shooter {
     private long prevTargetTime = 0;
 
     public Shooter(HardwareMap hardwareMap) {
-        shooterMotor1 = new Motor(hardwareMap, "outtakemotor1");
-        shooterMotor2 = new Motor(hardwareMap, "outtakemotor2");
+        shooterMotor1 = new Motor(hardwareMap, "shooterMotor1");
+        shooterMotor2 = new Motor(hardwareMap, "shooterMotor2");
 
-        shooterEncoder = new Motor(hardwareMap, "badIntakeMotor");
+        shooterEncoder = new Motor(hardwareMap, "shooterMotor1");
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         upperGate = new ServoEx(hardwareMap, "upperGate");
 
-        turret = new ServoEx(hardwareMap, "turret");
+        turret1 = new ServoEx(hardwareMap, "turret1");
+        turret2 = new ServoEx(hardwareMap, "turret2");
+
         hood = new ServoEx(hardwareMap, "hood");
 
         pidf = new PIDFController(kP, kI, kD, 0);
@@ -155,7 +157,9 @@ public class Shooter {
 
     public void setTurretPos(double pos){
         double safePos = Range.clip(pos, turretLowerBound, turretUpperBound);
-        turret.setPosition(safePos);
+        turret1.setPosition(safePos);
+        turret2.setPosition(safePos);
+
     }
 
     public double convertDegreestoServoPos(double deg){
@@ -270,7 +274,7 @@ public class Shooter {
     public void setDirectPower(double power) {
         power = power * 12/voltageSensor.getVoltage();
         shooterMotor1.set(power);
-        shooterMotor2.set(-power);
+        shooterMotor2.set(power);
     }
 
     public void setHood(double pos){
@@ -306,7 +310,8 @@ public class Shooter {
         setDirectPower(outputPower);
         upperGate.update();
         update_motors();
-        turret.update();
+        turret1.update();
+        turret2.update();
         hood.update();
     }
 

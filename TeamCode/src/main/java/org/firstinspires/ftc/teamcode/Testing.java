@@ -73,10 +73,8 @@ public class Testing extends LinearOpMode {
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
             telemetry.addData("Shooter Target Velocity", shooterTargetVelocity);
 
-            telemetry.addData("Bad intake distance", intakes.getBadIntakeDistance());
             telemetry.addData("Good intake distance", intakes.getGoodIntakeDistance());
 
-            telemetry.addData("Bad beam break", intakes.getBadBeamBreak());
             telemetry.addData("Good inside beam break", intakes.getGoodBeamBreakInside());
             telemetry.addData("Good outside beam break", intakes.getGoodBeamBreakOutside());
 

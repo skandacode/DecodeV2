@@ -386,14 +386,12 @@ public class Auto24Close extends LinearOpMode {
                     shooter.setHood(0.6);
                     shooter.setTargetVelocity(1380);
                     follower.followPath(toScore3, true);
-                    intakes.setBadIntakePower(-0.5);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(2)
                 .state(AutoStates.wait5)
                 .onEnter(()->{
                     shooter.setUpperGateOpen(true);
-                    intakes.setBadIntakePower(0);
 
                 })
                 .transitionTimed(0.1)
@@ -468,7 +466,6 @@ public class Auto24Close extends LinearOpMode {
                 .transitionTimed(1.8)
                 .state(AutoStates.MOVETOSHOOT7)
                 .onEnter(()->{
-                    intakes.setBadIntakePower(-0.3);
                     shooter.setTurretPos(shooter.convertDegreestoServoPos(86*Posmultiplier));
                     shooter.setTargetVelocity(1300);
                     shooter.setHood(0.57);
@@ -496,7 +493,6 @@ public class Auto24Close extends LinearOpMode {
                 .transitionTimed(1.8)
                 .state(AutoStates.MOVETOSHOOT8)
                 .onEnter(()->{
-                    intakes.setBadIntakePower(-0.3);
                     shooter.setTurretPos(shooter.convertDegreestoServoPos(86*Posmultiplier));
                     shooter.setTargetVelocity(1300);
                     shooter.setHood(0.57);

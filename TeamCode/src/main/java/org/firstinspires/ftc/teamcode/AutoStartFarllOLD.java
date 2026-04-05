@@ -139,9 +139,6 @@ public class AutoStartFarllOLD extends LinearOpMode {
                 .transition(()->shooterButton, States.WaitForShoot, ()->{
                     System.out.println("Transitioned from intake to wait for shoot because shooter button pressed and not rapid fire");
                 })
-                .transition(()->intakes.getBadIntakeDetected(), States.Wait1, ()->{
-                    System.out.println("Transitioned from intake to wait1 because bad intake detected and not rapid fire");
-                })
 
                 .state(States.Wait1)
                 .onEnter(()->{
@@ -157,9 +154,6 @@ public class AutoStartFarllOLD extends LinearOpMode {
                 .state(States.Increment2)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
-                })
-                .transition(()->intakes.getBadIntakeDetected(), States.Wait2, ()->{
-                    System.out.println("Transitioned from increment2 to wait2 because bad intake detected");
                 })
                 .transition(()->shooterButton, States.WaitForShoot, ()->{
                     System.out.println("Transitioned from increment2 to wait for shoot because shooter button pressed");
@@ -179,9 +173,6 @@ public class AutoStartFarllOLD extends LinearOpMode {
                 .state(States.Increment3)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
-                })
-                .transition(()->intakes.getBadIntakeDetected(), States.WaitForShoot, ()->{
-                    System.out.println("Transitioned from increment3 to wait for shoot because bad intake detected");
                 })
                 .transition(()->shooterButton, States.WaitForShoot, ()->{
                     System.out.println("Transitioned from increment3 to wait for shoot because shooter button pressed");

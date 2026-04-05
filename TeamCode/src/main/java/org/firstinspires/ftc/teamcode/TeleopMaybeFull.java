@@ -152,7 +152,6 @@ public class TeleopMaybeFull extends LinearOpMode {
                 })
                 .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
                 .transition(()->intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.Transitionto2)
-                .transition(()->intakes.getBadBeamBreak(), States.Increment0)
 
                 .state(States.Transitionto2)
                 .onEnter(()->{
@@ -172,7 +171,6 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
                 .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
                 .transition(()->intakes.getGoodBeamBreakOutside(), States.BeforeWaitForShoot)
-                .transition(()-> intakes.getBadBeamBreak(), States.BeforeWaitForShoot, ()-> is_split = true)
 
                 .state(States.Increment0)
                 .onEnter(()->{
@@ -195,7 +193,6 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
                 })
-                .transition(()->intakes.getBadIntakeDetected(), States.Wait2)
                 .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
                 .transition(()->intakes.getGoodBeamBreakOutside() || intakes.getGoodBeamBreakInside(), States.DelayBit, ()->{
                     intakes.setGoodIntakePower(0.8);
@@ -218,7 +215,6 @@ public class TeleopMaybeFull extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Intake4);
                 })
-                .transition(()->intakes.getBadIntakeDetected(), States.WaitForShoot)
                 .transition(()->gamepadEx.getButton(shooterButton), States.WaitForShoot)
                 .transition(()->intakes.getGoodBeamBreakOutside(), States.BeforeWaitForShoot, ()->{
                     intakes.setGoodIntakePower(0.8);
@@ -247,11 +243,6 @@ public class TeleopMaybeFull extends LinearOpMode {
                     }
                 })
                 .loop(()->{
-                    if (intakes.getBadBeamBreak()){
-                        intakes.setBadIntakePower(-0.8);
-                    }else{
-                        intakes.setBadIntakePower(0);
-                    }
                     if (!intakes.getGoodBeamBreakOutside()){
                         intakes.setGoodIntakePower(0.8);
                     }else{

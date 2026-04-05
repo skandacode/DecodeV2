@@ -12,19 +12,16 @@ import solverslib.hardware.motors.Motor;
 
 @Configurable
 public class Intakes {
-    Motor goodIntakeMotor;
-    Motor badIntakeMotor;
-    TouchSensor badBeamBreak;
+    Motor frontIntake;
+    Motor transferIntake;
+
     TouchSensor goodBeamBreakInside;
     TouchSensor goodBeamBreakOutside;
 
-    RevColorSensorV3 badIntakeSensor;
     RevColorSensorV3 goodIntakeSensor;
 
     private double cachedGoodDistance;
-    private double cachedBadDistance;
 
-    public static double badIntakeSensorThresh = 2;
     public static double goodIntakeSensorThresh = 3.2;
 
 
@@ -32,46 +29,33 @@ public class Intakes {
 
 
     public Intakes(HardwareMap hardwareMap) {
-        goodIntakeMotor = new Motor(hardwareMap, "goodIntakeMotor");
-        badIntakeMotor = new Motor(hardwareMap, "badIntakeMotor");
-        badIntakeSensor = hardwareMap.get(RevColorSensorV3.class, "badIntakeSensor");
+        frontIntake = new Motor(hardwareMap, "frontIntake");
+        transferIntake = new Motor(hardwareMap, "transferIntake");
+
         goodIntakeSensor = hardwareMap.get(RevColorSensorV3.class, "goodIntakeSensor");
 
-        badIntakeMotor.setInverted(true);
 
-        badBeamBreak = hardwareMap.touchSensor.get("badBeamBreak");
-        goodBeamBreakInside = hardwareMap.touchSensor.get("goodBeamBreakInside");
-        goodBeamBreakOutside = hardwareMap.touchSensor.get("goodBeamBreakOutside");
+        goodBeamBreakInside = hardwareMap.touchSensor.get("break1");
+        goodBeamBreakOutside = hardwareMap.touchSensor.get("break1");
         update();
     }
 
     public void setGoodIntakePower(double power) {
         goodPower = power;
-        goodIntakeMotor.set(power);
+        transferIntake.set(power);
+        frontIntake.set(power);
+
     }
     public void setBadIntakePower(double power) {
-        badPower = power;
-        badIntakeMotor.set(power);
+
+
     }
+
 
     public double getGoodCurrent(){
-        return goodIntakeMotor.getCurrentDraw();
+        return frontIntake.getCurrentDraw();
     }
 
-    public double getBadCurrent(){
-        return badIntakeMotor.getCurrentDraw();
-    }
-
-    public boolean getBadIntakeDetected(){
-        return getBadIntakeDistance()<badIntakeSensorThresh;
-    }
-
-    public double getBadIntakeDistance(){
-        //not detected ~ 2.8
-        //nothing at all ~3.2
-        //detected ~1
-        return cachedBadDistance;
-    }
     public boolean getGoodIntakeDetected(){
         double distance = getGoodIntakeDistance();
         System.out.println("good "+distance);
@@ -83,13 +67,10 @@ public class Intakes {
     }
 
     public void update() {
-        goodIntakeMotor.update();
-        badIntakeMotor.update();
+        frontIntake.update();
+        transferIntake.update();
+
         cachedGoodDistance = goodIntakeSensor.getDistance(DistanceUnit.CM);
-        cachedBadDistance = badIntakeSensor.getDistance(DistanceUnit.CM);
-    }
-    public boolean getBadBeamBreak(){
-        return badBeamBreak.isPressed();
     }
     public boolean getGoodBeamBreakInside(){
         return goodBeamBreakInside.isPressed();

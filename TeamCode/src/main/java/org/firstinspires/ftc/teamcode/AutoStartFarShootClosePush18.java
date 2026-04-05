@@ -432,9 +432,9 @@ public class AutoStartFarShootClosePush18 extends LinearOpMode {
         StateMachine autoMachine = new StateMachineBuilder() //Autonomia
                 .state(AutoStates.PUSH)
                 .onEnter(()->{
-                    shooter.setHood(0.57);
+                    shooter.setHood(0.6);
                     shooter.setTargetVelocity(1770);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-21*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(-19*Posmultiplier));
                     rapidFire=true;
                 })
                 .transitionTimed(2)
@@ -454,7 +454,7 @@ public class AutoStartFarShootClosePush18 extends LinearOpMode {
                 .state(AutoStates.MOVETOSHOOT2)
                 .onEnter(()->{
                     shooter.setTargetVelocity(1770);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(67.5*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(73*Posmultiplier));
                     follower.followPath(toShoot1, true);
                 })
                 .transition(()->follower.atParametricEnd())
@@ -487,8 +487,8 @@ public class AutoStartFarShootClosePush18 extends LinearOpMode {
                 .transitionTimed(0.4)
                 .state(AutoStates.MOVETOSHOOT3)
                 .onEnter(()->{
-                    shooter.setTargetVelocity(1770);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
+                    shooter.setTargetVelocity(1720);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(65*Posmultiplier));
                     follower.followPath(toShoot2, true);
                 })
                 .transition(()->follower.atParametricEnd())
@@ -536,9 +536,9 @@ public class AutoStartFarShootClosePush18 extends LinearOpMode {
                 .onEnter(()->{
                     intakes.setGoodIntakePower(0);
 
-                    shooter.setHood(0.54);
-                    shooter.setTargetVelocity(1360);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(52*Posmultiplier));
+                    shooter.setHood(0.56);
+                    shooter.setTargetVelocity(1390);
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(58*Posmultiplier));
                     follower.followPath(toShoot3, true);
                 })
                 .transition(()->follower.atParametricEnd())
@@ -563,10 +563,10 @@ public class AutoStartFarShootClosePush18 extends LinearOpMode {
                     }else{
                         shootorder = new int[]{1, 2, 0};
                     }
-                    shooter.setHood(0.54);
-                    shooter.setTargetVelocity(1300);
+                    shooter.setHood(0.57);
+                    shooter.setTargetVelocity(1340);
                     follower.followPath(toIntake4, 0.67,true);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(113*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(116*Posmultiplier));
                 })
                 .transitionTimed(1.67)
 
