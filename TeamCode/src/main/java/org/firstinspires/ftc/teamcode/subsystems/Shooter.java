@@ -29,12 +29,12 @@ public class Shooter {
     private double currentVelocity = 0.0;
 
     // --- Flywheel PIDF coefficients ---
-    public static double kP = 0.008;
+    public static double kP = 0.009;
     public static double kI = 0;
     public static double kD = 0;
 
-    public static double kS = 0.115; // Static feedforward
-    public static double kV = 0.00038; // Velocity feedforward
+    public static double kS = 0.15; // Static feedforward
+    public static double kV = 0.0004; // Velocity feedforward
 
     public static boolean enablePIDF = true;
 
@@ -52,7 +52,8 @@ public class Shooter {
     private double smoothedVelocity = 0.0;
 
     public static Pose RedGoalPose = new Pose(-67, 61);
-    public static Pose BlueGoalPose = new Pose(-67, -61);
+    public static Pose BlueGoalPose
+            = new Pose(-67, -61);
 
 
     public enum Goal{

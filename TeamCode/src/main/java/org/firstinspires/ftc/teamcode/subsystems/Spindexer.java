@@ -24,11 +24,11 @@ public class Spindexer {
     public boolean is_kick = false;
 
     public enum SpindexerPosition {
-        Shoot0(0.11),
-        Shoot1(0.33),
-        Shoot2(0.55),
-        Shoot3(0.76),
-        Shoot4(0.985),
+        Shoot0(0.03),
+        Shoot1(0.2),
+        Shoot2(0.4),
+        Shoot3(0.59),
+        Shoot4(0.78),
         Intake1(0),
         Intake2(0.23),
         Intake3(0.45),
