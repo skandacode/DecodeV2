@@ -7,39 +7,29 @@ public class ShooterTables {
 
     public static double getHoodPosition(double distance) {
         double increasehood = 0;
-        if (distance>110){
-            increasehood = 0.02;
+        if (distance>100){
+            increasehood = -0.2;
         }
         if (distance<70){
-            increasehood = 0.02;
+            increasehood = 0.0;
         }
-        return 2.1664635e-14*Math.pow(distance,8)
-                - 1.6743242e-11*Math.pow(distance,7)
-                + 5.5440512e-9*Math.pow(distance,6)
-                - 0.0000010256883*Math.pow(distance,5)
-                + 0.00011577729*Math.pow(distance,4)
-                - 0.0081510486*Math.pow(distance,3)
-                + 0.34883167*Math.pow(distance,2)
-                - 8.2726411*distance
-                + 83.409692+increasehood;
+        return 0.00000782994 * Math.pow(distance, 2)
+                + 0.00176365 * distance
+                + 0.396957+increasehood;
     }
     public static double getShooterVelocity(double distance) {
         double increase = 0;
         if (distance>110){
-            increase = 20;
+            increase = 00;
         }
-        else if (distance<70){
-            increase = 10;
+        else if (distance<100){
+            increase = -10;
         }
-        return 4.9163953e-12*Math.pow(distance,8)
-                - 3.7741923e-9*Math.pow(distance,7)
-                + 0.0000012447575*Math.pow(distance,6)
-                - 0.00023019349*Math.pow(distance,5)
-                + 0.02609685*Math.pow(distance,4)
-                - 1.8565751*Math.pow(distance,3)
-                + 80.853514*Math.pow(distance,2)
-                - 1957.78206*distance
-                + 21157.554 + increase;
+        return -0.00000301537 * Math.pow(distance, 4)
+                + 0.000969238 * Math.pow(distance, 3)
+                - 0.111927 * Math.pow(distance, 2)
+                + 12.63867 * distance
+                + 927.88974 + increase;
     }
 
     public static double actualShooterVelocityNoLoad(double targetVelocity) {
@@ -64,9 +54,9 @@ public class ShooterTables {
         if (distance<110){
         return 0.6;}
         else{
-            return 1;
+            return 0;
         }
     }
 
-    public static double instantShotCompensation = 0.05;
+    public static double instantShotCompensation = 0.02;
 }

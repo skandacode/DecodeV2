@@ -31,7 +31,7 @@ public class ShooterTesting extends LinearOpMode {
         intakes = new Intakes(hardwareMap);
 
         follower = createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(65, 0, Math.toRadians(180)));
+        follower.setStartingPose(new Pose(60, 0, Math.toRadians(180)));
 
         waitForStart();
 

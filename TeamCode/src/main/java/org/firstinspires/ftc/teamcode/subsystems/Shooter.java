@@ -29,7 +29,7 @@ public class Shooter {
     private double currentVelocity = 0.0;
 
     // --- Flywheel PIDF coefficients ---
-    public static double kP = 0.009;
+    public static double kP = 0.015;
     public static double kI = 0;
     public static double kD = 0;
 
@@ -44,16 +44,16 @@ public class Shooter {
 
     // --- Hood bounds ---
 
-    public static double hoodLowerBound = 0.36;
+    public static double hoodLowerBound = 0.47;
     public static double hoodUpperBound = 0.82;
 
     // --- Low-pass filter coefficient (for smoothing) ---
     public static double ALPHA = 0.3;
     private double smoothedVelocity = 0.0;
 
-    public static Pose RedGoalPose = new Pose(-67, 61);
+    public static Pose RedGoalPose = new Pose(-62, 57);
     public static Pose BlueGoalPose
-            = new Pose(-67, -61);
+            = new Pose(-62, -57);
 
 
     public enum Goal{
@@ -164,7 +164,7 @@ public class Shooter {
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*-0.00311111111+0.48;
+        return deg*-0.00311111111+0.51;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){
