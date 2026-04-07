@@ -31,6 +31,8 @@ import java.util.Objects;
 
 import solverslib.gamepad.GamepadEx;
 import solverslib.gamepad.GamepadKeys;
+import solverslib.hardware.motors.Motor;
+
 @Configurable
 @TeleOp
 public class TeleopOnlyRapid extends LinearOpMode {
@@ -39,6 +41,9 @@ public class TeleopOnlyRapid extends LinearOpMode {
     Shooter shooter;
     Follower follower;
     Tilt tilt;
+
+    Motor frontLeft, frontRight, backLeft, backRight;
+    Motor intake1, intake2, shooter1, shooter2;
 
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
@@ -49,8 +54,11 @@ public class TeleopOnlyRapid extends LinearOpMode {
     PositionLogger positionLogger;
 
 
+    public static boolean telemetryCurrent = false;
+
     public enum States{
         Intake,
+        TransferOff,
         HoldBalls,
         OpenUpperGate,
         Shoot,
@@ -85,6 +93,17 @@ public class TeleopOnlyRapid extends LinearOpMode {
         tilt = new Tilt(hardwareMap);
 
 
+        frontLeft = new Motor(hardwareMap, "frontleft");
+        frontRight = new Motor(hardwareMap, "frontright");
+        backLeft = new Motor(hardwareMap, "backleft");
+        backRight = new Motor(hardwareMap, "backright");
+
+        intake1 = new Motor(hardwareMap, "frontIntake");
+        intake2 = new Motor(hardwareMap, "transferIntake");
+
+        shooter1 = new Motor(hardwareMap, "shooterMotor1");
+        shooter2 = new Motor(hardwareMap, "shooterMotor2");
+
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
@@ -102,7 +121,12 @@ public class TeleopOnlyRapid extends LinearOpMode {
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
-                .transition(()->gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
+                .transition(()->intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.TransferOff)
+                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+
+                .state(States.TransferOff)
+                .onEnter(()->intakes.setTransferIntakePower(0.3))
+                .transition(()->intakes.getGoodBeamBreakOutside(), States.HoldBalls)
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.HoldBalls)
@@ -234,6 +258,34 @@ public class TeleopOnlyRapid extends LinearOpMode {
             telemetry.addData("Spindexer kick", spindexer.is_kick);
             telemetry.addData("Statemachine State", stateMachine.getState());
 
+
+            if (telemetryCurrent) {
+                double totalCurrent = 0;
+                double frontLeftCurrent = frontLeft.getCurrentDraw();
+                double frontRightCurrent = frontRight.getCurrentDraw();
+                double backLeftCurrent = backLeft.getCurrentDraw();
+                double backRightCurrent = backRight.getCurrentDraw();
+
+
+                telemetry.addData("Front left current", frontLeftCurrent);
+                telemetry.addData("Front right current", frontRightCurrent);
+                telemetry.addData("Back left current", backLeftCurrent);
+                telemetry.addData("Back right current", backRightCurrent);
+
+                double frontIntakeCurrent = intake1.getCurrentDraw();
+                double backIntakeCurrent = intake2.getCurrentDraw();
+                double shooter1Current = shooter1.getCurrentDraw();
+                double shooter2Current = shooter2.getCurrentDraw();
+
+                telemetry.addData("front intake current", frontIntakeCurrent);
+                telemetry.addData("back intake current", backIntakeCurrent);
+                telemetry.addData("shooter 1 current", shooter1Current);
+                telemetry.addData("shooter2 current", shooter2Current);
+
+                totalCurrent = frontLeftCurrent+frontRightCurrent+backLeftCurrent+backRightCurrent+frontIntakeCurrent+backIntakeCurrent+shooter1Current+shooter2Current;
+
+                telemetry.addData("total current", totalCurrent);
+            }
 
 
             long currentTime = System.nanoTime();

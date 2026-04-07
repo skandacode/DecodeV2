@@ -27,6 +27,7 @@ public class Intakes {
 
     public double goodPower, badPower;
 
+    public static double frontIntakeCurrentLimit = 4;
 
     public Intakes(HardwareMap hardwareMap) {
         frontIntake = new Motor(hardwareMap, "frontIntake");
@@ -34,28 +35,32 @@ public class Intakes {
 
         goodIntakeSensor = hardwareMap.get(RevColorSensorV3.class, "goodIntakeSensor");
 
-
         goodBeamBreakInside = hardwareMap.touchSensor.get("break1");
         goodBeamBreakOutside = hardwareMap.touchSensor.get("break1");
+
+        frontIntake.setCurrentAlert(4.0);
+
         update();
     }
 
     public void setGoodIntakePower(double power) {
         goodPower = power;
-        transferIntake.set(power);
+        setFrontIntakePower(power);
+        setTransferIntakePower(power);
+    }
+
+    public void setFrontIntakePower(double power){
+        if (frontIntake.isOverCurrent()){
+            power = power*frontIntakeCurrentLimit/frontIntake.getCurrentDraw();
+        }
         frontIntake.set(power);
-
-    }
-    public void setBadIntakePower(double power) {
-
-
     }
 
-
-    public double getGoodCurrent(){
-        return frontIntake.getCurrentDraw();
+    public void setTransferIntakePower(double power){
+        transferIntake.set(power);
     }
 
+    public void setBadIntakePower(double power) {}
     public boolean getGoodIntakeDetected(){
         double distance = getGoodIntakeDistance();
         System.out.println("good "+distance);

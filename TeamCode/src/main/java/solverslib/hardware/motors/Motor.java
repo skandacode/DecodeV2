@@ -302,4 +302,12 @@ public class Motor implements HardwareDevice {
     public double getCurrentDraw(){
         return motor.getCurrent(CurrentUnit.AMPS);
     }
+
+    public void setCurrentAlert(double current){
+        motor.setCurrentAlert(current, CurrentUnit.AMPS);
+    }
+
+    public boolean isOverCurrent(){
+        return motor.isOverCurrent();
+    }
 }
