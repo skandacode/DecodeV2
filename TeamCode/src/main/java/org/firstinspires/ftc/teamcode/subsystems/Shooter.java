@@ -51,9 +51,9 @@ public class Shooter {
     public static double ALPHA = 0.3;
     private double smoothedVelocity = 0.0;
 
-    public static Pose RedGoalPose = new Pose(-62, 57);
+    public static Pose RedGoalPose = new Pose(-67, 62);
     public static Pose BlueGoalPose
-            = new Pose(-62, -57);
+            = new Pose(-67, -62);
 
 
     public enum Goal{
