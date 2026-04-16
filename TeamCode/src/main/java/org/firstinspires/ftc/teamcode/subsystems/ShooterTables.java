@@ -50,7 +50,7 @@ public class ShooterTables {
 
     public static double hoodAngleChangePer100ticksPerSecondError = 0.02;
 
-    public static double hoodAdjustDistanceThreshold = 10;
+    public static double hoodAdjustDistanceThreshold = 90;
 
     public static double getBalltimeinair(double distance){
         if (distance<110){
