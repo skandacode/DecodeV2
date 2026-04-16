@@ -8,28 +8,30 @@ public class ShooterTables {
     public static double getHoodPosition(double distance) {
         double increasehood = 0;
         if (distance>100){
-            increasehood = -0.2;
+            increasehood = -0.01;
         }
         if (distance<70){
             increasehood = 0.0;
         }
-        return 0.00000782994 * Math.pow(distance, 2)
-                + 0.00176365 * distance
-                + 0.396957+increasehood;
+        return -8.33333e-9 * Math.pow(distance, 4)
+                + 0.00000336908 * Math.pow(distance, 3)
+                - 0.000502057 * Math.pow(distance, 2)
+                + 0.033713 * distance
+                - 0.249207 + increasehood;
     }
     public static double getShooterVelocity(double distance) {
         double increase = 0;
         if (distance>110){
-            increase = 00;
+            increase = 0;
         }
         else if (distance<100){
-            increase = -10;
+            increase = 30;
         }
-        return -0.00000301537 * Math.pow(distance, 4)
-                + 0.000969238 * Math.pow(distance, 3)
-                - 0.111927 * Math.pow(distance, 2)
-                + 12.63867 * distance
-                + 927.88974 + increase;
+        return  -0.00000203963 * Math.pow(distance, 4)
+                + 0.000743978 * Math.pow(distance, 3)
+                - 0.0541084 * Math.pow(distance, 2)
+                + 6.0911 * distance
+                + 997.52914 + increase;
     }
 
     public static double actualShooterVelocityNoLoad(double targetVelocity) {

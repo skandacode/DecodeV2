@@ -119,9 +119,11 @@ public class TeleopOnlyRapid extends LinearOpMode {
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(true);
                     spindexer.setKickerPos(false);
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
                 .transition(()->intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.TransferOff)
+                .transition(()->gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
+
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.TransferOff)
@@ -140,12 +142,12 @@ public class TeleopOnlyRapid extends LinearOpMode {
                     shooter.setUpperGateOpen(true);
                     intakes.setGoodIntakePower(1);
                 })
-                .transitionTimed(0.4, States.Shoot)
+                .transitionTimed(0.1, States.Shoot)
                 .state(States.Shoot)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.3, States.Intake)
+                .transitionTimed(0.7, States.Intake)
                 .build();
 
         StateMachine clearMachine = new StateMachineBuilder()
