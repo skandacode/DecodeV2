@@ -54,7 +54,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
     PositionLogger positionLogger;
 
 
-    public static boolean telemetryCurrent = false;
+    public static boolean telemetryCurrent = true;
 
     public enum States{
         Intake,
