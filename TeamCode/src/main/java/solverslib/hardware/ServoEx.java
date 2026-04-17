@@ -14,7 +14,7 @@ public class ServoEx implements HardwareDevice {
     private final String id;
     private double min = 0.0;
     private double max = 1.0;
-    private double cachingTolerance = 0.001;
+    private double cachingTolerance = 0.005;
 
     private double curr_raw_pos = -1;
     private double prev_raw_pos = -1;

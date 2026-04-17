@@ -32,6 +32,7 @@ import solverslib.hardware.motors.Motor;
 
 @Configurable
 @TeleOp
+@Disabled
 public class TeleopMaybeFullCUrrentChecking extends LinearOpMode {
     Intakes intakes;
     Spindexer spindexer;

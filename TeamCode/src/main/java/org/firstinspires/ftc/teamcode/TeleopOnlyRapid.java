@@ -16,7 +16,6 @@ import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.PanelsDrawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.PositionLogger;
 import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
@@ -51,21 +50,17 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
     public static Pose relocalizePos = new Pose(60, -0, Math.toRadians(180));
 
-    PositionLogger positionLogger;
-
 
     public static boolean telemetryCurrent = true;
 
     public enum States{
         Intake,
         TransferOff,
+        PulseOut,
+        PulseIn,
         HoldBalls,
         OpenUpperGate,
         Shoot,
-    }
-
-    public enum clearStates{
-        IDLE, EJECT1, EJECT2, EJECT3
     }
 
     @Override
@@ -75,13 +70,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-        }
-
-        try {
-            positionLogger = new PositionLogger("TeleopOnlyRapid.log");
-        } catch (java.io.IOException e) {
-            System.out.println("Logger failed to Initialize");
-            positionLogger = null;
         }
 
         GamepadEx gamepadEx = new GamepadEx(gamepad1);
@@ -128,8 +116,16 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
                 .state(States.TransferOff)
                 .onEnter(()->intakes.setTransferIntakePower(0.3))
-                .transition(()->intakes.getGoodBeamBreakOutside(), States.HoldBalls)
+                .transition(()->intakes.getGoodBeamBreakOutside(), States.PulseOut)
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+
+                .state(States.PulseOut)
+                .onEnter(()->intakes.setFrontIntakePower(-0.5))
+                .transitionTimed(0.2)
+
+                .state(States.PulseIn)
+                .onEnter(()->intakes.setFrontIntakePower(1))
+                .transitionTimed(1)
 
                 .state(States.HoldBalls)
                 .onEnter(()->intakes.setGoodIntakePower(0.1))
@@ -150,40 +146,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .transitionTimed(0.7, States.Intake)
                 .build();
 
-        StateMachine clearMachine = new StateMachineBuilder()
-                .state(clearStates.IDLE)
-                .transition(()->gamepad2.a)
-
-                .state(clearStates.EJECT1)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    intakes.setGoodIntakePower(-0.67);
-                })
-                .transitionTimed(0.5)
-
-                .state(clearStates.EJECT2)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake3);
-                    intakes.setGoodIntakePower(-0.67);
-                })
-                .transitionTimed(0.5)
-
-                .state(clearStates.EJECT3)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    intakes.setGoodIntakePower(-0.67);
-                })
-                .transitionTimed(0.5, clearStates.IDLE, ()->{
-                    intakes.setGoodIntakePower(1);
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setLowerGateOpen(true);
-                    spindexer.setKickerPos(false);
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                })
-                .build();
-
-
-
         while (opModeInInit()) {
             for (LynxModule hub : allHubs) hub.clearBulkCache();
             follower.update();
@@ -201,8 +163,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
         waitForStart();
 
         stateMachine.start();
-        clearMachine.start();
-
         follower.startTeleopDrive();
 
         long lastLoopTime = System.nanoTime();
@@ -252,7 +212,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 tilt.retract();
             }
             stateMachine.update();
-            clearMachine.update();
 
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
@@ -297,22 +256,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
             intakes.update();
             spindexer.update();
             PanelsDrawing.drawDebug(follower);
-            try {
-                if (positionLogger != null){
-                    positionLogger.logPose(follower.getPose());
-                }
-            } catch (IOException ignored) {
-
-            }
             shooter.update();
             telemetry.update();
-        }
-        try {
-            if (positionLogger != null){
-                positionLogger.close();
-            }
-        } catch (IOException ignored) {
-
         }
     }
 }

@@ -62,6 +62,7 @@ public class Intakes {
 
     public void setBadIntakePower(double power) {}
     public boolean getGoodIntakeDetected(){
+        cachedGoodDistance = goodIntakeSensor.getDistance(DistanceUnit.CM);
         double distance = getGoodIntakeDistance();
         System.out.println("good "+distance);
         return distance<goodIntakeSensorThresh;
@@ -75,7 +76,6 @@ public class Intakes {
         frontIntake.update();
         transferIntake.update();
 
-        cachedGoodDistance = goodIntakeSensor.getDistance(DistanceUnit.CM);
     }
     public boolean getGoodBeamBreakInside(){
         return goodBeamBreakInside.isPressed();
