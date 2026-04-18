@@ -19,7 +19,7 @@ import com.sfdev.assembly.state.StateMachineBuilder;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.LLFieldScannerResults;
-import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
+//import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
@@ -35,7 +35,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
     String colorAlliance = "BLUE";
     int Posmultiplier = 1;
     Shooter shooter;
-    LimelightCamera limelightCamera;
+    //LimelightCamera limelightCamera;
     Spindexer spindexer;
     public boolean shooterButton = false;
     public double shootWaitTime = 0.25;
@@ -58,6 +58,8 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
         MOVETOSHOOT6, wait6,preSHOOT6, SHOOT6,
         MOVETOINTAKE6,
         MOVETOSHOOT7, wait7,preSHOOT7, SHOOT7,
+        MOVETOINTAKE7,
+        MOVETOSHOOT8, wait8,preSHOOT8, SHOOT8,
         park
     }
     public enum States{
@@ -88,7 +90,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
         shooter = new Shooter(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
         follower = createFollower(hardwareMap);
-        limelightCamera = new LimelightCamera(hardwareMap);
+        //limelightCamera = new LimelightCamera(hardwareMap);
 
         while (opModeInInit()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
@@ -105,9 +107,10 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 shooterTarget = Shooter.Goal.RED;
                 Posmultiplier=-1;
             }
-            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
             spindexer.setKickerPos(false);
             shooter.setTurretPos(shooter.convertDegreestoServoPos(0));
+            shooter.setHood(0.8);
             shooter.setUpperGateOpen(false);
             spindexer.setLowerGateOpen(true);
             shooter.update();
@@ -118,16 +121,16 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
         waitForStart();
 
 
-        Pose startPose = new Pose(60, -15*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose shootPose = new Pose(54, -19*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intakeHuman = new Pose(58, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake1Pose = new Pose(31, -17*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake1donePose = new Pose(31, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose startPose = new Pose(60, -16*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose shootPose = new Pose(53, -22*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intakeHuman = new Pose(58, -61*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake1Pose = new Pose(32, -28*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake1donePose = new Pose(33, -61*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
 
-        Pose intakemidPose = new Pose(47, -17*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intakemiddonePose = new Pose(47, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose leave = new Pose(40, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intakemidPose = new Pose(44, -17*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intakemiddonePose = new Pose(44, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose leave = new Pose(33, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
 
 
@@ -163,12 +166,12 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .onEnter(()->{
                     shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(0.7)
+                .transitionTimed(0.1)
                 .state(AutoStates.SHOOT1)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.6)
+                .transitionTimed(0.4)
 
 
                 .state(AutoStates.MOVETOINTAKE1)
@@ -186,7 +189,6 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                             .build();
                     follower.followPath(toIntake, true);
                 })
-                .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.6)
 
                 .state(AutoStates.MOVETOSHOOT2)
@@ -204,18 +206,18 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .state(AutoStates.wait2)
                 .onEnter(()->{
                 })
-                .transitionTimed(0.1)
+                .transitionTimed(0.4)
 
                 .state(AutoStates.preSHOOT2)
                 .onEnter(()->{
                     shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.1)
                 .state(AutoStates.SHOOT2)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.6)
+                .transitionTimed(0.4)
                 .state(AutoStates.MOVETOINTAKE2)
                 .onEnter(()->{
                     shooter.setUpperGateOpen(false);
@@ -229,7 +231,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                             .build();
                     follower.followPath(toIntakeHuman, true);
                 })
-                .transitionTimed(1.7)
+                .transitionTimed(1.3)
 
                 .state(AutoStates.MOVETOSHOOT3)
                 .onEnter(()->{
@@ -241,7 +243,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                     follower.followPath(toScore, true);
                 })
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.5)
+                .transitionTimed(2)
 
                 .state(AutoStates.wait3)
                 .onEnter(()->{
@@ -252,18 +254,19 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .onEnter(()->{
                     shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.1)
                 .state(AutoStates.SHOOT3)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.6)
+                .transitionTimed(0.4)
                 .state(AutoStates.MOVETOINTAKE3)
                 .onEnter(()->{
                     //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
-                    LLFieldScannerResults results = limelightCamera.getTrackingResults();
+                    /*
+                    // LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
                         double dx = results.getPosition()[1];
 
@@ -281,18 +284,18 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         System.out.println("Detected at " + dx);
 
                     }else{
+                    */
+
                         PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intake1donePose))
-                                .setLinearHeadingInterpolation(follower.getHeading(),intake1donePose.getHeading())
+                                .addPath(new BezierLine(follower.getPose(), intakemiddonePose))
+                                .setLinearHeadingInterpolation(follower.getHeading(),intakemiddonePose.getHeading())
+                                .setNoDeceleration()
                                 .build();
                         follower.followPath(toIntake, true);
                         System.out.println("Detected at NULL");
 
-                    }
-
                 })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.8)
+                .transitionTimed(1.3)
                 .state(AutoStates.MOVETOSHOOT4)
                 .onEnter(()->{
                     PathChain toScore = follower.pathBuilder()
@@ -314,17 +317,18 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .onEnter(()->{
                     shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(0.3)
+                .transitionTimed(0.1)
                 .state(AutoStates.SHOOT4)
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.6)
+                .transitionTimed(0.4)
                 .state(AutoStates.MOVETOINTAKE4)
                 .onEnter(()->{
                     //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
+                    /*
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
                         double dx = results.getPosition()[1];
@@ -343,18 +347,18 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         System.out.println("Detected at " + dx);
 
                     }else{
+
+                     */
                         PathChain toIntake = follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), intake1donePose))
                                 .setTangentHeadingInterpolation()
+                                .setNoDeceleration()
                                 .build();
                         follower.followPath(toIntake, true);
                         System.out.println("Detected at NULL");
 
-                    }
-
                 })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2)
+                .transitionTimed(1.5)
                 .state(AutoStates.MOVETOSHOOT5)
                 .onEnter(()->{
                     PathChain toScore = follower.pathBuilder()
@@ -381,12 +385,13 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.6)
+                .transitionTimed(0.4)
                 .state(AutoStates.MOVETOINTAKE5)
                 .onEnter(()->{
                     //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
+                    /*
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
                         double dx = results.getPosition()[1];
@@ -405,18 +410,18 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         System.out.println("Detected at " + dx);
 
                     }else{
+
+                     */
                         PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakemiddonePose))
+                                .addPath(new BezierLine(follower.getPose(), intakeHuman))
                                 .setTangentHeadingInterpolation()
+                                .setNoDeceleration()
                                 .build();
                         follower.followPath(toIntake, true);
                         System.out.println("Detected at NULL");
 
-                    }
-
                 })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2)
+                .transitionTimed(1.5)
 
                 .state(AutoStates.MOVETOSHOOT6)
                 .onEnter(()->{
@@ -446,11 +451,12 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.5)
+                .transitionTimed(0.4)
                 .state(AutoStates.MOVETOINTAKE6)
                 .onEnter(()->{
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
+                    /*
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
                         double dx = results.getPosition()[1];
@@ -469,18 +475,19 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         System.out.println("Detected at " + dx);
 
                     }else{
+
+                     */
                         PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakeHuman))
+                                .addPath(new BezierLine(follower.getPose(), intakemiddonePose))
                                 .setTangentHeadingInterpolation()
+                                .setNoDeceleration()
+
                                 .build();
                         follower.followPath(toIntake, true);
                         System.out.println("Detected at NULL");
 
-                    }
-
                 })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2)
+                .transitionTimed(1.6)
                 .state(AutoStates.MOVETOSHOOT7)
                 .onEnter(()->{
                     PathChain toScore = follower.pathBuilder()
@@ -509,7 +516,72 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.6)
+                .transitionTimed(0.4)
+                .state(AutoStates.MOVETOINTAKE7)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(false);
+                    spindexer.setKickerPos(false);
+                    /*
+                    LLFieldScannerResults results = limelightCamera.getTrackingResults();
+                    if (results != null) {
+                        double dx = results.getPosition()[1];
+
+                        if (Posmultiplier == 1) {
+                            dx = Math.max(dx, -3);
+                        } else {
+                            dx = Math.min(dx, 3);
+                        }
+                        Pose intakePoseAuto = new Pose(follower.getPose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+                        PathChain toIntake = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), intakePoseAuto))
+                                .setLinearHeadingInterpolation(follower.getHeading(), intakePoseAuto.getHeading())
+                                .build();
+                        follower.followPath(toIntake, true);
+                        System.out.println("Detected at " + dx);
+
+                    }else{
+
+                     */
+                    PathChain toIntake = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), intakeHuman))
+                            .setTangentHeadingInterpolation()
+                            .setNoDeceleration()
+
+                            .build();
+                    follower.followPath(toIntake, true);
+                    System.out.println("Detected at NULL");
+
+                })
+                .transitionTimed(1.6)
+                .state(AutoStates.MOVETOSHOOT8)
+                .onEnter(()->{
+                    PathChain toScore = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), shootPose))
+                            .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
+                            .setBrakingStrength(0.7)
+                            .build();
+                    //shooter.setTurretPos(shooter.convertDegreestoServoPos(71*Posmultiplier));
+
+                    follower.followPath(toScore, true);
+                })
+                .transition(()->follower.atParametricEnd())
+                .transitionTimed(2.5)
+
+                .state(AutoStates.wait8)
+                .onEnter(()->{
+                })
+                .transitionTimed(0.2)
+
+                .state(AutoStates.preSHOOT8)
+                .onEnter(()->{
+                    shooter.setUpperGateOpen(true);
+                })
+                .transitionTimed(0.3)
+                .state(AutoStates.SHOOT8)
+                .onEnter(()->{
+                    spindexer.setKickerPos(true);
+                })
+                .transitionTimed(0.4)
                 .state(AutoStates.park)
                 .onEnter(()->{
                     shooter.setUpperGateOpen(false);
@@ -524,16 +596,16 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 .build();
 
         autoMachine.start();
-        limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.BALLTRACKING);
+        //limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.BALLTRACKING);
         while (opModeIsActive()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             Position.pose = follower.getPose();
             if (Posmultiplier==1) {
-                Shooter.powerOffset = 0;
-                Shooter.turretOffset = -3;
+                Shooter.powerOffset = 20;
+                Shooter.turretOffset = 0;
             }else{
-                Shooter.powerOffset = 0;
-                Shooter.turretOffset = -1;
+                Shooter.powerOffset = 10;
+                Shooter.turretOffset = 2;
             }
             telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, shooterTarget)));
             shooter.aimAtTarget(Position.pose, shooterTarget);

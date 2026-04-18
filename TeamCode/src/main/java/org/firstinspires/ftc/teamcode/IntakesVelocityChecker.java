@@ -18,8 +18,9 @@ public class IntakesVelocityChecker extends LinearOpMode {
     Spindexer spindexer;
     Shooter shooter;
 
-    public static double goodPower = 0.0;
-    public static double badPower = 0.0;
+    public static double intakePower = 0.0;
+    public static double transferPower = 0.0;
+
     public static boolean kick = false;
     public static boolean lowerGateOpen = true;
 
@@ -47,8 +48,8 @@ public class IntakesVelocityChecker extends LinearOpMode {
             shooter.setUpperGateOpen(false);
             spindexer.setLowerGateOpen(lowerGateOpen);
 
-            intakes.setGoodIntakePower(goodPower);
-            intakes.setBadIntakePower(badPower);
+            intakes.setFrontIntakePower(intakePower);
+            intakes.setTransferIntakePower(transferPower);
 
             telemetry.addData("Good Intake Distance", intakes.getGoodIntakeDistance());
 

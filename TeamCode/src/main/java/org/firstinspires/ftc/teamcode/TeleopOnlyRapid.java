@@ -46,9 +46,10 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
-    public static double turretOffsetIncrements = 2;//0000000000 why not 0 bum bum bum
+    public static double turretOffsetIncrements = 2;
 
-    public static Pose relocalizePos = new Pose(60, -0, Math.toRadians(180));
+
+    public Pose relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
 
 
     public static boolean telemetryCurrent = true;
@@ -151,10 +152,13 @@ public class TeleopOnlyRapid extends LinearOpMode {
             follower.update();
             if (gamepad1.a) {
                 target = Shooter.Goal.BLUE;
+                relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
             }
             if (gamepad1.b) {
                 target = Shooter.Goal.RED;
+                relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
             }
+
             telemetry.addData("Shooter Target", target);
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.update();

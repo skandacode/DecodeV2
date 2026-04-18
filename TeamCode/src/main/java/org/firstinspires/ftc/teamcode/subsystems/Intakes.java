@@ -51,7 +51,10 @@ public class Intakes {
 
     public void setFrontIntakePower(double power){
         if (frontIntake.isOverCurrent()){
-            power = power*frontIntakeCurrentLimit/frontIntake.getCurrentDraw();
+            double current = frontIntake.getCurrentDraw();
+            if (current != 0) {
+                power = power * frontIntakeCurrentLimit / current;
+            }
         }
         frontIntake.set(power);
     }
