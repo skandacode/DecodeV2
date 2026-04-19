@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower;
+import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.followerConstants;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
@@ -51,7 +52,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
     public Pose relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
 
-
+    public static boolean allianceBlue = true;
     public static boolean telemetryCurrent = true;
 
     public enum States{
@@ -152,10 +153,12 @@ public class TeleopOnlyRapid extends LinearOpMode {
             follower.update();
             if (gamepad1.a) {
                 target = Shooter.Goal.BLUE;
+                allianceBlue=true;
                 relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
             }
             if (gamepad1.b) {
                 target = Shooter.Goal.RED;
+                allianceBlue=false;
                 relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
             }
 
@@ -195,8 +198,13 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
             if (gamepadEx.wasJustPressed(positionResetButton)){
                 follower.setPose(relocalizePos);
-                Shooter.powerOffset=0;
-                Shooter.turretOffset=0;
+                if (allianceBlue) {
+                    Shooter.powerOffset = 0;
+                    Shooter.turretOffset = 0;
+                }else{
+                    Shooter.powerOffset = 0;
+                    Shooter.turretOffset = 2;
+                }
             }
             if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)){
                 Shooter.powerOffset -= powerOffsetIncrements;
