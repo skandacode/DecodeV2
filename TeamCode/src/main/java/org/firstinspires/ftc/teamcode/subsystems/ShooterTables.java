@@ -4,7 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
 public class ShooterTables {
-
+    public static double minVelocity = 1250;
     public static double getHoodPosition(double distance) {
         double increasehood = 0;
         if (distance>100){
@@ -26,11 +26,13 @@ public class ShooterTables {
         else if (distance<100){
             increase = 30;
         }
-        return  -0.0000326216 * Math.pow(distance, 4)
+        double vel =  -0.0000326216 * Math.pow(distance, 4)
                 + 0.0120174 * Math.pow(distance, 3)
                 - 1.52444 * Math.pow(distance, 2)
                 + 85.95417 * distance
                 - 556.71684 + increase;
+
+        return Math.max(minVelocity, vel);
     }
 
     public static double actualShooterVelocityNoLoad(double targetVelocity) {
