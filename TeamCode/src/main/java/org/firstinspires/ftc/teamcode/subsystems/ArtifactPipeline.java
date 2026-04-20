@@ -26,14 +26,14 @@ public class ArtifactPipeline extends OpenCvPipeline {
     private static final Scalar PURPLE_HIGH = new Scalar(146, 255, 255);
 
     // Minimum area to accept as a valid clump (tune as needed)
-    private static final double MIN_AREA = 3000.0;
+    private static final double MIN_AREA = 1500.0;
 
     // Reused mats
     private final Mat hsv = new Mat();
     private final Mat greenMask = new Mat();
     private final Mat purpleMask = new Mat();
     private final Mat unionMask = new Mat();
-    private final Mat morphKernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new org.opencv.core.Size(60, 90));
+    private final Mat morphKernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new org.opencv.core.Size(40, 90));
     private final Mat hierarchy = new Mat();
 
     // Result fields shared with opmode thread
