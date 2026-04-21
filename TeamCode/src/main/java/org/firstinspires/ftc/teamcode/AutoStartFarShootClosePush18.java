@@ -97,7 +97,7 @@ public class AutoStartFarShootClosePush18 extends LinearOpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
         limelightCamera = new LimelightCamera(hardwareMap);
-        limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.MOTIF);
+        //limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.MOTIF);
         intakes = new Intakes(hardwareMap);
         shooter = new Shooter(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
@@ -323,7 +323,7 @@ public class AutoStartFarShootClosePush18 extends LinearOpMode {
 
                 .state(States.ToIntake2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
                 .transitionTimed(0.3, States.PulseEject)
 

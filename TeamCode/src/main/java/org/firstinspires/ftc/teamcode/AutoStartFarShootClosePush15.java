@@ -297,7 +297,6 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .state(States.Wait2)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                    intakes.setBadIntakePower(0.3);
                 })
                 .transitionTimed(intakeWaitTime, States.Increment2)
                 .transition(()->shooterButton, States.WaitForShoot)
@@ -311,7 +310,7 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
 
                 .state(States.ToIntake2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
                 .transitionTimed(0.3, States.PulseEject)
 

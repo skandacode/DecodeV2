@@ -13,7 +13,7 @@ public class LimelightTesting extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         limelightCamera = new LimelightCamera(hardwareMap);
 
-        limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.MOTIF);
+        //limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.MOTIF);
 
         while (opModeInInit()){
             int motif = limelightCamera.getMotif();
@@ -23,8 +23,9 @@ public class LimelightTesting extends LinearOpMode {
         }
 
         waitForStart();
-        limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.BALLTRACKING);
+        //limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.BALLTRACKING);
         while (opModeIsActive()){
+            /*
             LLFieldScannerResults results = limelightCamera.getTrackingResults();
 
             if (results == null){
@@ -34,6 +35,8 @@ public class LimelightTesting extends LinearOpMode {
                 telemetry.addData("Position", Arrays.toString(results.getPosition()));
             }
             telemetry.update();
+
+             */
         }
     }
 }
