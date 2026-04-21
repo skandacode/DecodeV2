@@ -13,7 +13,8 @@ public class LimelightCamera {
 
     public enum Pipelines{
         MOTIF (0),
-        BALLTRACKING (1);
+        BLUETRACK (1),
+        REDTRACK (2);
 
         public final int index;
 
@@ -60,31 +61,15 @@ public class LimelightCamera {
             return -1;
         }
     }
-    public LLFieldScannerResults getTrackingResults(){
-        if (currentPipeline == Pipelines.BALLTRACKING){
-            limelight.updatePythonInputs(new double[] {0, 0, 0, 0, 0, 0, 0, 0});
-            LLResult result = limelight.getLatestResult();
-            if (result != null) {
-                System.out.println(result.getTx()+"    "+result.getTy());
-                double[] output = result.getPythonOutput();
-                if (output == null){
-                    System.out.println("Output is null");
-                    return null;
-                }
-                if (output.length == 0) {
-                    System.out.println("length is 0");
-                    return null;
-                }
-                if (output[1] == 1.0) {
-                    return new LLFieldScannerResults(result.getTx(), result.getTy());
-                }else{
-                    return null;
-                }
-            }
-            System.out.println("Not valid");
+    public double getTrackingResults(){
+        if (currentPipeline == Pipelines.MOTIF){
+            return 0;
         }
-        System.out.println("returning null");
-        return null;
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            return result.getTx();
+        }
+        return 0;
     }
 
     public Pipelines getCurrentPipeline(){

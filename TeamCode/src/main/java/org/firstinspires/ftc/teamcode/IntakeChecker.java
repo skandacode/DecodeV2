@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,7 +12,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 
 @TeleOp
 @Configurable
-public class IntakesVelocityChecker extends LinearOpMode {
+public class IntakeChecker extends LinearOpMode {
     Intakes intakes;
     Spindexer spindexer;
     Shooter shooter;

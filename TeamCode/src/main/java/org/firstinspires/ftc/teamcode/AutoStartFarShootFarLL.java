@@ -18,7 +18,6 @@ import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
-import org.firstinspires.ftc.teamcode.subsystems.LLFieldScannerResults;
 //import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;

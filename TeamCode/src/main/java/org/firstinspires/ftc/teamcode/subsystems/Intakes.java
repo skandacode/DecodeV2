@@ -36,7 +36,7 @@ public class Intakes {
         goodIntakeSensor = hardwareMap.get(RevColorSensorV3.class, "goodIntakeSensor");
 
         goodBeamBreakInside = hardwareMap.touchSensor.get("break1");
-        goodBeamBreakOutside = hardwareMap.touchSensor.get("break1");
+        goodBeamBreakOutside = hardwareMap.touchSensor.get("break2");
 
         frontIntake.setCurrentAlert(4.0);
 

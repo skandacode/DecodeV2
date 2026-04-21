@@ -9,6 +9,8 @@ import java.util.Arrays;
 public class LimelightTesting extends LinearOpMode {
     LimelightCamera limelightCamera;
 
+    LimelightCamera.Pipelines colorPipeline = LimelightCamera.Pipelines.BLUETRACK;
+
     @Override
     public void runOpMode() throws InterruptedException {
         limelightCamera = new LimelightCamera(hardwareMap);
@@ -23,16 +25,9 @@ public class LimelightTesting extends LinearOpMode {
         }
 
         waitForStart();
-        limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.BALLTRACKING);
+        limelightCamera.setCurrentPipeline(colorPipeline);
         while (opModeIsActive()){
-            LLFieldScannerResults results = limelightCamera.getTrackingResults();
-
-            if (results == null){
-                telemetry.addLine("is null");
-            }else {
-                telemetry.addLine(results.toString());
-                telemetry.addData("Position", Arrays.toString(results.getPosition()));
-            }
+            telemetry.addData("results", limelightCamera.getTrackingResults());
             telemetry.update();
         }
     }

@@ -18,7 +18,6 @@ import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
-import org.firstinspires.ftc.teamcode.subsystems.LLFieldScannerResults;
 import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -266,33 +265,11 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                     shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
-                    LLFieldScannerResults results = limelightCamera.getTrackingResults();
-                    if (results != null) {
-                        double dx = results.getPosition()[1];
-
-                        if (Posmultiplier == 1) {
-                            dx = Math.max(dx, -3);
-                        } else {
-                            dx = Math.min(dx, 3);
-                        }
-                        Pose intakePoseAuto = new Pose(follower.getPose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakePoseAuto))
-                                .setLinearHeadingInterpolation(follower.getHeading(), intakePoseAuto.getHeading())
-                                .build();
-                        follower.followPath(toIntake, true);
-                        System.out.println("Detected at " + dx);
-
-                    }else{
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakeHuman))
-                                .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
-                                .build();
-                        follower.followPath(toIntake, true);
-                        System.out.println("Detected at NULL");
-
-                    }
-
+                    PathChain toIntake = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), intakeHuman))
+                            .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
+                            .build();
+                    follower.followPath(toIntake, true);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(1.8)
@@ -372,33 +349,11 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                     shooter.setTurretPos(shooter.convertDegreestoServoPos(64*Posmultiplier));
                     shooter.setUpperGateOpen(false);
                     spindexer.setKickerPos(false);
-                    LLFieldScannerResults results = limelightCamera.getTrackingResults();
-                    if (results != null) {
-                        double dx = results.getPosition()[1];
-
-                        if (Posmultiplier == 1) {
-                            dx = Math.max(dx, -3);
-                        } else {
-                            dx = Math.min(dx, 3);
-                        }
-                        Pose intakePoseAuto = new Pose(follower.getPose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakePoseAuto))
-                                .setLinearHeadingInterpolation(follower.getHeading(), intakePoseAuto.getHeading())
-                                .build();
-                        follower.followPath(toIntake, true);
-                        System.out.println("Detected at " + dx);
-
-                    }else{
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakeHuman))
-                                .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
-                                .build();
-                        follower.followPath(toIntake, true);
-                        System.out.println("Detected at NULL");
-
-                    }
-
+                    PathChain toIntake = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), intakeHuman))
+                            .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
+                            .build();
+                    follower.followPath(toIntake, true);
                 })
                 .transition(()->follower.atParametricEnd())
                 .transitionTimed(2)
@@ -490,7 +445,6 @@ public class AutoStartFarShootFarLLNormalGate extends LinearOpMode {
                 .build();
 
         autoMachine.start();
-        limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.BALLTRACKING);
         while (opModeIsActive()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             Position.pose = follower.getPose();
