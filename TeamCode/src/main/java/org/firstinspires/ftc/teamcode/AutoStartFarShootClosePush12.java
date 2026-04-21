@@ -283,7 +283,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
 
                 .state(States.ToIntake2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake2);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                 })
                 .transitionTimed(0.3, States.PulseEject)
 

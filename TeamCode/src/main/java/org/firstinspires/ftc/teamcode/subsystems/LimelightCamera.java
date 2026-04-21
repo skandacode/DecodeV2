@@ -30,6 +30,9 @@ public class LimelightCamera {
         limelight.pipelineSwitch(currentPipeline.index);
         start();
     }
+    public void setCurrentPipeline(){
+
+    }
 
     public void start(){
         limelight.start();

@@ -25,10 +25,10 @@ public class Spindexer {
 
     public enum SpindexerPosition {
         Shoot0(0.03),
-        Shoot1(0.19),
-        Shoot2(0.4),
+        Shoot1(0.21),
+        Shoot2(0.395),
         Shoot3(0.59),
-        Shoot4(0.78),
+        Shoot4(0.77),
         Intake1(0),
         Intake2(0.23),
         Intake3(0.45),
