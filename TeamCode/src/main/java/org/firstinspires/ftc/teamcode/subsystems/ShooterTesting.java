@@ -24,6 +24,9 @@ public class ShooterTesting extends LinearOpMode {
     public static double intakePower = 0;
     public static Shooter.Goal targetGoal = Shooter.Goal.RED;
 
+    public static double turretAngle = 0;
+    public static boolean useTurretAngle = false;
+
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
@@ -42,7 +45,11 @@ public class ShooterTesting extends LinearOpMode {
             shooter.setTargetVelocity(targetVelocity);
             shooter.setUpperGateOpen(true);
             shooter.setHood(hoodPos);
-            shooter.setTurretPos(turretPos);
+            if (useTurretAngle){
+                shooter.setTurretPos(shooter.convertDegreestoServoPos(turretAngle));
+            }else {
+                shooter.setTurretPos(turretPos);
+            }
             telemetry.addData("angle distance", Arrays.toString(shooter.getAngleDistance(follower.getPose(), targetGoal)));
             intakes.update();
             shooter.update();

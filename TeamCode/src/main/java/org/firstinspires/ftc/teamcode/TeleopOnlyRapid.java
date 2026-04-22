@@ -19,6 +19,7 @@ import com.sfdev.assembly.state.StateMachineBuilder;
 import org.firstinspires.ftc.teamcode.pedroPathing.PanelsDrawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
+import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
@@ -41,6 +42,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
     Shooter shooter;
     Follower follower;
     Tilt tilt;
+    LimelightCamera limelight;
 
     Motor frontLeft, frontRight, backLeft, backRight;
     Motor intake1, intake2, shooter1, shooter2;
@@ -84,6 +86,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
         shooter = new Shooter(hardwareMap);
         follower = createFollower(hardwareMap);
         tilt = new Tilt(hardwareMap);
+        limelight = new LimelightCamera(hardwareMap);
 
 
         frontLeft = new Motor(hardwareMap, "frontleft");
@@ -102,6 +105,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
         GamepadKeys.Button restartIntake = GamepadKeys.Button.Y;
+        GamepadKeys.Button limelightAdjust = GamepadKeys.Button.X;
+
 
         follower.setStartingPose(Position.pose);
 
@@ -157,6 +162,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .transitionTimed(0.7, States.Intake)
                 .build();
 
+
+
         while (opModeInInit()) {
             for (LynxModule hub : allHubs) hub.clearBulkCache();
             follower.update();
@@ -174,6 +181,12 @@ public class TeleopOnlyRapid extends LinearOpMode {
             telemetry.addData("Shooter Target", target);
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.update();
+        }
+
+        if (target == Shooter.Goal.BLUE){
+            limelight.setCurrentPipeline(LimelightCamera.Pipelines.BLUETRACK);
+        }else{
+            limelight.setCurrentPipeline(LimelightCamera.Pipelines.REDTRACK);
         }
 
         waitForStart();
@@ -207,6 +220,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
             if (gamepadEx.wasJustPressed(positionResetButton)){
                 follower.setPose(relocalizePos);
+                Shooter.limelightOffset = 0;
                 if (allianceBlue) {
                     Shooter.powerOffset = 0;
                     Shooter.turretOffset = 0;
@@ -215,6 +229,10 @@ public class TeleopOnlyRapid extends LinearOpMode {
                     Shooter.turretOffset = 2;
                 }
             }
+            if (gamepadEx.wasJustPressed(limelightAdjust)){
+                Shooter.limelightOffset += limelight.getTrackingResults();
+            }
+
             if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)){
                 Shooter.powerOffset -= powerOffsetIncrements;
             }

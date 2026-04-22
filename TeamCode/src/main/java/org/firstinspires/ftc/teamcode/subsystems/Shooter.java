@@ -55,7 +55,6 @@ public class Shooter {
     public static Pose BlueGoalPose
             = new Pose(-67, -62);
 
-
     public enum Goal{
         RED (RedGoalPose),
         BLUE (BlueGoalPose);
@@ -68,6 +67,8 @@ public class Shooter {
 
     public static double powerOffset = 0;
     public static double turretOffset = 0;
+    public static double limelightOffset = 0;
+
 
     public static double upperGateOpenPos = 0.53;
     public static double upperGateClosedPos = 0.4;
@@ -239,7 +240,7 @@ public class Shooter {
         // Compensate turret angle for the robot's rotation during the mechanical
         // delay only — once the ball leaves, the robot's rotation no longer matters.
         double omegaCompensationDeg = Math.toDegrees(this.omega * tDelay);
-        double servoPos = convertDegreestoServoPos(angle + turretOffset + omegaCompensationDeg);
+        double servoPos = convertDegreestoServoPos(angle + turretOffset + omegaCompensationDeg + limelightOffset);
 
         double currVelo = getCurrentVelocity();
 
