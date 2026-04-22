@@ -49,6 +49,8 @@ public class TeleopOnlyRapid extends LinearOpMode {
     public static double powerOffsetIncrements = 20;
     public static double turretOffsetIncrements = 2;
 
+    public static double pulseTime = 0.1;
+
 
     public Pose relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
 
@@ -58,6 +60,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
     public enum States{
         Intake,
         TransferOff,
+        BeforePulseOut,
         PulseOut,
         PulseIn,
         HoldBalls,
@@ -111,23 +114,29 @@ public class TeleopOnlyRapid extends LinearOpMode {
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
+                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
                 .transition(()->intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.TransferOff)
                 .transition(()->gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
 
-                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-
                 .state(States.TransferOff)
                 .onEnter(()->intakes.setTransferIntakePower(0.3))
-                .transition(()->intakes.getGoodBeamBreakOutside(), States.PulseOut)
+                .transition(()->intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside(), States.PulseOut)
+                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+
+                .state(States.BeforePulseOut)
+                .onEnter(()->intakes.setFrontIntakePower(1))
+                .transitionTimed(0.2)
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.PulseOut)
                 .onEnter(()->intakes.setFrontIntakePower(-0.5))
-                .transitionTimed(0.2)
+                .transitionTimed(pulseTime)
+                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.PulseIn)
                 .onEnter(()->intakes.setFrontIntakePower(1))
-                .transitionTimed(1)
+                .transitionTimed(0.2)
+                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.HoldBalls)
                 .onEnter(()->intakes.setGoodIntakePower(0.1))

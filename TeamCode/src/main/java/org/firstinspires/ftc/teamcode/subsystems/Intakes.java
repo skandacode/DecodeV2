@@ -22,7 +22,7 @@ public class Intakes {
 
     private double cachedGoodDistance;
 
-    public static double goodIntakeSensorThresh = 3.2;
+    public static double goodIntakeSensorThresh = 3.3;
 
 
     public double goodPower, badPower;
@@ -39,6 +39,8 @@ public class Intakes {
         goodBeamBreakOutside = hardwareMap.touchSensor.get("break2");
 
         frontIntake.setCurrentAlert(4.0);
+        transferIntake.setCurrentAlert(4.0);
+
 
         update();
     }
@@ -65,13 +67,13 @@ public class Intakes {
 
     public void setBadIntakePower(double power) {}
     public boolean getGoodIntakeDetected(){
-        cachedGoodDistance = goodIntakeSensor.getDistance(DistanceUnit.CM);
         double distance = getGoodIntakeDistance();
         System.out.println("good "+distance);
         return distance<goodIntakeSensorThresh;
     }
 
     public double getGoodIntakeDistance(){
+        cachedGoodDistance = goodIntakeSensor.getDistance(DistanceUnit.CM);
         return cachedGoodDistance;
     }
 

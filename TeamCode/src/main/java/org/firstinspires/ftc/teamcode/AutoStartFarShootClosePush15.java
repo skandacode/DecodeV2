@@ -275,7 +275,7 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(rapidFire);
                     spindexer.setKickerPos(false);
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
                 .transition(()->shooterButton, States.WaitForShoot)
                 .transition(()->!rapidFire && intakes.getGoodIntakeDetected(), States.Wait1)
@@ -296,21 +296,21 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
 
                 .state(States.Wait2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                 })
                 .transitionTimed(intakeWaitTime, States.Increment2)
                 .transition(()->shooterButton, States.WaitForShoot)
 
                 .state(States.Increment2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                 })
                 .transition(()->intakes.getGoodIntakeDetected(), States.ToIntake2)
                 .transition(()->shooterButton, States.WaitForShoot)
 
                 .state(States.ToIntake2)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
                 .transitionTimed(0.3, States.PulseEject)
 
@@ -318,7 +318,7 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .onEnter(()->{
                     intakes.setGoodIntakePower(-1);
                 })
-                .transitionTimed(0.4)
+                .transitionTimed(0.1)
 
                 .state(States.BackToShoot0)
                 .onEnter(()->{
@@ -331,11 +331,11 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .onEnter(()->{
                     if (!rapidFire) {
                         if (shootorder[0] == 2) {
-                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                         } else if (shootorder[0] == 1) {
                             spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                         } else if (shootorder[0] == 0) {
-                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                         }
                     }
                 })
@@ -363,11 +363,11 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .state(States.Kick1)
                 .onEnter(()->{
                     if (shootorder[0] == 2) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }else if (shootorder[0] == 1) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     }else if (shootorder[0] == 0) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                     }
                     spindexer.setLowerGateOpen(true);
                     shooter.setUpperGateOpen(true);
@@ -379,11 +379,11 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .state(States.ShootSpin1)
                 .onEnter(()->{
                     if (shootorder[1] == 2) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }else if (shootorder[1] == 1) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     }else if (shootorder[1] == 0) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                     }
                     spindexer.setKickerPos(false);
                 })
@@ -398,11 +398,11 @@ public class AutoStartFarShootClosePush15 extends LinearOpMode {
                 .state(States.ShootSpin2)
                 .onEnter(()->{
                     if (shootorder[2] == 2) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                     }else if (shootorder[2] == 1) {
                         spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
                     }else if (shootorder[2] == 0) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                     }
                     spindexer.setKickerPos(false);
                 })
