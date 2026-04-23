@@ -130,7 +130,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
                 .state(States.BeforePulseOut)
                 .onEnter(()->intakes.setFrontIntakePower(1))
-                .transitionTimed(0.2)
+                .transitionTimed(0.4)
                 .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.PulseOut)
