@@ -57,7 +57,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
     public Pose relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
 
     public static boolean allianceBlue = true;
-    public static boolean telemetryCurrent = true;
+    public static boolean telemetryCurrent = false;
 
     public enum States{
         Intake,
@@ -102,66 +102,75 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
+        GamepadKeys.Trigger manualslowintake = GamepadKeys.Trigger.LEFT_TRIGGER;
+
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
         GamepadKeys.Button restartIntake = GamepadKeys.Button.Y;
         GamepadKeys.Button limelightAdjust = GamepadKeys.Button.X;
 
+        GamepadKeys.Button tiltButton = GamepadKeys.Button.OPTIONS;
 
         follower.setStartingPose(Position.pose);
 
         StateMachine stateMachine = new StateMachineBuilder()
                 .state(States.Intake)
-                .onEnter(()->{
+                .onEnter(() -> {
                     intakes.setGoodIntakePower(1);
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(true);
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
-                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-                .transition(()->intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.TransferOff)
-                .transition(()->gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
+                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .transition(() -> intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.TransferOff)
+                .transition(() -> gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
 
                 .state(States.TransferOff)
-                .onEnter(()->intakes.setTransferIntakePower(0.3))
-                .transition(()->intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside(), States.PulseOut)
-                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .onEnter(() -> intakes.setTransferIntakePower(0.3))
+                .transition(() -> gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
+                .transition(() -> intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside(), States.PulseOut)
+                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.BeforePulseOut)
-                .onEnter(()->intakes.setFrontIntakePower(1))
+                .onEnter(() -> intakes.setFrontIntakePower(1))
                 .transitionTimed(0.4)
-                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.PulseOut)
-                .onEnter(()->intakes.setFrontIntakePower(-0.5))
+                .onEnter(() -> intakes.setFrontIntakePower(-0.1))
                 .transitionTimed(pulseTime)
-                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.PulseIn)
-                .onEnter(()->intakes.setFrontIntakePower(1))
+                .onEnter(() -> intakes.setFrontIntakePower(1))
                 .transitionTimed(0.2)
-                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.HoldBalls)
-                .onEnter(()->intakes.setGoodIntakePower(0.1))
-                .transition(()->gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-                .transition(()->gamepadEx.getButton(restartIntake), States.Intake)
-
+                .onEnter(() -> intakes.setGoodIntakePower(0.1))
+                .loop(() -> {
+                    if ((intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside())) {
+                        intakes.setGoodIntakePower(0.1);
+                    } else {
+                        intakes.setGoodIntakePower(1);
+                    }
+                })
+                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
+                .transition(() -> gamepadEx.getButton(restartIntake), States.Intake)
 
                 .state(States.OpenUpperGate)
-                .onEnter(()->{
+                .onEnter(() -> {
                     shooter.setUpperGateOpen(true);
                     intakes.setGoodIntakePower(1);
                 })
                 .transitionTimed(0.1, States.Shoot)
                 .state(States.Shoot)
-                .onEnter(()->{
+                .onEnter(() -> {
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.7, States.Intake)
+                .transitionTimed(0.4, States.Intake)
                 .build();
-
 
 
         while (opModeInInit()) {
@@ -169,12 +178,12 @@ public class TeleopOnlyRapid extends LinearOpMode {
             follower.update();
             if (gamepad1.a) {
                 target = Shooter.Goal.BLUE;
-                allianceBlue=true;
+                allianceBlue = true;
                 relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
             }
             if (gamepad1.b) {
                 target = Shooter.Goal.RED;
-                allianceBlue=false;
+                allianceBlue = false;
                 relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
             }
 
@@ -182,121 +191,130 @@ public class TeleopOnlyRapid extends LinearOpMode {
             telemetry.addData("Current Pos", follower.getPose());
             telemetry.update();
         }
-
-        if (target == Shooter.Goal.BLUE){
-            limelight.setCurrentPipeline(LimelightCamera.Pipelines.BLUETRACK);
-        }else{
-            limelight.setCurrentPipeline(LimelightCamera.Pipelines.REDTRACK);
-        }
-
-        waitForStart();
-
-        stateMachine.start();
-        follower.startTeleopDrive();
-
-        long lastLoopTime = System.nanoTime();
-        while (opModeIsActive()) {
-            for (LynxModule hub : allHubs) {
-                hub.clearBulkCache();
-            }
-            gamepadEx.readButtons();
-            follower.update();
-            Position.pose = follower.getPose();
-            telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, target)));
-            shooter.aimAtTarget(Position.pose, target);
-
-            //shooter.aimAtTarget(Position.pose, new Pose(targetX, targetY));
-
-            double forward = gamepadEx.getLeftY();
-            double strafe = gamepadEx.getLeftX();
-            double turn = gamepadEx.getRightX();
-            if (gamepadEx.getButton(slowModeButton)) {
-                forward *= 0.3;
-                strafe *= 0.3;
-                turn *= 0.3;
+        if (opModeIsActive()) {
+            if (target == Shooter.Goal.BLUE) {
+                limelight.setCurrentPipeline(LimelightCamera.Pipelines.BLUETRACK);
+            } else {
+                limelight.setCurrentPipeline(LimelightCamera.Pipelines.REDTRACK);
             }
 
-            follower.setTeleOpDrive(forward, -1*strafe, -1*turn, true);
+            waitForStart();
 
-            if (gamepadEx.wasJustPressed(positionResetButton)){
-                follower.setPose(relocalizePos);
-                Shooter.limelightOffset = 0;
-                if (allianceBlue) {
-                    Shooter.powerOffset = 0;
-                    Shooter.turretOffset = 0;
-                }else{
-                    Shooter.powerOffset = 0;
-                    Shooter.turretOffset = 2;
+            stateMachine.start();
+            follower.startTeleopDrive();
+
+            long lastLoopTime = System.nanoTime();
+            boolean tilted = false;
+
+            tilt.retract();
+            while (opModeIsActive()) {
+                for (LynxModule hub : allHubs) {
+                    hub.clearBulkCache();
                 }
+                gamepadEx.readButtons();
+                follower.update();
+                Position.pose = follower.getPose();
+                telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, target)));
+                shooter.aimAtTarget(Position.pose, target);
+
+                //shooter.aimAtTarget(Position.pose, new Pose(targetX, targetY));
+
+                double forward = gamepadEx.getLeftY();
+                double strafe = gamepadEx.getLeftX();
+                double turn = gamepadEx.getRightX();
+                if (gamepadEx.getButton(slowModeButton)) {
+                    forward *= 0.3;
+                    strafe *= 0.3;
+                    turn *= 0.3;
+                }
+
+                follower.setTeleOpDrive(forward, -1 * strafe, -1 * turn, true);
+
+                if (gamepadEx.wasJustPressed(positionResetButton)) {
+                    follower.setPose(relocalizePos);
+                    Shooter.limelightOffset = 0;
+                    if (allianceBlue) {
+                        Shooter.powerOffset = 0;
+                        Shooter.turretOffset = 0;
+                    } else {
+                        Shooter.powerOffset = 0;
+                        Shooter.turretOffset = 2;
+                    }
+                }
+                if (gamepadEx.wasJustPressed(limelightAdjust)) {
+                    Shooter.limelightOffset += limelight.getTrackingResults();
+                }
+
+                if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
+                    Shooter.powerOffset -= powerOffsetIncrements;
+                }
+                if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) {
+                    Shooter.turretOffset -= turretOffsetIncrements;
+                }
+                if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) {
+                    Shooter.turretOffset += turretOffsetIncrements;
+                }
+                if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
+                    Shooter.powerOffset += powerOffsetIncrements;
+                }
+                if (gamepadEx.wasJustPressed(tiltButton)) {
+                    tilted = !tilted;
+                    if (tilted) {
+                        tilt.tilt();
+                    } else {
+                        tilt.retract();
+                    }
+                }
+                stateMachine.update();
+
+                telemetry.addData("Current Pos", follower.getPose());
+                telemetry.addData("Shooter Target", shooter.getTargetVelo());
+                telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
+                telemetry.addData("Spindexer kick", spindexer.is_kick);
+                telemetry.addData("Statemachine State", stateMachine.getState());
+
+
+                if (telemetryCurrent) {
+                    double totalCurrent = 0;
+                    double frontLeftCurrent = frontLeft.getCurrentDraw();
+                    double frontRightCurrent = frontRight.getCurrentDraw();
+                    double backLeftCurrent = backLeft.getCurrentDraw();
+                    double backRightCurrent = backRight.getCurrentDraw();
+
+
+                    telemetry.addData("Front left current", frontLeftCurrent);
+                    telemetry.addData("Front right current", frontRightCurrent);
+                    telemetry.addData("Back left current", backLeftCurrent);
+                    telemetry.addData("Back right current", backRightCurrent);
+
+                    double frontIntakeCurrent = intake1.getCurrentDraw();
+                    double backIntakeCurrent = intake2.getCurrentDraw();
+                    double shooter1Current = shooter1.getCurrentDraw();
+                    double shooter2Current = shooter2.getCurrentDraw();
+
+                    telemetry.addData("front intake current", frontIntakeCurrent);
+                    telemetry.addData("back intake current", backIntakeCurrent);
+                    telemetry.addData("shooter 1 current", shooter1Current);
+                    telemetry.addData("shooter2 current", shooter2Current);
+
+                    totalCurrent = frontLeftCurrent + frontRightCurrent + backLeftCurrent + backRightCurrent + frontIntakeCurrent + backIntakeCurrent + shooter1Current + shooter2Current;
+
+                    telemetry.addData("total current", totalCurrent);
+                }
+
+
+                long currentTime = System.nanoTime();
+                double loopTime = (double) (currentTime - lastLoopTime) / 1_000_000.0;
+                lastLoopTime = currentTime;
+                telemetry.addData("Loop time", loopTime);
+                intakes.update();
+                spindexer.update();
+                tilt.update();
+
+                PanelsDrawing.drawDebug(follower);
+                shooter.update();
+                telemetry.update();
             }
-            if (gamepadEx.wasJustPressed(limelightAdjust)){
-                Shooter.limelightOffset += limelight.getTrackingResults();
-            }
-
-            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)){
-                Shooter.powerOffset -= powerOffsetIncrements;
-            }
-            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)){
-                Shooter.turretOffset -= turretOffsetIncrements;
-            }
-            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)){
-                Shooter.turretOffset += turretOffsetIncrements;
-            }
-            if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_UP)){
-                Shooter.powerOffset += powerOffsetIncrements;
-            }
-            if (gamepadEx.isDown(GamepadKeys.Button.TOUCHPAD)){
-                tilt.tilt();
-            }else{
-                tilt.retract();
-            }
-            stateMachine.update();
-
-            telemetry.addData("Current Pos", follower.getPose());
-            telemetry.addData("Shooter Target", shooter.getTargetVelo());
-            telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
-            telemetry.addData("Spindexer kick", spindexer.is_kick);
-            telemetry.addData("Statemachine State", stateMachine.getState());
-
-
-            if (telemetryCurrent) {
-                double totalCurrent = 0;
-                double frontLeftCurrent = frontLeft.getCurrentDraw();
-                double frontRightCurrent = frontRight.getCurrentDraw();
-                double backLeftCurrent = backLeft.getCurrentDraw();
-                double backRightCurrent = backRight.getCurrentDraw();
-
-
-                telemetry.addData("Front left current", frontLeftCurrent);
-                telemetry.addData("Front right current", frontRightCurrent);
-                telemetry.addData("Back left current", backLeftCurrent);
-                telemetry.addData("Back right current", backRightCurrent);
-
-                double frontIntakeCurrent = intake1.getCurrentDraw();
-                double backIntakeCurrent = intake2.getCurrentDraw();
-                double shooter1Current = shooter1.getCurrentDraw();
-                double shooter2Current = shooter2.getCurrentDraw();
-
-                telemetry.addData("front intake current", frontIntakeCurrent);
-                telemetry.addData("back intake current", backIntakeCurrent);
-                telemetry.addData("shooter 1 current", shooter1Current);
-                telemetry.addData("shooter2 current", shooter2Current);
-
-                totalCurrent = frontLeftCurrent+frontRightCurrent+backLeftCurrent+backRightCurrent+frontIntakeCurrent+backIntakeCurrent+shooter1Current+shooter2Current;
-
-                telemetry.addData("total current", totalCurrent);
-            }
-
-
-            long currentTime = System.nanoTime();
-            double loopTime = (double) (currentTime - lastLoopTime) / 1_000_000.0;
-            lastLoopTime = currentTime;
-            telemetry.addData("Loop time", loopTime);
-            intakes.update();
-            spindexer.update();
-            PanelsDrawing.drawDebug(follower);
-            shooter.update();
-            telemetry.update();
         }
     }
 }

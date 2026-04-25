@@ -66,6 +66,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
         Wait2,
 
         ToIntake2,
+        prePulse,
         PulseEject,
         BackToShoot0,
 
@@ -231,7 +232,6 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                     }else{
                         intakes.setGoodIntakePower(1);
                     }
-                    intakes.setBadIntakePower(-0.2);
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(rapidFire);
                     spindexer.setKickerPos(false);
@@ -253,7 +253,6 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                     }else{
                         intakes.setGoodIntakePower(1);
                     }
-                    intakes.setBadIntakePower(-0.2);
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(rapidFire);
                     spindexer.setKickerPos(false);
@@ -287,24 +286,33 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
                 })
-                .transition(()->intakes.getGoodIntakeDetected(), States.ToIntake2)
+                .transition(()->intakes.getGoodIntakeDetected(), States.prePulse)
                 .transition(()->shooterButton, States.WaitForShoot)
 
-                .state(States.ToIntake2)
+                .state(States.prePulse)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Intake1);
                 })
-                .transitionTimed(0.3, States.PulseEject)
+                .transitionTimed(0.5, States.PulseEject)
+
 
                 .state(States.PulseEject)
                 .onEnter(()->{
-                    intakes.setFrontIntakePower(-1);
+                    intakes.setGoodIntakePower(-1);
                 })
                 .transitionTimed(0.3)
 
                 .state(States.BackToShoot0)
                 .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    if (!rapidFire) {
+                        if (shootorder[0] == 2) {
+                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                        } else if (shootorder[0] == 1) {
+                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                        } else if (shootorder[0] == 0) {
+                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                        }
+                    }
                     intakes.setGoodIntakePower(0.5);
                 })
                 .transitionTimed(0.3, States.WaitForShoot)
@@ -521,7 +529,6 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .transitionTimed(0.2)
                 .state(AutoStates.SHOOT3)
                 .onEnter(()->{
-                    rapidFire=false;
                     shooterButton=true;
                 })
                 .transition(()->stateMachine.getStateEnum() == States.Intake)
@@ -566,13 +573,12 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .state(AutoStates.leave)
                 .onEnter(()->{
                     follower.followPath(leavepath, 1,true);
-
                 })
                 .build();
 
+        rapidFire=true;
         stateMachine.start();
         autoMachine.start();
-        rapidFire=true;
         while (opModeIsActive()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             Position.pose = follower.getPose();

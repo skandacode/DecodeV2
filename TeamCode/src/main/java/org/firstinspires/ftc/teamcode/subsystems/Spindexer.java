@@ -16,7 +16,7 @@ public class Spindexer {
 
 
     public static double kickerKickPos = 0.43;
-    public static double kickerIdlePos = 0.36;
+    public static double kickerIdlePos = 0.37;
 
     public static double lowerGateOpen = 0.55;
     public static double lowerGateClosed = 0.79;
@@ -29,7 +29,7 @@ public class Spindexer {
         Shoot2(0.395),
         Shoot3(0.59),
         Shoot4(0.77),
-        Intake1(0),
+        Intake1(0.31),
         Intake2(0.23),
         Intake3(0.45),
         Intake4(0.67);
