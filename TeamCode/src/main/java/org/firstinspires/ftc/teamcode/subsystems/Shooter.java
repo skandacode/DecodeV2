@@ -44,7 +44,7 @@ public class Shooter {
 
     // --- Hood bounds ---
 
-    public static double hoodLowerBound = 0.47;
+    public static double hoodLowerBound = 0.52;
     public static double hoodUpperBound = 0.82;
 
     // --- Low-pass filter coefficient (for smoothing) ---

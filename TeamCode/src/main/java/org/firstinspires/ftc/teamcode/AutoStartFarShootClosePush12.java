@@ -429,7 +429,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                     follower.followPath(toPush, true);
                     shooter.setHood(0.54);
                     shooter.setTargetVelocity(1350);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(52*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(55*Posmultiplier));
                 })
 
                 .transition(()->follower.atParametricEnd())
@@ -475,7 +475,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .onEnter(()->{
                     shooter.setHood(0.54);
                     shooter.setTargetVelocity(1350);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(49*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(52*Posmultiplier));
                     follower.followPath(ingate, true);
                 })
                 .transitionTimed(0.7)
@@ -556,7 +556,7 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
                 .onEnter(()->{
                     shooter.setHood(0.54);
                     shooter.setTargetVelocity(1350);
-                    shooter.setTurretPos(shooter.convertDegreestoServoPos(43*Posmultiplier));
+                    shooter.setTurretPos(shooter.convertDegreestoServoPos(47 *Posmultiplier));
                     follower.followPath(toShoot3, true);
                 })
                 .transition(()->follower.atParametricEnd())

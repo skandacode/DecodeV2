@@ -20,7 +20,7 @@ public class ShooterTables {
             increase = 0;
         }
         else if (distance<100){
-            increase = 0;
+            increase = -20;
         }
         double vel = (-0.0000101981 * Math.pow(distance, 4))
                 + (0.00430653 * Math.pow(distance, 3))
@@ -45,17 +45,17 @@ public class ShooterTables {
         return error * hoodAngleChangePer100ticksPerSecondError/100;
     }
 
-    public static double hoodAngleChangePer100ticksPerSecondError = 0.02;
+    public static double hoodAngleChangePer100ticksPerSecondError = 0.03;
 
     public static double hoodAdjustDistanceThreshold = 90;
 
     public static double getBalltimeinair(double distance){
         if (distance>120){
-            return 0.7;
+            return 0;
         } else if (distance>100) {
-            return 0.4;
+            return 0.5;
         } else if (distance>58) {
-            return 0.3;
+            return 0.4;
         }else{
             return 0.5;
         }
