@@ -120,10 +120,10 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
         waitForStart();
 
 
-        Pose startPose = new Pose(60, -16*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose startPose = new Pose(57, -12*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose shootPose = new Pose(53, -22*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intakeHuman = new Pose(58, -61*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake1Pose = new Pose(32, -28*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake1Pose = new Pose(20, -28*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake1donePose = new Pose(33, -61*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
 
@@ -600,15 +600,15 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             Position.pose = follower.getPose();
             if (Posmultiplier==1) {
-                Shooter.powerOffset = 20;
+                Shooter.powerOffset = 0;
                 Shooter.turretOffset = 0;
             }else{
-                Shooter.powerOffset = 10;
-                Shooter.turretOffset = 2;
+                Shooter.powerOffset = 0;
+                Shooter.turretOffset = 0;
             }
+            autoMachine.update();
             telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, shooterTarget)));
             shooter.aimAtTarget(Position.pose, shooterTarget);
-            autoMachine.update();
             follower.update();
             intakes.update();
             shooter.update();

@@ -51,7 +51,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
     public static double powerOffsetIncrements = 20;
     public static double turretOffsetIncrements = 2;
 
-    public static double pulseTime = 0.1;
+    public static double pulseTime = 0.05;
 
 
     public Pose relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));

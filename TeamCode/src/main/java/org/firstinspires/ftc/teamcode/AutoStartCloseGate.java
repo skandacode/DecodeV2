@@ -122,13 +122,13 @@ public class AutoStartCloseGate extends LinearOpMode {
         waitForStart();
 
 
-        Pose gateintake = new Pose(2, -57*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose gateintake = new Pose(4, -59*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
-        Pose gateintakeback = new Pose(16, -60*Posmultiplier, Math.toRadians(-130*Posmultiplier));
-        Pose gateintakebackin = new Pose(12, -60*Posmultiplier, Math.toRadians(-130*Posmultiplier));
+        Pose gateintakeback = new Pose(16, -61*Posmultiplier, Math.toRadians(-130*Posmultiplier));
+        Pose gateintakebackin = new Pose(12, -61*Posmultiplier, Math.toRadians(-130*Posmultiplier));
 
         Pose gateintakecontrol = new Pose(8, -42*Posmultiplier, Math.toRadians(77*Posmultiplier));
-        Pose startPose = new Pose(-44, -55*Posmultiplier, Math.toRadians(0*Posmultiplier));
+        Pose startPose = new Pose(-44, -55*Posmultiplier, Math.toRadians(6*Posmultiplier));
 
         Pose shootPose = new Pose(-32, -16*Posmultiplier, Math.toRadians(-40*Posmultiplier));
         Pose shootPose2nd = new Pose(-17, -17*Posmultiplier, Math.toRadians(-50*Posmultiplier));
@@ -136,7 +136,7 @@ public class AutoStartCloseGate extends LinearOpMode {
         Pose shootPoseleave = new Pose(-30, -16*Posmultiplier, Math.toRadians(-23*Posmultiplier));
 
         Pose intake1Pose = new Pose(-15, -27*Posmultiplier, Math.toRadians(-80*Posmultiplier));
-        Pose intake2Pose = new Pose(13, -29*Posmultiplier, Math.toRadians(-80*Posmultiplier));
+        Pose intake2Pose = new Pose(16, -29*Posmultiplier, Math.toRadians(-80*Posmultiplier));
         Pose intake3Pose = new Pose(36,-20*Posmultiplier, Math.toRadians(-192*Posmultiplier));
         Pose intake3Poseback = new Pose(34,-40*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake4Pose = new Pose(28,-54*Posmultiplier, Math.toRadians(0*Posmultiplier));
@@ -145,7 +145,7 @@ public class AutoStartCloseGate extends LinearOpMode {
         Pose intake4donePosemore = new Pose(58, -63*Posmultiplier, Math.toRadians(0*Posmultiplier));
 
         Pose intake1donePose = new Pose(-14, -52*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake2donePose = new Pose(10, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose intake2donePose = new Pose(14, -65*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake3donePose = new Pose(34, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose leave = new Pose(-20, -55*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
@@ -369,7 +369,7 @@ public class AutoStartCloseGate extends LinearOpMode {
                 .onEnter(()->{
                     intakes.setFrontIntakePower(0);
                     if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(91));
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(90));
                     }else{
                         shooter.setTurretPos(shooter.convertDegreestoServoPos(-95));
                     }
@@ -530,7 +530,7 @@ public class AutoStartCloseGate extends LinearOpMode {
                 .state(AutoStates.MOVETOSHOOT7)
                 .onEnter(()->{
                     if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(86));
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(91));
                     }else{
                         shooter.setTurretPos(shooter.convertDegreestoServoPos(-100));
                     }

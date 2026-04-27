@@ -39,8 +39,8 @@ public class Shooter {
     public static boolean enablePIDF = true;
 
     // --- Turret bounds ---
-    public static double turretUpperBound = 1;
-    public static double turretLowerBound = 0;
+    public static double turretUpperBound = 0.98;
+    public static double turretLowerBound = 0.02;
 
     // --- Hood bounds ---
 
@@ -280,6 +280,7 @@ public class Shooter {
     }
 
     public void setHood(double pos){
+        System.out.println(pos);
         hood.setPosition(Range.clip(pos, hoodLowerBound, hoodUpperBound));
     }
 

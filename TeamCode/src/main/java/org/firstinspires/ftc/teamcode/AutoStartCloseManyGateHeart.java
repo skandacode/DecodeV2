@@ -47,11 +47,11 @@ public class AutoStartCloseManyGateHeart extends LinearOpMode {
         MOVETOSHOOT2, wait2, SHOOT2,
         MOVETOINTAKE2, back2, gate2,
         MOVETOSHOOT3, wait3,SHOOT3,
-        MOVETOINTAKE3, backupgate1,upgate1,waitgate1,
+        MOVETOINTAKE3, backupgate1,upgate1,
         MOVETOSHOOT4, wait4,SHOOT4,
-        MOVETOINTAKE4,backupgate2, upgate2, waitgate2,
+        MOVETOINTAKE4,backupgate2, upgate2,
         MOVETOSHOOT5, wait5,SHOOT5,
-        MOVETOINTAKE5, backupgate3, upgate3,waitgate3,
+        MOVETOINTAKE5, backupgate3, upgate3,
         MOVETOSHOOT6, wait6,SHOOT6,
         LEAVE
     }
@@ -123,14 +123,12 @@ public class AutoStartCloseManyGateHeart extends LinearOpMode {
         Pose gatepreopen2ndtime = new Pose(4, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
 
-        Pose gateintake1 = new Pose(9, -61*Posmultiplier, Math.toRadians(-110*Posmultiplier));
-        Pose gateintakeopen1 = new Pose(8, -56*Posmultiplier, Math.toRadians(-80*Posmultiplier));
-        Pose gateintake2 = new Pose(9, -61*Posmultiplier, Math.toRadians(-110*Posmultiplier));
-        Pose gateintakeopen2 = new Pose(9, -56*Posmultiplier, Math.toRadians(-80*Posmultiplier));
-        Pose gateintake3 = new Pose(7, -61*Posmultiplier, Math.toRadians(-110*Posmultiplier));
-        Pose gateintakeopen3 = new Pose(9, -56*Posmultiplier, Math.toRadians(-80*Posmultiplier));
-        Pose gateintake4 = new Pose(9, -61*Posmultiplier, Math.toRadians(-110*Posmultiplier));
-        Pose gateintakeopen4 = new Pose(9, -56*Posmultiplier, Math.toRadians(-80*Posmultiplier));
+        Pose gateintake1 = new Pose(10, -61*Posmultiplier, Math.toRadians(-110*Posmultiplier));
+        Pose gateintakeback1 = new Pose(14, -60*Posmultiplier, Math.toRadians(-110*Posmultiplier));
+        Pose gateintake2 = new Pose(10, -61*Posmultiplier, Math.toRadians(-110*Posmultiplier));
+        Pose gateintakeback2 = new Pose(14, -60*Posmultiplier, Math.toRadians(-100*Posmultiplier));
+        Pose gateintake3 = new Pose(9, -61*Posmultiplier, Math.toRadians(-110*Posmultiplier));
+        Pose gateintakeback3 = new Pose(14, -60*Posmultiplier, Math.toRadians(-110*Posmultiplier));
 
         Pose gateintakecontrol = new Pose(8, -42*Posmultiplier, Math.toRadians(77*Posmultiplier));
 
@@ -150,7 +148,7 @@ public class AutoStartCloseManyGateHeart extends LinearOpMode {
         Pose intake1donePose = new Pose(-16, -52*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake2donePose = new Pose(10, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose intake3donePose = new Pose(34, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose leave = new Pose(-14, -55*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose leave = new Pose(-17, -55*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
 
         PathChain toShoot = follower.pathBuilder()
@@ -351,7 +349,27 @@ public class AutoStartCloseManyGateHeart extends LinearOpMode {
                             .build();
                     follower.followPath(toIntakeGate, true);
                 })
-                .transitionTimed(2.6)
+                .transitionTimed(1.7)
+                .state(AutoStates.backupgate1)
+                .onEnter(()->{
+                    PathChain back = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), gateintakeback1))
+                            .setLinearHeadingInterpolation(follower.getHeading(), gateintakeback1.getHeading())
+                            .setBrakingStrength(0.4)
+                            .build();
+                    follower.followPath(back, true);
+                })
+                .transitionTimed(0.4)
+                .state(AutoStates.upgate1)
+                .onEnter(()->{
+                    PathChain up = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), gateintake1))
+                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake1.getHeading())
+                            .setBrakingStrength(0.4)
+                            .build();
+                    follower.followPath(up, true);
+                })
+                .transitionTimed(0.4)
 
                 .state(AutoStates.MOVETOSHOOT4)
                 .onEnter(()->{
@@ -402,7 +420,27 @@ public class AutoStartCloseManyGateHeart extends LinearOpMode {
                             .build();
                     follower.followPath(toIntakeGate, true);
                 })
-                .transitionTimed(2.6)
+                .transitionTimed(1.7)
+                .state(AutoStates.backupgate2)
+                .onEnter(()->{
+                    PathChain back = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), gateintakeback2))
+                            .setLinearHeadingInterpolation(follower.getHeading(), gateintakeback2.getHeading())
+                            .setBrakingStrength(0.4)
+                            .build();
+                    follower.followPath(back, true);
+                })
+                .transitionTimed(0.4)
+                .state(AutoStates.upgate2)
+                .onEnter(()->{
+                    PathChain up = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), gateintake2))
+                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake2.getHeading())
+                            .setBrakingStrength(0.4)
+                            .build();
+                    follower.followPath(up, true);
+                })
+                .transitionTimed(0.4)
 
                 .state(AutoStates.MOVETOSHOOT5)
                 .onEnter(()->{
@@ -454,8 +492,27 @@ public class AutoStartCloseManyGateHeart extends LinearOpMode {
                             .build();
                     follower.followPath(toIntakeGate, true);
                 })
-                .transitionTimed(2.6)
-
+                .transitionTimed(1.7)
+                .state(AutoStates.backupgate3)
+                .onEnter(()->{
+                    PathChain back = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), gateintakeback3))
+                            .setLinearHeadingInterpolation(follower.getHeading(), gateintakeback3.getHeading())
+                            .setBrakingStrength(0.4)
+                            .build();
+                    follower.followPath(back, true);
+                })
+                .transitionTimed(0.4)
+                .state(AutoStates.upgate3)
+                .onEnter(()->{
+                    PathChain up = follower.pathBuilder()
+                            .addPath(new BezierLine(follower.getPose(), gateintake3))
+                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake3.getHeading())
+                            .setBrakingStrength(0.4)
+                            .build();
+                    follower.followPath(up, true);
+                })
+                .transitionTimed(0.4)
 
                 .state(AutoStates.MOVETOSHOOT6)
                 .onEnter(()->{
