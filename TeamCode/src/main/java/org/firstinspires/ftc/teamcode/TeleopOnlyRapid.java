@@ -69,6 +69,9 @@ public class TeleopOnlyRapid extends LinearOpMode {
         OpenUpperGate,
         Shoot,
     }
+    public enum clearStates{
+        IDLE, EJECT1, EJECT2, EJECT3
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -172,6 +175,38 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .transitionTimed(0.4, States.Intake)
                 .build();
 
+        StateMachine clearMachine = new StateMachineBuilder()
+                .state(clearStates.IDLE)
+                .transition(()->gamepad2.a)
+
+                .state(clearStates.EJECT1)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    intakes.setGoodIntakePower(-0.6);
+                })
+                .transitionTimed(0.5)
+
+                .state(clearStates.EJECT2)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                    intakes.setGoodIntakePower(-0.6);
+                })
+                .transitionTimed(0.5)
+
+                .state(clearStates.EJECT3)
+                .onEnter(()->{
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
+                    intakes.setGoodIntakePower(-0.6);
+                })
+                .transitionTimed(0.5, clearStates.IDLE, ()->{
+                    intakes.setGoodIntakePower(1);
+                    shooter.setUpperGateOpen(false);
+                    spindexer.setLowerGateOpen(true);
+                    spindexer.setKickerPos(false);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                    stateMachine.setState(States.Intake);
+                })
+                .build();
 
         while (opModeInInit()) {
             for (LynxModule hub : allHubs) hub.clearBulkCache();
@@ -201,6 +236,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
             waitForStart();
 
             stateMachine.start();
+            clearMachine.start();
             follower.startTeleopDrive();
 
             long lastLoopTime = System.nanoTime();
@@ -266,6 +302,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
                     }
                 }
                 stateMachine.update();
+                clearMachine.update();
 
                 telemetry.addData("Current Pos", follower.getPose());
                 telemetry.addData("Shooter Target", shooter.getTargetVelo());
