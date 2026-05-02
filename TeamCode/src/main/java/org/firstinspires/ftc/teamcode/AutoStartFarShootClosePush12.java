@@ -38,8 +38,8 @@ public class AutoStartFarShootClosePush12 extends LinearOpMode {
     Spindexer spindexer;
     public int pattern = 1;
     public boolean shooterButton = false;
-    public double shootWaitTime = 0.5;
-    public double retractWaitTime = 0.1;
+    public double shootWaitTime = 0.4;
+    public double retractWaitTime = 0.2;
     public double intakeWaitTime = 0.35;
 
     public static boolean rapidFire = true;

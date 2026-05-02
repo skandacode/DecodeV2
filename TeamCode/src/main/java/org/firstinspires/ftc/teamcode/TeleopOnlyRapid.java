@@ -132,12 +132,12 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .state(States.TransferOff)
                 .onEnter(() -> intakes.setTransferIntakePower(0.3))
                 .transition(() -> gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
-                .transition(() -> intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside(), States.PulseOut)
+                .transition(() -> intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside(), States.BeforePulseOut)
                 .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.BeforePulseOut)
                 .onEnter(() -> intakes.setFrontIntakePower(1))
-                .transitionTimed(0.4)
+                .transitionTimed(0.3)
                 .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.PulseOut)
@@ -182,21 +182,21 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .state(clearStates.EJECT1)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                    intakes.setGoodIntakePower(-0.6);
+                    intakes.setGoodIntakePower(-0.4);
                 })
                 .transitionTimed(0.5)
 
                 .state(clearStates.EJECT2)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    intakes.setGoodIntakePower(-0.6);
+                    intakes.setGoodIntakePower(-0.4);
                 })
                 .transitionTimed(0.5)
 
                 .state(clearStates.EJECT3)
                 .onEnter(()->{
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    intakes.setGoodIntakePower(-0.6);
+                    intakes.setGoodIntakePower(-0.4);
                 })
                 .transitionTimed(0.5, clearStates.IDLE, ()->{
                     intakes.setGoodIntakePower(1);

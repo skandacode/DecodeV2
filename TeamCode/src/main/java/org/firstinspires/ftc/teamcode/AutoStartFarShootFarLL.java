@@ -604,7 +604,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 Shooter.turretOffset = 0;
             }else{
                 Shooter.powerOffset = 0;
-                Shooter.turretOffset = 0;
+                Shooter.turretOffset = -3;
             }
             autoMachine.update();
             telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, shooterTarget)));
