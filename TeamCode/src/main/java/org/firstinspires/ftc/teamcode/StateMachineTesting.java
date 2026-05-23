@@ -25,35 +25,27 @@ public class StateMachineTesting extends LinearOpMode {
     Spindexer spindexer;
     public static boolean shooterButton = false;
     public static double shootWaitTime = 0.28;
-    public static double intakeWaitTime = 0.35;
-    public static double retractWaitTime = 0.28;
+    public static double pulseTime = 0.05;
+    public static double intakeStallTime = 0.1;
+    public static double preKickerTime = 0.3;
+    public static double kickTime = 0.4;
 
 
     public static boolean rapidFire = false;
-    public static double shooterVelocity = 1000;
+    public static double shooterVelocity = 1800;
 
     public enum States{
-        BeforeIntake,
         Intake,
-
-
-        Increment1,
-        Wait1,
-        Increment2,
-        Wait2,
-
-        BeforeWaitForShoot,
-        WaitForShoot,
-
-        Kick1,//spindex shoot
-        ShootSpin1,
-        Kick2,
-        ShootSpin2,
-        Kick3,
-
-        OpenUpperGate,//rapid 3
-        Shoot
+        TransferOff,
+        BeforePulseOut,
+        PulseOut,
+        PulseIn,
+        HoldBalls,
+        PreShoot,
+        OpenUpperGate,
+        Shoot,
     }
+
 
 
     @Override
@@ -77,200 +69,64 @@ public class StateMachineTesting extends LinearOpMode {
         System.out.println("started");
 
         StateMachine stateMachine = new StateMachineBuilder()
-                .state(AutoStartFarShootClosePush12.States.BeforeIntake)
-                .loop(()->{
-                    if (rapidFire) {
-                        if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()) {
-                            System.out.println("all detected");
-                            intakes.setGoodIntakePower(0.2);
-                        } else {
-                            intakes.setGoodIntakePower(1);
-                        }
-                    }else{
-                        intakes.setGoodIntakePower(1);
-                    }
-                    intakes.setBadIntakePower(-0.2);
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setLowerGateOpen(rapidFire);
-                    spindexer.setKickerPos(false);
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                })
-                .transition(()->shooterButton, AutoStartFarShootClosePush12.States.WaitForShoot)
-                .transitionTimed(0.4, AutoStartFarShootClosePush12.States.Intake)
-
-
-                .state(AutoStartFarShootClosePush12.States.Intake)
-                .loop(()->{
-                    if (rapidFire) {
-                        if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()) {
-                            System.out.println("all detected");
-                            intakes.setGoodIntakePower(0.2);
-                        } else {
-                            intakes.setGoodIntakePower(1);
-                        }
-                    }else{
-                        intakes.setGoodIntakePower(1);
-                    }
-                    intakes.setBadIntakePower(-0.2);
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setLowerGateOpen(rapidFire);
-                    spindexer.setKickerPos(false);
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                })
-                .transition(()->shooterButton, AutoStartFarShootClosePush12.States.WaitForShoot)
-                .transition(()->!rapidFire && intakes.getGoodIntakeDetected(), AutoStartFarShootClosePush12.States.Wait1)
-
-                .state(AutoStartFarShootClosePush12.States.Wait1)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                })
-                .transitionTimed(intakeWaitTime, AutoStartFarShootClosePush12.States.Increment1)
-                .transition(()->shooterButton, AutoStartFarShootClosePush12.States.WaitForShoot)
-
-                .state(AutoStartFarShootClosePush12.States.Increment1)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                })
-                .transition(()->intakes.getGoodIntakeDetected(), AutoStartFarShootClosePush12.States.Wait2)
-                .transition(()->shooterButton, AutoStartFarShootClosePush12.States.WaitForShoot)
-
-                .state(AutoStartFarShootClosePush12.States.Wait2)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                })
-                .transitionTimed(intakeWaitTime, AutoStartFarShootClosePush12.States.Increment2)
-                .transition(()->shooterButton, AutoStartFarShootClosePush12.States.WaitForShoot)
-
-                .state(AutoStartFarShootClosePush12.States.Increment2)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                })
-                .transition(()->intakes.getGoodIntakeDetected(), AutoStartFarShootClosePush12.States.ToIntake2)
-                .transition(()->shooterButton, AutoStartFarShootClosePush12.States.WaitForShoot)
-
-                .state(AutoStartFarShootClosePush12.States.ToIntake2)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                })
-                .transitionTimed(0.3, AutoStartFarShootClosePush12.States.PulseEject)
-
-                .state(AutoStartFarShootClosePush12.States.PulseEject)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(-1);
-                })
-                .transitionTimed(0.1)
-
-                .state(AutoStartFarShootClosePush12.States.BackToShoot0)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                    intakes.setGoodIntakePower(0.5);
-                })
-                .transitionTimed(0.3, AutoStartFarShootClosePush12.States.WaitForShoot)
-
-                .state(AutoStartFarShootClosePush12.States.WaitForShoot)
-                .onEnter(()->{
-                    if (!rapidFire) {
-                        if (shootorder[0] == 2) {
-                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                        } else if (shootorder[0] == 1) {
-                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                        } else if (shootorder[0] == 0) {
-                            spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                        }
-                    }
-                })
-                .transition(()->shooterButton && rapidFire, AutoStartFarShootClosePush12.States.OpenUpperGate)
-                .transition(()->shooterButton && !rapidFire, AutoStartFarShootClosePush12.States.Kick1)
-                .onExit(()->{
-                    shooterButton = false;
-                })
-
-
-                .state(AutoStartFarShootClosePush12.States.OpenUpperGate)
-                .onEnter(()->{
+                .state(TeleopOnlyRapidFAR.States.Intake)
+                .onEnter(() -> {
                     intakes.setGoodIntakePower(1);
+                    shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(true);
-                    shooter.setUpperGateOpen(true);
+                    spindexer.setKickerPos(false);
+                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
+                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.OpenUpperGate)
+                .transition(() -> intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), TeleopOnlyRapidFAR.States.TransferOff)
+
+                .state(TeleopOnlyRapidFAR.States.TransferOff)
+                .onEnter(() -> intakes.setTransferIntakePower(0.3))
+                .transition(() -> intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside(), TeleopOnlyRapidFAR.States.BeforePulseOut)
+                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.OpenUpperGate)
+
+                .state(TeleopOnlyRapidFAR.States.BeforePulseOut)
+                .onEnter(() -> intakes.setFrontIntakePower(1))
+                .transitionTimed(0.3)
+                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.OpenUpperGate)
+
+                .state(TeleopOnlyRapidFAR.States.PulseOut)
+                .onEnter(() -> intakes.setFrontIntakePower(-0.1))
+                .transitionTimed(pulseTime)
+                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.OpenUpperGate)
+
+                .state(TeleopOnlyRapidFAR.States.PulseIn)
+                .onEnter(() -> intakes.setFrontIntakePower(1))
                 .transitionTimed(0.2)
+                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.OpenUpperGate)
 
-                .state(AutoStartFarShootClosePush12.States.Shoot)
-                .onEnter(()->{
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(0.4, AutoStartFarShootClosePush12.States.Intake)
-
-                .state(AutoStartFarShootClosePush12.States.Kick1)
-                .onEnter(()->{
-                    if (shootorder[0] == 2) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    } else if (shootorder[0] == 1) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
+                .state(TeleopOnlyRapidFAR.States.HoldBalls)
+                .onEnter(() -> intakes.setGoodIntakePower(0.1))
+                .loop(() -> {
+                    if ((intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside())) {
+                        intakes.setGoodIntakePower(0.1);
                     } else {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
+                        intakes.setGoodIntakePower(1);
                     }
-                    spindexer.setLowerGateOpen(true);
+                })
+                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.PreShoot)
+
+                .state(TeleopOnlyRapidFAR.States.PreShoot)
+                .onEnter(() -> {
+                    intakes.setGoodIntakePower(0.75);
+                })
+                .transitionTimed(intakeStallTime, TeleopOnlyRapidFAR.States.OpenUpperGate)
+                .state(TeleopOnlyRapidFAR.States.OpenUpperGate)
+                .onEnter(() -> {
                     shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                    intakes.setGoodIntakePower(1);
                 })
-                .transitionTimed(shootWaitTime, AutoStartFarShootClosePush12.States.Retract1)
-
-                .state(AutoStartFarShootClosePush12.States.Retract1)
-                .onEnter(()->{
-                    spindexer.setKickerPos(false);
-                })
-                .transitionTimed(retractWaitTime, AutoStartFarShootClosePush12.States.ShootSpin1)
-
-                .state(AutoStartFarShootClosePush12.States.ShootSpin1)
-                .onEnter(()->{
-                    if (shootorder[1] == 2) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    } else if (shootorder[1] == 1) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    } else {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                    }
-                })
-                .transitionTimed(shootWaitTime, AutoStartFarShootClosePush12.States.Kick2)
-
-                .state(AutoStartFarShootClosePush12.States.Kick2)
-                .onEnter(()->{
+                .transitionTimed(preKickerTime, TeleopOnlyRapidFAR.States.Shoot)
+                .state(TeleopOnlyRapidFAR.States.Shoot)
+                .onEnter(() -> {
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(shootWaitTime, AutoStartFarShootClosePush12.States.Retract2)
-
-                .state(AutoStartFarShootClosePush12.States.Retract2)
-                .onEnter(()->{
-                    spindexer.setKickerPos(false);
-                })
-                .transitionTimed(retractWaitTime, AutoStartFarShootClosePush12.States.ShootSpin2)
-
-                .state(AutoStartFarShootClosePush12.States.ShootSpin2)
-                .onEnter(()->{
-                    if (shootorder[2] == 2) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    } else if (shootorder[2] == 1) {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    } else {
-                        spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                    }
-                })
-                .transitionTimed(shootWaitTime, AutoStartFarShootClosePush12.States.Kick3)
-
-                .state(AutoStartFarShootClosePush12.States.Kick3)
-                .onEnter(()->{
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(shootWaitTime, AutoStartFarShootClosePush12.States.Retract3)
-
-                .state(AutoStartFarShootClosePush12.States.Retract3)
-                .onEnter(()->{
-                    spindexer.setKickerPos(false);
-                })
-                .transitionTimed(retractWaitTime, AutoStartFarShootClosePush12.States.BeforeIntake)
+                .transitionTimed(kickTime, TeleopOnlyRapidFAR.States.Intake)
                 .build();
-
 
         stateMachine.start();
         shooter.setTargetVelocity(shooterVelocity);

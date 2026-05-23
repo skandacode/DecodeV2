@@ -51,16 +51,14 @@ public class ShooterTables {
 
     public static double getBalltimeinair(double distance){
         if (distance>120){
-            return 0;
+            return 0.7;
         } else if (distance>100) {
-            return 0.5;
+            return 0.6;
         } else if (distance>58) {
             return 0.4;
         }else{
             return 0.5;
         }
-
-
     }
 
     public static double instantShotCompensation = 0.02;
