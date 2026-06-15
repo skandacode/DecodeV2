@@ -44,22 +44,18 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
     public static double turretOffsetIncrements = 2;
+    public static double stallIntakeTime = 0.15;
+    public static double openGateTime = 1.5;
+    public static double intakeShooterVelo = 0.44;
 
-    public static double pulseTime = 0.05;
 
-
-    public Pose relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
+    public Pose relocalizePos = new Pose(58, 59, Math.toRadians(90));
 
     public static boolean allianceBlue = true;
     public static boolean telemetryCurrent = false;
 
     public enum States{
         Intake,
-        TransferOff,
-        BeforePulseOut,
-        PulseOut,
-        PulseIn,
-        HoldBalls,
         PreShoot,
         OpenUpperGate,
         Shoot,
@@ -98,7 +94,7 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
 
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
-        GamepadKeys.Trigger manualslowintake = GamepadKeys.Trigger.LEFT_TRIGGER;
+        GamepadKeys.Trigger unlockhood = GamepadKeys.Trigger.LEFT_TRIGGER;
 
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
@@ -118,55 +114,30 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
-                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-                .transition(() -> intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.TransferOff)
-                .transition(() -> gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
-
-                .state(States.TransferOff)
-                .onEnter(() -> intakes.setTransferIntakePower(0.3))
-                .transition(() -> gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
-                .transition(() -> intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside(), States.BeforePulseOut)
-                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-
-                .state(States.BeforePulseOut)
-                .onEnter(() -> intakes.setFrontIntakePower(1))
-                .transitionTimed(0.3)
-                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-
-                .state(States.PulseOut)
-                .onEnter(() -> intakes.setFrontIntakePower(-0.1))
-                .transitionTimed(pulseTime)
-                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-
-                .state(States.PulseIn)
-                .onEnter(() -> intakes.setFrontIntakePower(1))
-                .transitionTimed(0.2)
-                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-
-                .state(States.HoldBalls)
-                .onEnter(() -> intakes.setGoodIntakePower(0.1))
-                .loop(() -> {
-                    if ((intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside())) {
-                        intakes.setGoodIntakePower(0.1);
-                    } else {
+                .loop(()->{
+                    if (gamepadEx.getButton(stopIntakeButton)){
+                        intakes.setGoodIntakePower(0);
+                    }
+                    if (gamepadEx.getButton(restartIntake)){
                         intakes.setGoodIntakePower(1);
                     }
                 })
                 .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-                .transition(() -> gamepadEx.getButton(restartIntake), States.Intake)
-
                 .state(States.OpenUpperGate)
                 .onEnter(() -> {
-                    intakes.setGoodIntakePower(0.75);
-
+                    intakes.setGoodIntakePower(intakeShooterVelo);
+                })
+                .transitionTimed(stallIntakeTime, States.PreShoot)
+                .state(States.PreShoot)
+                .onEnter(() -> {
                     shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(0.3, States.Shoot)
+                .transitionTimed(0.1, States.Shoot)
                 .state(States.Shoot)
                 .onEnter(() -> {
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.4, States.Intake)
+                .transitionTimed(openGateTime, States.Intake)
                 .build();
 
 
@@ -176,12 +147,13 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
             if (gamepad1.a) {
                 target = Shooter.Goal.BLUE;
                 allianceBlue = true;
-                relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
+                relocalizePos = new Pose(58, 58, Math.toRadians(90));
+
             }
             if (gamepad1.b) {
                 target = Shooter.Goal.RED;
                 allianceBlue = false;
-                relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
+                relocalizePos = new Pose(58, -58, Math.toRadians(-90));
             }
 
             telemetry.addData("Shooter Target", target);
@@ -212,9 +184,8 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                 follower.update();
                 Position.pose = follower.getPose();
                 telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, target)));
-                shooter.aimAtTarget(Position.pose, target);
+                shooter.aimAtTargetFar(Position.pose, target);
 
-                //shooter.aimAtTarget(Position.pose, new Pose(targetX, targetY));
 
                 double forward = gamepadEx.getLeftY();
                 double strafe = gamepadEx.getLeftX();
@@ -261,15 +232,13 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                     } else {
                         tilt.retract();
                     }
-                }
-                stateMachine.update();
+                }                stateMachine.update();
 
                 telemetry.addData("Current Pos", follower.getPose());
                 telemetry.addData("Shooter Target", shooter.getTargetVelo());
                 telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
                 telemetry.addData("Spindexer kick", spindexer.is_kick);
                 telemetry.addData("Statemachine State", stateMachine.getState());
-
 
                 if (telemetryCurrent) {
                     double totalCurrent = 0;

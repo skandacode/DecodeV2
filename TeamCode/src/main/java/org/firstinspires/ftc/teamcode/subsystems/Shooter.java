@@ -29,23 +29,23 @@ public class Shooter {
     private double currentVelocity = 0.0;
 
     // --- Flywheel PIDF coefficients ---
-    public static double kP = 0.005;
+    public static double kP = 0.001;
     public static double kI = 0;
     public static double kD = 0;
 
-    public static double kS = 0.08; // Static feedforward
-    public static double kV = 0.00036; // Velocity feedforward
+    public static double kS = 0.0436; // Static feedforward
+    public static double kV = 0.0003445; // Velocity feedforward
 
     public static boolean enablePIDF = true;
 
     // --- Turret bounds ---
-    public static double turretUpperBound = 0.98;
-    public static double turretLowerBound = 0.02;
+    public static double turretUpperBound = 0.87;
+    public static double turretLowerBound = 0.17;
 
     // --- Hood bounds ---
 
-    public static double hoodLowerBound = 0.52;
-    public static double hoodUpperBound = 0.82;
+    public static double hoodLowerBound = 0.45;
+    public static double hoodUpperBound = 0.84;
 
     // --- Low-pass filter coefficient (for smoothing) ---
     public static double ALPHA = 0.3;
@@ -99,7 +99,7 @@ public class Shooter {
         shooterMotor1 = new Motor(hardwareMap, "shooterMotor1");
         shooterMotor2 = new Motor(hardwareMap, "shooterMotor2");
 
-        shooterEncoder = new Motor(hardwareMap, "shooterMotor1");
+        shooterEncoder = new Motor(hardwareMap, "frontright");
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -171,7 +171,23 @@ public class Shooter {
     public void aimAtTarget(Pose currPosition, Goal target){
         aimAtTarget(currPosition, target.position);
     }
+    public void aimAtTargetFar(Pose currPosition, Goal target){
+        aimAtTargetFar(currPosition, target.position);
+    }
+    public void aimAtTargetFar(Pose currPosition, Pose target) {
+        double[] angleDistance = getAngleDistance(currPosition, target);
+        double angle = angleDistance[0];
+        double distance = angleDistance[1];
 
+        double servoPos = convertDegreestoServoPos(angle + turretOffset + limelightOffset);
+        servoPos = Range.clip(servoPos, turretLowerBound, turretUpperBound);
+
+        double currVelo = getCurrentVelocity();
+
+        setTurretPos(servoPos);
+        setTargetVelocity(ShooterTables.getShooterVelocityFar(distance) + powerOffset);
+        setHood(ShooterTables.getHoodPositionFar(distance) + ShooterTables.getHoodAngleChange(currVelo, distance));
+    }
     public void aimAtTarget(Pose currPosition, Pose target){
         long currTime = System.nanoTime();
         double dt = (currTime - prevPosTime) / 1e9; // convert ns to seconds
@@ -276,7 +292,7 @@ public class Shooter {
     public void setDirectPower(double power) {
         power = power * 12/voltageSensor.getVoltage();
         shooterMotor1.set(power);
-        shooterMotor2.set(power);
+        shooterMotor2.set(-power);
     }
 
     public void setHood(double pos){

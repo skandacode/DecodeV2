@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -14,33 +18,29 @@ import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 
+import java.util.Arrays;
 import java.util.List;
+
+import solverslib.gamepad.GamepadEx;
+import solverslib.gamepad.GamepadKeys;
 
 @Configurable
 @TeleOp
 public class StateMachineTesting extends LinearOpMode {
-    public static int[] shootorder = {0, 1, 2};
     Intakes intakes;
     Shooter shooter;
     Spindexer spindexer;
-    public static boolean shooterButton = false;
-    public static double shootWaitTime = 0.28;
-    public static double pulseTime = 0.05;
-    public static double intakeStallTime = 0.1;
-    public static double preKickerTime = 0.3;
-    public static double kickTime = 0.4;
-
-
-    public static boolean rapidFire = false;
+    Follower follower;
+    public static double stallIntakeTime = 0.15;
+    public static double openGateTime = 0.6;
+    public static double intakeShooterVelo = 0.4;
+    public static double hoodPos = 0.7;
     public static double shooterVelocity = 1800;
+    public static Shooter.Goal targetGoal = Shooter.Goal.RED;
+    public static double turretAngle = 0;
 
     public enum States{
         Intake,
-        TransferOff,
-        BeforePulseOut,
-        PulseOut,
-        PulseIn,
-        HoldBalls,
         PreShoot,
         OpenUpperGate,
         Shoot,
@@ -55,10 +55,15 @@ public class StateMachineTesting extends LinearOpMode {
         for (LynxModule hub : hubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
-
+        follower = createFollower(hardwareMap);
+        follower.setStartingPose(new Pose(60, 0, Math.toRadians(180)));
         intakes = new Intakes(hardwareMap);
         shooter = new Shooter(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
+        GamepadEx gamepadEx = new GamepadEx(gamepad1);
+        GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
+        GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
+        GamepadKeys.Button restartIntake = GamepadKeys.Button.Y;
 
         while (opModeInInit()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
@@ -66,6 +71,7 @@ public class StateMachineTesting extends LinearOpMode {
         }
 
         waitForStart();
+        follower.startTeleopDrive();
         System.out.println("started");
 
         StateMachine stateMachine = new StateMachineBuilder()
@@ -77,75 +83,49 @@ public class StateMachineTesting extends LinearOpMode {
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
-                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.OpenUpperGate)
-                .transition(() -> intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), TeleopOnlyRapidFAR.States.TransferOff)
-
-                .state(TeleopOnlyRapidFAR.States.TransferOff)
-                .onEnter(() -> intakes.setTransferIntakePower(0.3))
-                .transition(() -> intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside(), TeleopOnlyRapidFAR.States.BeforePulseOut)
-                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.OpenUpperGate)
-
-                .state(TeleopOnlyRapidFAR.States.BeforePulseOut)
-                .onEnter(() -> intakes.setFrontIntakePower(1))
-                .transitionTimed(0.3)
-                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.OpenUpperGate)
-
-                .state(TeleopOnlyRapidFAR.States.PulseOut)
-                .onEnter(() -> intakes.setFrontIntakePower(-0.1))
-                .transitionTimed(pulseTime)
-                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.OpenUpperGate)
-
-                .state(TeleopOnlyRapidFAR.States.PulseIn)
-                .onEnter(() -> intakes.setFrontIntakePower(1))
-                .transitionTimed(0.2)
-                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.OpenUpperGate)
-
-                .state(TeleopOnlyRapidFAR.States.HoldBalls)
-                .onEnter(() -> intakes.setGoodIntakePower(0.1))
-                .loop(() -> {
-                    if ((intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside())) {
-                        intakes.setGoodIntakePower(0.1);
-                    } else {
+                .loop(()->{
+                    if (gamepadEx.getButton(stopIntakeButton)){
+                        intakes.setGoodIntakePower(0);
+                    }
+                    if (gamepadEx.getButton(restartIntake)){
                         intakes.setGoodIntakePower(1);
                     }
                 })
-                .transition(() -> shooterButton, TeleopOnlyRapidFAR.States.PreShoot)
-
-                .state(TeleopOnlyRapidFAR.States.PreShoot)
-                .onEnter(() -> {
-                    intakes.setGoodIntakePower(0.75);
-                })
-                .transitionTimed(intakeStallTime, TeleopOnlyRapidFAR.States.OpenUpperGate)
+                .transition(() -> gamepadEx.getButton(shooterButton), TeleopOnlyRapidFAR.States.OpenUpperGate)
                 .state(TeleopOnlyRapidFAR.States.OpenUpperGate)
+                .onEnter(() -> {
+                    intakes.setGoodIntakePower(intakeShooterVelo);
+                })
+                .transitionTimed(stallIntakeTime, TeleopOnlyRapidFAR.States.PreShoot)
+                .state(TeleopOnlyRapidFAR.States.PreShoot)
                 .onEnter(() -> {
                     shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(preKickerTime, TeleopOnlyRapidFAR.States.Shoot)
+                .transitionTimed(0.1, TeleopOnlyRapidFAR.States.Shoot)
                 .state(TeleopOnlyRapidFAR.States.Shoot)
                 .onEnter(() -> {
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(kickTime, TeleopOnlyRapidFAR.States.Intake)
+                .transitionTimed(openGateTime, TeleopOnlyRapidFAR.States.Intake)
                 .build();
 
+
         stateMachine.start();
-        shooter.setTargetVelocity(shooterVelocity);
 
         while (opModeIsActive()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             stateMachine.update();
+            shooter.setTargetVelocity(shooterVelocity);
+            shooter.setHood(hoodPos);
+            shooter.setTurretPos(shooter.convertDegreestoServoPos(turretAngle));
             intakes.update();
+            follower.update();
             shooter.update();
             spindexer.update();
             telemetry.addData("State: ", stateMachine.getState());
             telemetry.addData("Shooter Target", shooter.getTargetVelo());
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
-            telemetry.addData("Good Inside Intake beam break", intakes.getGoodBeamBreakInside());
-            telemetry.addData("Good Outside Intake beam break", intakes.getGoodBeamBreakOutside());
-            telemetry.addData("Good intake distance", intakes.getGoodIntakeDistance());
-            telemetry.addData("Spindexer Position", spindexer.getCurrentPosition());
-
-            telemetry.addData("Spindexer kick", spindexer.is_kick);
+            telemetry.addData("angle distance", Arrays.toString(shooter.getAngleDistance(follower.getPose(), targetGoal)));
             telemetry.update();
         }
     }

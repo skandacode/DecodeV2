@@ -15,8 +15,8 @@ public class Spindexer {
     ServoEx kicker;
 
 
-    public static double kickerKickPos = 0.43;
-    public static double kickerIdlePos = 0.33;
+    public static double kickerKickPos = 0.36;
+    public static double kickerIdlePos = 0.32;
 
 
     public static double lowerGateOpen = 0.55;
