@@ -186,7 +186,7 @@ public class Shooter {
 
         setTurretPos(servoPos);
         setTargetVelocity(ShooterTables.getShooterVelocityFar(distance) + powerOffset);
-        setHood(ShooterTables.getHoodPositionFar(distance) + ShooterTables.getHoodAngleChange(currVelo, distance));
+        setHood(ShooterTables.getHoodPositionFar(distance) + ShooterTables.getHoodAngleChangeFar(currVelo, distance));
     }
     public void aimAtTarget(Pose currPosition, Pose target){
         long currTime = System.nanoTime();

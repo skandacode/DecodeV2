@@ -51,14 +51,20 @@ public class ShooterTables {
             error = 0;
         }
         System.out.println("Error "+ error);
+        return error * hoodAngleChangePer100ticksPerSecondError/100;
+    }
+    public static double getHoodAngleChangeFar(double loadedVelocity, double distance) {
+        double error = loadedVelocity - getShooterVelocityFar(distance);
+        if (distance < 136) {
+            error = 0;
+        }
         double hoodchangeamount = -(1.2971173e-7) * Math.pow(distance, 4)
                 + 0.000070630471 * Math.pow(distance, 3)
                 - 0.014351497 * Math.pow(distance, 2)
                 + 1.2903045 * distance
                 - 43.327963;
-        return error * hoodchangeamount/100;
+        return error * hoodchangeamount / 100;
     }
-
     public static double hoodAngleChangePer100ticksPerSecondError = 0.03;
 
     public static double hoodAdjustDistanceThreshold = 90;
