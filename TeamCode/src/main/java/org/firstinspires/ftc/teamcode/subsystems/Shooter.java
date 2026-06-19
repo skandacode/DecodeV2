@@ -15,7 +15,7 @@ import solverslib.hardware.motors.Motor;
 @Configurable
 public class Shooter {
 
-    private Motor shooterMotor1, shooterMotor2, shooterEncoder;
+    private Motor shooterMotor1, shooterMotor2, shooterEncoder1, shooterEncoder2;
     private ServoEx turret1, turret2, hood;
 
     private ServoEx upperGate;
@@ -99,7 +99,9 @@ public class Shooter {
         shooterMotor1 = new Motor(hardwareMap, "shooterMotor1");
         shooterMotor2 = new Motor(hardwareMap, "shooterMotor2");
 
-        shooterEncoder = new Motor(hardwareMap, "frontright");
+        shooterEncoder1 = new Motor(hardwareMap, "frontright");
+        shooterEncoder2 = new Motor(hardwareMap, "fat needs to change this");
+
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -302,7 +304,7 @@ public class Shooter {
 
     public void update() {
         // Measure velocity
-        currentVelocity = Math.abs(shooterEncoder.getVelocity());
+        currentVelocity = getCurrentVelo();
         smoothedVelocity = ALPHA * currentVelocity + (1 - ALPHA) * smoothedVelocity;
 
         long currTime = System.nanoTime();
@@ -341,6 +343,13 @@ public class Shooter {
 
     public double getTargetVelo() {
         return targetVelocity;
+    }
+
+    public double getCurrentVelo() {
+        return Math.max(
+                Math.abs(shooterEncoder1.getVelocity()),
+                Math.abs(shooterEncoder2.getVelocity())
+        );
     }
 
     // getters for vx and vy
