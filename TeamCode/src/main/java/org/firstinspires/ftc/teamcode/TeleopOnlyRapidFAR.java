@@ -45,8 +45,8 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
     public static double powerOffsetIncrements = 20;
     public static double turretOffsetIncrements = 2;
     public static double stallIntakeTime = 0.15;
-    public static double openGateTime = 1.5;
-    public static double intakeShooterVelo = 0.44;
+    public static double openGateTime = 1;
+    public static double intakeShooterVelo = 0.7;
 
 
     public Pose relocalizePos = new Pose(58, 59, Math.toRadians(90));

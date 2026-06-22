@@ -29,12 +29,12 @@ public class Shooter {
     private double currentVelocity = 0.0;
 
     // --- Flywheel PIDF coefficients ---
-    public static double kP = 0.001;
+    public static double kP = 0.01;
     public static double kI = 0;
     public static double kD = 0;
 
-    public static double kS = 0.0436; // Static feedforward
-    public static double kV = 0.0003445; // Velocity feedforward
+    public static double kS = 0.11; // Static feedforward
+    public static double kV = 0.000387; // Velocity feedforward
 
     public static boolean enablePIDF = true;
 
@@ -44,8 +44,8 @@ public class Shooter {
 
     // --- Hood bounds ---
 
-    public static double hoodLowerBound = 0.34;
-    public static double hoodUpperBound = 0.8;
+    public static double hoodLowerBound = 0.29;
+    public static double hoodUpperBound = 0.84;
 
     // --- Low-pass filter coefficient (for smoothing) ---
     public static double ALPHA = 0.3;
@@ -70,8 +70,8 @@ public class Shooter {
     public static double limelightOffset = 0;
 
 
-    public static double upperGateOpenPos = 0.51;
-    public static double upperGateClosedPos = 0.33;
+    public static double upperGateOpenPos = 0.56;
+    public static double upperGateClosedPos = 0.44;
 
     private double prevX, prevY;
     private long prevPosTime;
@@ -100,7 +100,7 @@ public class Shooter {
         shooterMotor2 = new Motor(hardwareMap, "shooterMotor2");
 
         shooterEncoder1 = new Motor(hardwareMap, "frontright");
-        shooterEncoder2 = new Motor(hardwareMap, "fat needs to change this");
+        shooterEncoder2 = new Motor(hardwareMap, "shooterMotor2");
 
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
@@ -346,6 +346,9 @@ public class Shooter {
     }
 
     public double getCurrentVelo() {
+        System.out.println("1: "+shooterEncoder1.getVelocity());
+        System.out.println("2: "+shooterEncoder2.getVelocity());
+
         return Math.max(
                 Math.abs(shooterEncoder1.getVelocity()),
                 Math.abs(shooterEncoder2.getVelocity())

@@ -26,18 +26,18 @@ public class ShooterTables {
     }
     public static double minVelocityFar= 2000;
     public static double getHoodPositionFar(double distance) {
-        return 9.52207e-9 * Math.pow(distance, 4)
-                - 0.00000561802 * Math.pow(distance, 3)
-                + 0.00121364 * Math.pow(distance, 2)
-                - 0.113385 * distance
-                + 4.64188;}
+        return -1.81818e-7 * Math.pow(distance, 4)
+                + 0.000099596 * Math.pow(distance, 3)
+                - 0.0202955 * Math.pow(distance, 2)
+                + 1.8248 * distance
+                - 60.76524;}
     public static double getShooterVelocityFar(double distance) {
-        double y = -0.000186209 * Math.pow(distance, 4)
-                + 0.0930645 * Math.pow(distance, 3)
-                - 17.23856 * Math.pow(distance, 2)
-                + 1410.18729 * distance
-                - 41074.8541;
-        return Math.max(2100.0,y);
+        double y = 0.0000606061 * Math.pow(distance, 4)
+                - 0.0361616 * Math.pow(distance, 3)
+                + 7.99848 * Math.pow(distance, 2)
+                - 771.38167 * distance
+                + 28859.0476;
+        return Math.max(1550,y);
     }
 
     public static double actualShooterVelocityNoLoad(double targetVelocity) {
@@ -58,11 +58,7 @@ public class ShooterTables {
         if (distance < 136) {
             error = 0;
         }
-        double hoodchangeamount = -(1.2971173e-7) * Math.pow(distance, 4)
-                + 0.000070630471 * Math.pow(distance, 3)
-                - 0.014351497 * Math.pow(distance, 2)
-                + 1.2903045 * distance
-                - 43.327963;
+        double hoodchangeamount =0;
         return error * hoodchangeamount / 100;
     }
     public static double hoodAngleChangePer100ticksPerSecondError = 0.03;
