@@ -4,40 +4,36 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
 public class ShooterTables {
-    public static double minVelocity = 1250;
+    public static double minVelocity = 1000;
     public static double getHoodPosition(double distance) {
         double increasehood = 0;
+        return 23.57345 * Math.pow(distance, -0.957616) +increasehood;
 
-        return (-7.75058e-9 * Math.pow(distance, 4))
-                + (0.00000299223 * Math.pow(distance, 3))
-                - (0.000432069 * Math.pow(distance, 2))
-                + (0.0294068 * distance)
-                - 0.208765 + increasehood;
     }
     public static double getShooterVelocity(double distance) {
-        double increase = -100;
-        if (distance>110){
-            increase = -100;
-        }
-        double vel =  7.40741*distance + 1281.48148 + increase;
-
-
+        double increase = 0;
+        double vel =  0.0000672119 * Math.pow(distance, 4)
+                - 0.0217524 * Math.pow(distance, 3)
+                + 2.5497 * Math.pow(distance, 2)
+                - 122.58737 * distance
+                + 3074.50544 +increase;
         return Math.max(minVelocity, vel);
     }
-    public static double minVelocityFar= 2000;
+
     public static double getHoodPositionFar(double distance) {
-        return -1.81818e-7 * Math.pow(distance, 4)
-                + 0.000099596 * Math.pow(distance, 3)
-                - 0.0202955 * Math.pow(distance, 2)
-                + 1.8248 * distance
-                - 60.76524;}
+        double y=  4.24242e-7 * Math.pow(distance, 4)
+                - 0.000239798 * Math.pow(distance, 3)
+                + 0.0506894 * Math.pow(distance, 2)
+                - 4.74822 * distance
+                + 166.58619;
+        return Math.min(y,0.34);}
     public static double getShooterVelocityFar(double distance) {
-        double y = 0.0000606061 * Math.pow(distance, 4)
-                - 0.0361616 * Math.pow(distance, 3)
-                + 7.99848 * Math.pow(distance, 2)
-                - 771.38167 * distance
-                + 28859.0476;
-        return Math.max(1550,y);
+        double y = - 0.000181818 * Math.pow(distance, 4)
+                + 0.09959 * Math.pow(distance, 3)
+                - 20.39545 * Math.pow(distance, 2)
+                + 1856.22439 * distance
+                - 62022.3809+30;
+        return Math.max(1450,y);
     }
 
     public static double actualShooterVelocityNoLoad(double targetVelocity) {
@@ -63,19 +59,15 @@ public class ShooterTables {
     }
     public static double hoodAngleChangePer100ticksPerSecondError = 0.03;
 
-    public static double hoodAdjustDistanceThreshold = 90;
+    public static double hoodAdjustDistanceThreshold = 97;
 
     public static double getBalltimeinair(double distance){
-        if (distance>120){
-            return 0;
-        } else if (distance>100) {
-            return 0.5;
-        } else if (distance>58) {
-            return 0.4;
-        }else{
-            return 0.5;
-        }
-
+        double y = 9.79737e-8 * Math.pow(distance, 4)
+                - 0.0000267513 * Math.pow(distance, 3)
+                + 0.00273554 * Math.pow(distance, 2)
+                - 0.122443 * distance
+                + 2.54104;
+        return Math.min(0.7,y);
     }
 
     public static double instantShotCompensation = 0.02;

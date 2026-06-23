@@ -70,8 +70,8 @@ public class Shooter {
     public static double limelightOffset = 0;
 
 
-    public static double upperGateOpenPos = 0.56;
-    public static double upperGateClosedPos = 0.44;
+    public static double upperGateOpenPos = 0.52;
+    public static double upperGateClosedPos = 0.37;
 
     private double prevX, prevY;
     private long prevPosTime;
@@ -167,7 +167,7 @@ public class Shooter {
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*-0.003222222222222222+0.51;
+        return deg*-0.003222222222222222+0.5;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){

@@ -19,6 +19,7 @@ import com.sfdev.assembly.state.StateMachineBuilder;
 import org.firstinspires.ftc.teamcode.pedroPathing.PanelsDrawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
+import org.firstinspires.ftc.teamcode.subsystems.LEDIndicator;
 import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -42,6 +43,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
     Shooter shooter;
     Follower follower;
     Tilt tilt;
+    LEDIndicator indicator;
     LimelightCamera limelight;
 
     Motor frontLeft, frontRight, backLeft, backRight;
@@ -90,6 +92,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
         follower = createFollower(hardwareMap);
         tilt = new Tilt(hardwareMap);
         limelight = new LimelightCamera(hardwareMap);
+        indicator = new LEDIndicator(hardwareMap);
 
 
         frontLeft = new Motor(hardwareMap, "frontleft");
@@ -119,6 +122,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
         StateMachine stateMachine = new StateMachineBuilder()
                 .state(States.Intake)
                 .onEnter(() -> {
+                    indicator.setRed();
                     intakes.setGoodIntakePower(1);
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(true);
@@ -155,8 +159,10 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .loop(() -> {
                     if ((intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside())) {
                         intakes.setGoodIntakePower(0.1);
+                        indicator.setGreen();
                     } else {
                         intakes.setGoodIntakePower(1);
+                        indicator.setOrange();
                     }
                 })
                 .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
@@ -165,9 +171,9 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .state(States.OpenUpperGate)
                 .onEnter(() -> {
                     shooter.setUpperGateOpen(true);
-                    intakes.setGoodIntakePower(1);
+                    intakes.setGoodIntakePower(0.8);
                 })
-                .transitionTimed(0.1, States.Shoot)
+                .transitionTimed(0.04, States.Shoot)
                 .state(States.Shoot)
                 .onEnter(() -> {
                     spindexer.setKickerPos(true);
@@ -252,7 +258,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 Position.pose = follower.getPose();
                 telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, target)));
                 shooter.aimAtTarget(Position.pose, target);
-
                 //shooter.aimAtTarget(Position.pose, new Pose(targetX, targetY));
 
                 double forward = gamepadEx.getLeftY();
@@ -347,6 +352,7 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 intakes.update();
                 spindexer.update();
                 tilt.update();
+                indicator.update();
 
                 PanelsDrawing.drawDebug(follower);
                 shooter.update();
