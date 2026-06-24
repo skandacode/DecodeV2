@@ -95,6 +95,8 @@ public class Shooter {
     private double prevTargetVelocity = 0.0;
     private long prevTargetTime = 0;
 
+    public boolean canReachPos = true;
+
     public Shooter(HardwareMap hardwareMap) {
         shooterMotor1 = new Motor(hardwareMap, "shooterMotor1");
         shooterMotor2 = new Motor(hardwareMap, "shooterMotor2");
@@ -161,6 +163,7 @@ public class Shooter {
 
     public void setTurretPos(double pos){
         double safePos = Range.clip(pos, turretLowerBound, turretUpperBound);
+        canReachPos = safePos == pos;
         turret1.setPosition(safePos);
         turret2.setPosition(safePos);
 

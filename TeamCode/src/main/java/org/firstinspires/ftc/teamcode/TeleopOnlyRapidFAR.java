@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Tilt;
 import java.util.Arrays;
 import java.util.List;
 
+import solverslib.controller.PIDFController;
 import solverslib.gamepad.GamepadEx;
 import solverslib.gamepad.GamepadKeys;
 import solverslib.hardware.motors.Motor;
@@ -49,6 +50,8 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
     public static double stallIntakeTime = 0.15;
     public static double openGateTime = 0.6;
     public static double intakeShooterVelo = 0.8;
+
+    PIDFController turretDamper = new PIDFController(1, 0, 0, 0);
 
 
     public Pose relocalizePos = new Pose(58, 59, Math.toRadians(90));
@@ -102,6 +105,7 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
         GamepadKeys.Button restartIntake = GamepadKeys.Button.Y;
+        GamepadKeys.Button limelightAdjust = GamepadKeys.Button.X;
 
         GamepadKeys.Button tiltButton = GamepadKeys.Button.OPTIONS;
 
@@ -126,6 +130,11 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                     }
                     if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()){
                         indicator.setGreen();
+                    }else{
+                        indicator.setOrange();
+                    }
+                    if (!shooter.canReachPos){
+                        indicator.setRed();
                     }
                 })
                 .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
@@ -216,7 +225,9 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                         Shooter.turretOffset = 2;
                     }
                 }
-
+                if (shooter.canReachPos) {
+                    Shooter.limelightOffset += turretDamper.calculate(limelight.getTrackingResults(), 0);
+                }
 
                 if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
                     Shooter.powerOffset -= powerOffsetIncrements;
@@ -237,7 +248,9 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                     } else {
                         tilt.retract();
                     }
-                }                stateMachine.update();
+                }
+
+                stateMachine.update();
 
                 telemetry.addData("Current Pos", follower.getPose());
                 telemetry.addData("Shooter Target", shooter.getTargetVelo());

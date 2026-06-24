@@ -159,6 +159,9 @@ public class TeleopOnlyRapid extends LinearOpMode {
                         intakes.setGoodIntakePower(1);
                         indicator.setOrange();
                     }
+                    if (!shooter.canReachPos){
+                        indicator.setRed();
+                    }
                 })
                 .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
                 .transition(() -> gamepadEx.getButton(restartIntake), States.Intake)
