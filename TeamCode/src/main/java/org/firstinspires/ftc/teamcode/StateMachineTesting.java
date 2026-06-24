@@ -64,6 +64,8 @@ public class StateMachineTesting extends LinearOpMode {
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
         GamepadKeys.Button restartIntake = GamepadKeys.Button.Y;
+        GamepadKeys.Button relocalize = GamepadKeys.Button.LEFT_BUMPER;
+
 
         while (opModeInInit()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
@@ -115,6 +117,9 @@ public class StateMachineTesting extends LinearOpMode {
         while (opModeIsActive()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             stateMachine.update();
+            if (gamepadEx.getButton(relocalize)){
+                follower.setPose(new Pose(-14.5, 56, Math.toRadians(90)));
+            }
             shooter.setTargetVelocity(shooterVelocity);
             shooter.setHood(hoodPos);
             shooter.setTurretPos(shooter.convertDegreestoServoPos(turretAngle));

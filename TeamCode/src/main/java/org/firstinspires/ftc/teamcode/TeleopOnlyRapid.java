@@ -171,14 +171,14 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .state(States.OpenUpperGate)
                 .onEnter(() -> {
                     shooter.setUpperGateOpen(true);
-                    intakes.setGoodIntakePower(0.8);
+                    intakes.setGoodIntakePower(1);
                 })
                 .transitionTimed(0.04, States.Shoot)
                 .state(States.Shoot)
                 .onEnter(() -> {
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(0.4, States.Intake)
+                .transitionTimed(0.35, States.Intake)
                 .build();
 
         StateMachine clearMachine = new StateMachineBuilder()
