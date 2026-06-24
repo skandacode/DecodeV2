@@ -46,9 +46,9 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
     public static double turretOffsetIncrements = 2;
-    public static double stallIntakeTime = 0.2;
-    public static double openGateTime = 0.8;
-    public static double intakeShooterVelo = 0.5;
+    public static double stallIntakeTime = 0.15;
+    public static double openGateTime = 0.6;
+    public static double intakeShooterVelo = 0.8;
 
 
     public Pose relocalizePos = new Pose(58, 59, Math.toRadians(90));
@@ -102,7 +102,6 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
         GamepadKeys.Button restartIntake = GamepadKeys.Button.Y;
-        GamepadKeys.Button limelightAdjust = GamepadKeys.Button.X;
 
         GamepadKeys.Button tiltButton = GamepadKeys.Button.OPTIONS;
 
@@ -217,9 +216,7 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                         Shooter.turretOffset = 2;
                     }
                 }
-                if (gamepadEx.wasJustPressed(limelightAdjust)) {
-                    Shooter.limelightOffset += limelight.getTrackingResults();
-                }
+
 
                 if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
                     Shooter.powerOffset -= powerOffsetIncrements;

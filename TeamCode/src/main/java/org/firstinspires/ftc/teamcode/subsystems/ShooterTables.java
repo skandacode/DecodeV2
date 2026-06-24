@@ -21,18 +21,18 @@ public class ShooterTables {
     }
 
     public static double getHoodPositionFar(double distance) {
-        double y=  4.24242e-7 * Math.pow(distance, 4)
-                - 0.000239798 * Math.pow(distance, 3)
-                + 0.0506894 * Math.pow(distance, 2)
-                - 4.74822 * distance
-                + 166.58619;
-        return Math.min(y,0.34);}
+        double y=  6.99074e-7 * Math.pow(distance, 4)
+                - 0.000384853 * Math.pow(distance, 3)
+                + 0.0789672 * Math.pow(distance, 2)
+                - 7.15944 * distance
+                + 242.54567;
+        return Math.max(y,0.38);}
     public static double getShooterVelocityFar(double distance) {
-        double y = - 0.000181818 * Math.pow(distance, 4)
-                + 0.09959 * Math.pow(distance, 3)
-                - 20.39545 * Math.pow(distance, 2)
-                + 1856.22439 * distance
-                - 62022.3809+30;
+        double y = - 0.00031736 * Math.pow(distance, 4)
+                + 0.175946 * Math.pow(distance, 3)
+                - 36.40257 * Math.pow(distance, 2)
+                + 3338.84237 * distance
+                - 113030.791;
         return Math.max(1450,y);
     }
 
@@ -69,6 +69,9 @@ public class ShooterTables {
                 + 2.54104;
         return Math.min(0.7,y);
     }
+    public static double getBalltimeinairFar(double distance){
+        return 0;
+    }
 
-    public static double instantShotCompensation = 0.02;
+    public static double instantShotCompensation = 0.1;
 }
