@@ -4,19 +4,23 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
 public class ShooterTables {
-    public static double minVelocity = 1000;
+    public static double minVelocity = 1200;
     public static double getHoodPosition(double distance) {
         double increasehood = 0;
-        return 23.57345 * Math.pow(distance, -0.957616) +increasehood;
+        return  -1.10011e-8 * Math.pow(distance, 4)
+                - 7.29035e-7 * Math.pow(distance, 3)
+                + 0.000614768 * Math.pow(distance, 2)
+                - 0.06158 * distance
+                + 2.35001 +increasehood;
 
     }
     public static double getShooterVelocity(double distance) {
         double increase = 0;
-        double vel =  0.0000672119 * Math.pow(distance, 4)
-                - 0.0217524 * Math.pow(distance, 3)
-                + 2.5497 * Math.pow(distance, 2)
-                - 122.58737 * distance
-                + 3074.50544 +increase;
+        double vel =  0.0000300474 * Math.pow(distance, 4)
+                - 0.0077187 * Math.pow(distance, 3)
+                + 0.686797 * Math.pow(distance, 2)
+                - 19.03258 * distance
+                + 1309.75735 +increase;
         return Math.max(minVelocity, vel);
     }
 
@@ -73,5 +77,5 @@ public class ShooterTables {
         return 0;
     }
 
-    public static double instantShotCompensation = 0.1;
+    public static double instantShotCompensation = 0.03;
 }

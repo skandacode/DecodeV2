@@ -71,10 +71,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
         OpenUpperGate,
         Shoot,
     }
-    public enum clearStates{
-        IDLE, EJECT1, EJECT2, EJECT3
-    }
-
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
@@ -108,7 +104,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
 
         GamepadKeys.Button slowModeButton = GamepadKeys.Button.RIGHT_BUMPER;
         GamepadKeys.Button positionResetButton = GamepadKeys.Button.LEFT_BUMPER;
-        GamepadKeys.Trigger manualslowintake = GamepadKeys.Trigger.LEFT_TRIGGER;
 
         GamepadKeys.Button shooterButton = GamepadKeys.Button.B;
         GamepadKeys.Button stopIntakeButton = GamepadKeys.Button.A;
@@ -181,39 +176,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .transitionTimed(0.35, States.Intake)
                 .build();
 
-        StateMachine clearMachine = new StateMachineBuilder()
-                .state(clearStates.IDLE)
-                .transition(()->gamepad2.a)
-
-                .state(clearStates.EJECT1)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                    intakes.setGoodIntakePower(-0.4);
-                })
-                .transitionTimed(0.5)
-
-                .state(clearStates.EJECT2)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot1);
-                    intakes.setGoodIntakePower(-0.4);
-                })
-                .transitionTimed(0.5)
-
-                .state(clearStates.EJECT3)
-                .onEnter(()->{
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot2);
-                    intakes.setGoodIntakePower(-0.4);
-                })
-                .transitionTimed(0.5, clearStates.IDLE, ()->{
-                    intakes.setGoodIntakePower(1);
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setLowerGateOpen(true);
-                    spindexer.setKickerPos(false);
-                    spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
-                    stateMachine.setState(States.Intake);
-                })
-                .build();
-
         while (opModeInInit()) {
             for (LynxModule hub : allHubs) hub.clearBulkCache();
             follower.update();
@@ -242,7 +204,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
             waitForStart();
 
             stateMachine.start();
-            clearMachine.start();
             follower.startTeleopDrive();
 
             long lastLoopTime = System.nanoTime();
@@ -307,7 +268,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                     }
                 }
                 stateMachine.update();
-                clearMachine.update();
 
                 telemetry.addData("Current Pos", follower.getPose());
                 telemetry.addData("Shooter Target", shooter.getTargetVelo());
