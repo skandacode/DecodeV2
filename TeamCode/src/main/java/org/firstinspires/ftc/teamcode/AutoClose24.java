@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.List;
 
 @Configurable
-@Autonomous(name = "Close24", group = "Auto")
+@Autonomous(name = "Close24no run pls", group = "Auto")
 public class AutoClose24 extends LinearOpMode {
     private Follower follower;
     Intakes intakes;

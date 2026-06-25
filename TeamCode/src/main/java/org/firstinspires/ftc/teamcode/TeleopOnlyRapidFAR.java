@@ -10,6 +10,7 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
@@ -50,8 +51,9 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
     public static double stallIntakeTime = 0.15;
     public static double openGateTime = 0.6;
     public static double intakeShooterVelo = 0.8;
+    public static double tagToCenterOffset = -2;
 
-    PIDFController turretDamper = new PIDFController(1, 0, 0, 0);
+    PIDFController turretDamper = new PIDFController(0.15, 0, 0, 0);
 
 
     public Pose relocalizePos = new Pose(58, 59, Math.toRadians(90));
@@ -190,6 +192,8 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
 
             long lastLoopTime = System.nanoTime();
             boolean tilted = false;
+            int counter = 0;
+            ElapsedTime resetTimer = new ElapsedTime();
 
             tilt.retract();
             while (opModeIsActive()) {
@@ -222,11 +226,30 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                         Shooter.turretOffset = 0;
                     } else {
                         Shooter.powerOffset = 0;
-                        Shooter.turretOffset = 2;
+                        Shooter.turretOffset = 0;
                     }
                 }
-                if (shooter.canReachPos) {
-                    Shooter.limelightOffset += turretDamper.calculate(limelight.getTrackingResults(), 0);
+                double tx = limelight.getTrackingResults();
+                if (tx == 0){
+                    counter+=1;
+                    if (counter>60){
+                        Shooter.limelightOffset=0;
+                    }
+                }else {
+                    if (allianceBlue) {
+                        tx += tagToCenterOffset;
+                    }else{
+                        tx -= tagToCenterOffset;
+                    }
+                    counter=0;
+                    if (shooter.canReachPos) {
+                        if (resetTimer.milliseconds() > 200) {
+                            if (Math.abs(tx)>1) {
+                                Shooter.limelightOffset -= turretDamper.calculate(tx, 0);
+                            }
+                            resetTimer.reset();
+                        }
+                    }
                 }
 
                 if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
@@ -253,6 +276,7 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                 stateMachine.update();
 
                 telemetry.addData("Current Pos", follower.getPose());
+                telemetry.addData("Limelight Offset", Shooter.limelightOffset);
                 telemetry.addData("Shooter Target", shooter.getTargetVelo());
                 telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
                 telemetry.addData("Spindexer kick", spindexer.is_kick);
