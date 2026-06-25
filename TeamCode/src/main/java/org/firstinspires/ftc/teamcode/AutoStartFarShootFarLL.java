@@ -35,7 +35,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
     String colorAlliance = "BLUE";
     int Posmultiplier = 1;
     Shooter shooter;
-    LimelightCamera limelightCamera;
+    LimelightCamera limelight;
     Spindexer spindexer;
     public boolean shooterButton = false;
     public double shootWaitTime = 0.25;
@@ -90,7 +90,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
         shooter = new Shooter(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
         follower = createFollower(hardwareMap);
-        limelightCamera = new LimelightCamera(hardwareMap);
+        limelight = new LimelightCamera(hardwareMap);
 
         while (opModeInInit()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
@@ -117,161 +117,167 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
             telemetry.update();
             spindexer.update();
         }
+        if (opModeIsActive()) {
+            if (shooterTarget == Shooter.Goal.BLUE) {
+                limelight.setCurrentPipeline(LimelightCamera.Pipelines.BLUETRACK);
+            } else {
+                limelight.setCurrentPipeline(LimelightCamera.Pipelines.REDTRACK);
+            }
 
-        waitForStart();
-
-
-        Pose startPose = new Pose(57, -12*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose shootPose = new Pose(53, -22*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intakeHuman = new Pose(58, -61*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake1Pose = new Pose(20, -28*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intake1donePose = new Pose(33, -61*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-
-
-        Pose intakemidPose = new Pose(44, -17*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose intakemiddonePose = new Pose(44, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
-        Pose leave = new Pose(33, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+            waitForStart();
 
 
-
-        follower.setStartingPose(startPose);
-
-        StateMachine autoMachine = new StateMachineBuilder() //Autonomia
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(0.4)
-                .state(AutoStates.MOVETOSHOOT1)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0);
-                    spindexer.setKickerPos(false);
-                    PathChain toScore = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), shootPose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
-                            .setBrakingStrength(3)
-                            .build();
-                    follower.followPath(toScore, true);
-                    //shooter.setHood(0.6);
-                    //shooter.setTargetVelocity(1860);
-                    //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(0.5)
-
-                .state(AutoStates.wait1)
-                .onEnter(()->{
-                })
-                .transition(()->Math.abs(shooter.getTargetVelo()-shooter.getCurrentVelocity())<20)
-                .transitionTimed(2)
-                .state(AutoStates.preSHOOT1)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0.8);
-                })
-                .transitionTimed(0.1)
-                .state(AutoStates.SHOOT1)
-                .onEnter(()->{
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(0.4)
+            Pose startPose = new Pose(57, -12 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+            Pose shootPose = new Pose(53, -22 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+            Pose intakeHuman = new Pose(58, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+            Pose intake1Pose = new Pose(20, -28 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+            Pose intake1donePose = new Pose(33, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
 
 
-                .state(AutoStates.MOVETOINTAKE1)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(1);
-                    spindexer.setKickerPos(false);
-                    shooter.setUpperGateOpen(false);
-                    //shooter.setTurretPos(shooter.convertDegreestoServoPos(71 *Posmultiplier));
-                    //shooter.setHood(0.6);
-                    //shooter.setTargetVelocity(1860);
+            Pose intakemidPose = new Pose(44, -17 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+            Pose intakemiddonePose = new Pose(44, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+            Pose leave = new Pose(33, -30 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
 
-                    PathChain toIntake = follower.pathBuilder()
-                            .addPath(new BezierCurve(follower.getPose(), intake1Pose, intake1donePose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),intake1donePose.getHeading())
-                            .setBrakingStrength(3)
-                            .build();
-                    follower.followPath(toIntake, true);
-                })
-                .transitionTimed(1.6)
 
-                .state(AutoStates.MOVETOSHOOT2)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0);
-                    PathChain toScore = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), shootPose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
-                            .setBrakingStrength(3)
-                            .build();
-                    follower.followPath(toScore, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.5)
+            follower.setStartingPose(startPose);
 
-                .state(AutoStates.wait2)
-                .onEnter(()->{
-                })
-                .transitionTimed(0.4)
+            StateMachine autoMachine = new StateMachineBuilder() //Autonomia
+                    .transition(() -> follower.atParametricEnd())
+                    .transitionTimed(0.4)
+                    .state(AutoStates.MOVETOSHOOT1)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0);
+                        spindexer.setKickerPos(false);
+                        PathChain toScore = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), shootPose))
+                                .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
+                                .setBrakingStrength(3)
+                                .build();
+                        follower.followPath(toScore, true);
+                        //shooter.setHood(0.6);
+                        //shooter.setTargetVelocity(1860);
+                        //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
+                    })
+                    .transition(() -> follower.atParametricEnd())
+                    .transitionTimed(0.5)
 
-                .state(AutoStates.preSHOOT2)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0.8);
-                })
-                .transitionTimed(0.1)
-                .state(AutoStates.SHOOT2)
-                .onEnter(()->{
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(0.4)
-                .state(AutoStates.MOVETOINTAKE2)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(1);
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setKickerPos(false);
+                    .state(AutoStates.wait1)
+                    .onEnter(() -> {
+                        Shooter.limelightOffset += limelight.getTrackingResults();
+                    })
+                    .transition(() -> Math.abs(shooter.getTargetVelo() - shooter.getCurrentVelocity()) < 20)
+                    .transitionTimed(2)
+                    .state(AutoStates.preSHOOT1)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0.8);
+                    })
+                    .transitionTimed(0.1)
+                    .state(AutoStates.SHOOT1)
+                    .onEnter(() -> {
+                        shooter.setUpperGateOpen(true);
+                        spindexer.setKickerPos(true);
+                    })
+                    .transitionTimed(0.4)
 
-                    //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
 
-                    PathChain toIntakeHuman = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), intakeHuman))
-                            .setLinearHeadingInterpolation(follower.getHeading(),intakeHuman.getHeading())
-                            .build();
-                    follower.followPath(toIntakeHuman, true);
-                })
-                .transitionTimed(1.3)
+                    .state(AutoStates.MOVETOINTAKE1)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(1);
+                        spindexer.setKickerPos(false);
+                        shooter.setUpperGateOpen(false);
+                        //shooter.setTurretPos(shooter.convertDegreestoServoPos(71 *Posmultiplier));
+                        //shooter.setHood(0.6);
+                        //shooter.setTargetVelocity(1860);
 
-                .state(AutoStates.MOVETOSHOOT3)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0);
-                    PathChain toScore = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), shootPose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
-                            .setBrakingStrength(3)
-                            .build();
-                    follower.followPath(toScore, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2)
+                        PathChain toIntake = follower.pathBuilder()
+                                .addPath(new BezierCurve(follower.getPose(), intake1Pose, intake1donePose))
+                                .setLinearHeadingInterpolation(follower.getHeading(), intake1donePose.getHeading())
+                                .setBrakingStrength(3)
+                                .build();
+                        follower.followPath(toIntake, true);
+                    })
+                    .transitionTimed(1.6)
 
-                .state(AutoStates.wait3)
-                .onEnter(()->{
-                })
-                .transitionTimed(0.2)
+                    .state(AutoStates.MOVETOSHOOT2)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0);
+                        PathChain toScore = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), shootPose))
+                                .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
+                                .setBrakingStrength(3)
+                                .build();
+                        follower.followPath(toScore, true);
+                    })
+                    .transition(() -> follower.atParametricEnd())
+                    .transitionTimed(2.5)
 
-                .state(AutoStates.preSHOOT3)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0.8);
-                })
-                .transitionTimed(0.1)
-                .state(AutoStates.SHOOT3)
-                .onEnter(()->{
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(0.4)
-                .state(AutoStates.MOVETOINTAKE3)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(1);
-                    //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setKickerPos(false);
+                    .state(AutoStates.wait2)
+                    .onEnter(() -> {
+                    })
+                    .transitionTimed(0.4)
+
+                    .state(AutoStates.preSHOOT2)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0.8);
+                    })
+                    .transitionTimed(0.1)
+                    .state(AutoStates.SHOOT2)
+                    .onEnter(() -> {
+                        shooter.setUpperGateOpen(true);
+                        spindexer.setKickerPos(true);
+                    })
+                    .transitionTimed(0.4)
+                    .state(AutoStates.MOVETOINTAKE2)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(1);
+                        shooter.setUpperGateOpen(false);
+                        spindexer.setKickerPos(false);
+
+                        //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
+
+                        PathChain toIntakeHuman = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), intakeHuman))
+                                .setLinearHeadingInterpolation(follower.getHeading(), intakeHuman.getHeading())
+                                .build();
+                        follower.followPath(toIntakeHuman, true);
+                    })
+                    .transitionTimed(1.3)
+
+                    .state(AutoStates.MOVETOSHOOT3)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0);
+                        PathChain toScore = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), shootPose))
+                                .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
+                                .setBrakingStrength(3)
+                                .build();
+                        follower.followPath(toScore, true);
+                    })
+                    .transition(() -> follower.atParametricEnd())
+                    .transitionTimed(2)
+
+                    .state(AutoStates.wait3)
+                    .onEnter(() -> {
+                    })
+                    .transitionTimed(0.2)
+
+                    .state(AutoStates.preSHOOT3)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0.8);
+                    })
+                    .transitionTimed(0.1)
+                    .state(AutoStates.SHOOT3)
+                    .onEnter(() -> {
+                        shooter.setUpperGateOpen(true);
+                        spindexer.setKickerPos(true);
+                    })
+                    .transitionTimed(0.4)
+                    .state(AutoStates.MOVETOINTAKE3)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(1);
+                        //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
+                        shooter.setUpperGateOpen(false);
+                        spindexer.setKickerPos(false);
                     /*
                     // LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
@@ -295,49 +301,49 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                         PathChain toIntake = follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), intakemiddonePose))
-                                .setLinearHeadingInterpolation(follower.getHeading(),intakemiddonePose.getHeading())
+                                .setLinearHeadingInterpolation(follower.getHeading(), intakemiddonePose.getHeading())
                                 .setNoDeceleration()
                                 .build();
                         follower.followPath(toIntake, true);
                         System.out.println("Detected at NULL");
 
-                })
-                .transitionTimed(1.3)
-                .state(AutoStates.MOVETOSHOOT4)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0);
-                    PathChain toScore = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), shootPose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
-                            .setBrakingStrength(3)
-                            .build();
-                    follower.followPath(toScore, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.5)
+                    })
+                    .transitionTimed(1.3)
+                    .state(AutoStates.MOVETOSHOOT4)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0);
+                        PathChain toScore = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), shootPose))
+                                .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
+                                .setBrakingStrength(3)
+                                .build();
+                        follower.followPath(toScore, true);
+                    })
+                    .transition(() -> follower.atParametricEnd())
+                    .transitionTimed(2.5)
 
-                .state(AutoStates.wait4)
-                .onEnter(()->{
-                })
-                .transitionTimed(0.2)
+                    .state(AutoStates.wait4)
+                    .onEnter(() -> {
+                    })
+                    .transitionTimed(0.2)
 
-                .state(AutoStates.preSHOOT4)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0.8);
-                })
-                .transitionTimed(0.1)
-                .state(AutoStates.SHOOT4)
-                .onEnter(()->{
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(0.4)
-                .state(AutoStates.MOVETOINTAKE4)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(1);
-                    //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setKickerPos(false);
+                    .state(AutoStates.preSHOOT4)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0.8);
+                    })
+                    .transitionTimed(0.1)
+                    .state(AutoStates.SHOOT4)
+                    .onEnter(() -> {
+                        shooter.setUpperGateOpen(true);
+                        spindexer.setKickerPos(true);
+                    })
+                    .transitionTimed(0.4)
+                    .state(AutoStates.MOVETOINTAKE4)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(1);
+                        //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
+                        shooter.setUpperGateOpen(false);
+                        spindexer.setKickerPos(false);
                     /*
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
@@ -367,43 +373,43 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         follower.followPath(toIntake, true);
                         System.out.println("Detected at NULL");
 
-                })
-                .transitionTimed(1.5)
-                .state(AutoStates.MOVETOSHOOT5)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0);
-                    PathChain toScore = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), shootPose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
-                            .setBrakingStrength(0.7)
-                            .build();
-                    follower.followPath(toScore, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.5)
+                    })
+                    .transitionTimed(1.5)
+                    .state(AutoStates.MOVETOSHOOT5)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0);
+                        PathChain toScore = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), shootPose))
+                                .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
+                                .setBrakingStrength(0.7)
+                                .build();
+                        follower.followPath(toScore, true);
+                    })
+                    .transition(() -> follower.atParametricEnd())
+                    .transitionTimed(2.5)
 
-                .state(AutoStates.wait5)
-                .onEnter(()->{
-                })
-                .transitionTimed(0.2)
+                    .state(AutoStates.wait5)
+                    .onEnter(() -> {
+                    })
+                    .transitionTimed(0.2)
 
-                .state(AutoStates.preSHOOT5)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0.8);
-                })
-                .transitionTimed(0.1)
-                .state(AutoStates.SHOOT5)
-                .onEnter(()->{
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(0.4)
-                .state(AutoStates.MOVETOINTAKE5)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(1);
-                    //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setKickerPos(false);
+                    .state(AutoStates.preSHOOT5)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0.8);
+                    })
+                    .transitionTimed(0.1)
+                    .state(AutoStates.SHOOT5)
+                    .onEnter(() -> {
+                        shooter.setUpperGateOpen(true);
+                        spindexer.setKickerPos(true);
+                    })
+                    .transitionTimed(0.4)
+                    .state(AutoStates.MOVETOINTAKE5)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(1);
+                        //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
+                        shooter.setUpperGateOpen(false);
+                        spindexer.setKickerPos(false);
                     /*
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
@@ -433,45 +439,45 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         follower.followPath(toIntake, true);
                         System.out.println("Detected at NULL");
 
-                })
-                .transitionTimed(1.5)
+                    })
+                    .transitionTimed(1.5)
 
-                .state(AutoStates.MOVETOSHOOT6)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0);
-                    PathChain toScore = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), shootPose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
-                            .setBrakingStrength(0.7)
-                            .build();
-                    //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
+                    .state(AutoStates.MOVETOSHOOT6)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0);
+                        PathChain toScore = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), shootPose))
+                                .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
+                                .setBrakingStrength(0.7)
+                                .build();
+                        //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
 
-                    follower.followPath(toScore, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.5)
+                        follower.followPath(toScore, true);
+                    })
+                    .transition(() -> follower.atParametricEnd())
+                    .transitionTimed(2.5)
 
-                .state(AutoStates.wait6)
-                .onEnter(()->{
-                })
-                .transitionTimed(0.2)
+                    .state(AutoStates.wait6)
+                    .onEnter(() -> {
+                    })
+                    .transitionTimed(0.2)
 
-                .state(AutoStates.preSHOOT6)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0.8);
-                })
-                .transitionTimed(0.1)
-                .state(AutoStates.SHOOT6)
-                .onEnter(()->{
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(0.4)
-                .state(AutoStates.MOVETOINTAKE6)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(1);
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setKickerPos(false);
+                    .state(AutoStates.preSHOOT6)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0.8);
+                    })
+                    .transitionTimed(0.1)
+                    .state(AutoStates.SHOOT6)
+                    .onEnter(() -> {
+                        shooter.setUpperGateOpen(true);
+                        spindexer.setKickerPos(true);
+                    })
+                    .transitionTimed(0.4)
+                    .state(AutoStates.MOVETOINTAKE6)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(1);
+                        shooter.setUpperGateOpen(false);
+                        spindexer.setKickerPos(false);
                     /*
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
@@ -502,44 +508,44 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         follower.followPath(toIntake, true);
                         System.out.println("Detected at NULL");
 
-                })
-                .transitionTimed(1.6)
-                .state(AutoStates.MOVETOSHOOT7)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0);
-                    PathChain toScore = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), shootPose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
-                            .setBrakingStrength(0.7)
-                            .build();
-                    //shooter.setTurretPos(shooter.convertDegreestoServoPos(71*Posmultiplier));
+                    })
+                    .transitionTimed(1.6)
+                    .state(AutoStates.MOVETOSHOOT7)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0);
+                        PathChain toScore = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), shootPose))
+                                .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
+                                .setBrakingStrength(0.7)
+                                .build();
+                        //shooter.setTurretPos(shooter.convertDegreestoServoPos(71*Posmultiplier));
 
-                    follower.followPath(toScore, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.5)
+                        follower.followPath(toScore, true);
+                    })
+                    .transition(() -> follower.atParametricEnd())
+                    .transitionTimed(2.5)
 
-                .state(AutoStates.wait7)
-                .onEnter(()->{
-                })
-                .transitionTimed(0.2)
+                    .state(AutoStates.wait7)
+                    .onEnter(() -> {
+                    })
+                    .transitionTimed(0.2)
 
-                .state(AutoStates.preSHOOT7)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0.8);
-                })
-                .transitionTimed(0.1)
-                .state(AutoStates.SHOOT7)
-                .onEnter(()->{
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(0.4)
-                .state(AutoStates.MOVETOINTAKE7)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(1);
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setKickerPos(false);
+                    .state(AutoStates.preSHOOT7)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0.8);
+                    })
+                    .transitionTimed(0.1)
+                    .state(AutoStates.SHOOT7)
+                    .onEnter(() -> {
+                        shooter.setUpperGateOpen(true);
+                        spindexer.setKickerPos(true);
+                    })
+                    .transitionTimed(0.4)
+                    .state(AutoStates.MOVETOINTAKE7)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(1);
+                        shooter.setUpperGateOpen(false);
+                        spindexer.setKickerPos(false);
                     /*
                     LLFieldScannerResults results = limelightCamera.getTrackingResults();
                     if (results != null) {
@@ -561,86 +567,87 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                     }else{
 
                      */
-                    PathChain toIntake = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), intakeHuman))
-                            .setTangentHeadingInterpolation()
-                            .setNoDeceleration()
+                        PathChain toIntake = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), intakeHuman))
+                                .setTangentHeadingInterpolation()
+                                .setNoDeceleration()
 
-                            .build();
-                    follower.followPath(toIntake, true);
-                    System.out.println("Detected at NULL");
+                                .build();
+                        follower.followPath(toIntake, true);
+                        System.out.println("Detected at NULL");
 
-                })
-                .transitionTimed(1.6)
-                .state(AutoStates.MOVETOSHOOT8)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0);
-                    PathChain toScore = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), shootPose))
-                            .setLinearHeadingInterpolation(follower.getHeading(),shootPose.getHeading())
-                            .setBrakingStrength(0.7)
-                            .build();
-                    //shooter.setTurretPos(shooter.convertDegreestoServoPos(71*Posmultiplier));
+                    })
+                    .transitionTimed(1.6)
+                    .state(AutoStates.MOVETOSHOOT8)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0);
+                        PathChain toScore = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), shootPose))
+                                .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
+                                .setBrakingStrength(0.7)
+                                .build();
+                        //shooter.setTurretPos(shooter.convertDegreestoServoPos(71*Posmultiplier));
 
-                    follower.followPath(toScore, true);
-                })
-                .transition(()->follower.atParametricEnd())
-                .transitionTimed(2.5)
+                        follower.followPath(toScore, true);
+                    })
+                    .transition(() -> follower.atParametricEnd())
+                    .transitionTimed(2.5)
 
-                .state(AutoStates.wait8)
-                .onEnter(()->{
-                })
-                .transitionTimed(0.2)
+                    .state(AutoStates.wait8)
+                    .onEnter(() -> {
+                    })
+                    .transitionTimed(0.2)
 
-                .state(AutoStates.preSHOOT8)
-                .onEnter(()->{
-                    intakes.setGoodIntakePower(0.8);
-                })
-                .transitionTimed(0.1)
-                .state(AutoStates.SHOOT8)
-                .onEnter(()->{
-                    shooter.setUpperGateOpen(true);
-                    spindexer.setKickerPos(true);
-                })
-                .transitionTimed(0.4)
-                .state(AutoStates.park)
-                .onEnter(()->{
-                    shooter.setUpperGateOpen(false);
-                    spindexer.setKickerPos(false);
-                    PathChain park = follower.pathBuilder()
-                            .addPath(new BezierLine(follower.getPose(), leave))
-                            .setLinearHeadingInterpolation(follower.getHeading(),leave.getHeading())
-                            .setBrakingStrength(0.6)
-                            .build();
-                    follower.followPath(park, true);
-                })
-                .build();
+                    .state(AutoStates.preSHOOT8)
+                    .onEnter(() -> {
+                        intakes.setGoodIntakePower(0.8);
+                    })
+                    .transitionTimed(0.1)
+                    .state(AutoStates.SHOOT8)
+                    .onEnter(() -> {
+                        shooter.setUpperGateOpen(true);
+                        spindexer.setKickerPos(true);
+                    })
+                    .transitionTimed(0.4)
+                    .state(AutoStates.park)
+                    .onEnter(() -> {
+                        shooter.setUpperGateOpen(false);
+                        spindexer.setKickerPos(false);
+                        PathChain park = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), leave))
+                                .setLinearHeadingInterpolation(follower.getHeading(), leave.getHeading())
+                                .setBrakingStrength(0.6)
+                                .build();
+                        follower.followPath(park, true);
+                    })
+                    .build();
 
-        autoMachine.start();
-        //limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.BALLTRACKING);
-        while (opModeIsActive()) {
-            for (LynxModule hub : hubs) hub.clearBulkCache();
-            Position.pose = follower.getPose();
-            if (Posmultiplier==1) {
-                Shooter.powerOffset = 0;
-                Shooter.turretOffset = 0;
-            }else{
-                Shooter.powerOffset = 0;
-                Shooter.turretOffset = -3;
+            autoMachine.start();
+            //limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.BALLTRACKING);
+            while (opModeIsActive()) {
+                for (LynxModule hub : hubs) hub.clearBulkCache();
+                Position.pose = follower.getPose();
+                if (Posmultiplier == 1) {
+                    Shooter.powerOffset = 0;
+                    Shooter.turretOffset = 0;
+                } else {
+                    Shooter.powerOffset = 0;
+                    Shooter.turretOffset = -3;
+                }
+                autoMachine.update();
+                telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, shooterTarget)));
+                shooter.aimAtTarget(Position.pose, shooterTarget);
+                follower.update();
+                intakes.update();
+                shooter.update();
+                spindexer.update();
+                telemetry.addData("State auto: ", autoMachine.getState());
+                telemetry.addData("Shooter Target", shooter.getTargetVelo());
+                telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
+                telemetry.addData("Spindexer kick", spindexer.is_kick);
+                telemetry.addData("Pose: ", follower.getPose());
+                telemetry.update();
             }
-            autoMachine.update();
-            telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, shooterTarget)));
-            shooter.aimAtTarget(Position.pose, shooterTarget);
-            follower.update();
-            intakes.update();
-            shooter.update();
-            spindexer.update();
-            telemetry.addData("State auto: ", autoMachine.getState());
-            telemetry.addData("Shooter Target", shooter.getTargetVelo());
-            telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
-            telemetry.addData("Spindexer kick", spindexer.is_kick);
-            telemetry.addData("Pose: ", follower.getPose());
-            telemetry.update();
         }
     }
 }
