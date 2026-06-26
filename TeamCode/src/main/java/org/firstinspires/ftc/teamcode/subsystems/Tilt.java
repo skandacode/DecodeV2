@@ -9,10 +9,10 @@ import solverslib.hardware.ServoEx;
 public class Tilt {
     private ServoEx tilt1, tilt2;
 
-    public static double up1 = 1;
+    public static double up1 = 0.5;
     public static double up2 = 0;
 
-    public static double down1 = 0;
+    public static double down1 = 1;
     public static double down2 = 1;
 
 

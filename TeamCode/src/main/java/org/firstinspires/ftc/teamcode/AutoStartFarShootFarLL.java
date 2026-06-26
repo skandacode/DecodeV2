@@ -39,6 +39,9 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
     Spindexer spindexer;
     public boolean shooterButton = false;
     public double shootWaitTime = 0.25;
+    public double intakerejectspeed = -0.1;
+    public double limelightAdjust=0.0;
+
 
 
     public static Shooter.Goal shooterTarget = Shooter.Goal.BLUE;
@@ -51,15 +54,15 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
         MOVETOINTAKE2,
         MOVETOSHOOT3, wait3,preSHOOT3, SHOOT3,
         MOVETOINTAKE3,
-        MOVETOSHOOT4, wait4,preSHOOT4, SHOOT4,
+        MOVETOSHOOT4, reject1, wait4,preSHOOT4, SHOOT4,
         MOVETOINTAKE4,
-        MOVETOSHOOT5, wait5,preSHOOT5, SHOOT5,
+        MOVETOSHOOT5, reject2, wait5,preSHOOT5, SHOOT5,
         MOVETOINTAKE5,
-        MOVETOSHOOT6, wait6,preSHOOT6, SHOOT6,
+        MOVETOSHOOT6, reject3,wait6,preSHOOT6, SHOOT6,
         MOVETOINTAKE6,
-        MOVETOSHOOT7, wait7,preSHOOT7, SHOOT7,
+        MOVETOSHOOT7, reject4, wait7,preSHOOT7, SHOOT7,
         MOVETOINTAKE7,
-        MOVETOSHOOT8, wait8,preSHOOT8, SHOOT8,
+        MOVETOSHOOT8, reject5, wait8,preSHOOT8, SHOOT8,
         park
     }
     public enum States{
@@ -142,11 +145,9 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
             follower.setStartingPose(startPose);
 
             StateMachine autoMachine = new StateMachineBuilder() //Autonomia
-                    .transition(() -> follower.atParametricEnd())
-                    .transitionTimed(0.4)
                     .state(AutoStates.MOVETOSHOOT1)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0);
+                        intakes.setGoodIntakePower(1);
                         spindexer.setKickerPos(false);
                         PathChain toScore = follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), shootPose))
@@ -163,13 +164,12 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                     .state(AutoStates.wait1)
                     .onEnter(() -> {
-                        Shooter.limelightOffset += limelight.getTrackingResults();
+                        limelightAdjust = limelight.getTrackingResults();
                     })
-                    .transition(() -> Math.abs(shooter.getTargetVelo() - shooter.getCurrentVelocity()) < 20)
-                    .transitionTimed(2)
+                    .transitionTimed(2.2)
                     .state(AutoStates.preSHOOT1)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0.8);
+                        intakes.setGoodIntakePower(1);
                     })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT1)
@@ -177,7 +177,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         shooter.setUpperGateOpen(true);
                         spindexer.setKickerPos(true);
                     })
-                    .transitionTimed(0.4)
+                    .transitionTimed(0.3)
 
 
                     .state(AutoStates.MOVETOINTAKE1)
@@ -196,11 +196,11 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                                 .build();
                         follower.followPath(toIntake, true);
                     })
-                    .transitionTimed(1.6)
+                    .transitionTimed(1.5)
 
                     .state(AutoStates.MOVETOSHOOT2)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0);
+                        intakes.setGoodIntakePower(1);
                         PathChain toScore = follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), shootPose))
                                 .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
@@ -209,16 +209,16 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         follower.followPath(toScore, true);
                     })
                     .transition(() -> follower.atParametricEnd())
-                    .transitionTimed(2.5)
+                    .transitionTimed(2.4)
 
                     .state(AutoStates.wait2)
                     .onEnter(() -> {
                     })
-                    .transitionTimed(0.4)
+                    .transitionTimed(0.5)
 
                     .state(AutoStates.preSHOOT2)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0.8);
+                        intakes.setGoodIntakePower(1);
                     })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT2)
@@ -226,7 +226,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         shooter.setUpperGateOpen(true);
                         spindexer.setKickerPos(true);
                     })
-                    .transitionTimed(0.4)
+                    .transitionTimed(0.55)
                     .state(AutoStates.MOVETOINTAKE2)
                     .onEnter(() -> {
                         intakes.setGoodIntakePower(1);
@@ -241,11 +241,11 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                                 .build();
                         follower.followPath(toIntakeHuman, true);
                     })
-                    .transitionTimed(1.3)
+                    .transitionTimed(1.2)
 
                     .state(AutoStates.MOVETOSHOOT3)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0);
+                        intakes.setGoodIntakePower(1);
                         PathChain toScore = follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), shootPose))
                                 .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
@@ -263,7 +263,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                     .state(AutoStates.preSHOOT3)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0.8);
+                        intakes.setGoodIntakePower(1);
                     })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT3)
@@ -271,7 +271,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         shooter.setUpperGateOpen(true);
                         spindexer.setKickerPos(true);
                     })
-                    .transitionTimed(0.4)
+                    .transitionTimed(0.55)
                     .state(AutoStates.MOVETOINTAKE3)
                     .onEnter(() -> {
                         intakes.setGoodIntakePower(1);
@@ -308,10 +308,10 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         System.out.println("Detected at NULL");
 
                     })
-                    .transitionTimed(1.3)
+                    .transitionTimed(1.2)
                     .state(AutoStates.MOVETOSHOOT4)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0);
+                        intakes.setGoodIntakePower(1);
                         PathChain toScore = follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), shootPose))
                                 .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
@@ -319,8 +319,15 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                                 .build();
                         follower.followPath(toScore, true);
                     })
+                    .transitionTimed(1)
+                    .state(AutoStates.reject1)
+                    .loop(() -> {
+                        if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()){
+                            intakes.setGoodIntakePower(intakerejectspeed);
+                        }
+                    })
                     .transition(() -> follower.atParametricEnd())
-                    .transitionTimed(2.5)
+                    .transitionTimed(1.5)
 
                     .state(AutoStates.wait4)
                     .onEnter(() -> {
@@ -329,7 +336,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                     .state(AutoStates.preSHOOT4)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0.8);
+                        intakes.setGoodIntakePower(1);
                     })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT4)
@@ -337,7 +344,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         shooter.setUpperGateOpen(true);
                         spindexer.setKickerPos(true);
                     })
-                    .transitionTimed(0.4)
+                    .transitionTimed(0.55)
                     .state(AutoStates.MOVETOINTAKE4)
                     .onEnter(() -> {
                         intakes.setGoodIntakePower(1);
@@ -377,7 +384,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                     .transitionTimed(1.5)
                     .state(AutoStates.MOVETOSHOOT5)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0);
+                        intakes.setGoodIntakePower(1);
                         PathChain toScore = follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), shootPose))
                                 .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
@@ -385,8 +392,15 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                                 .build();
                         follower.followPath(toScore, true);
                     })
+                    .transitionTimed(1)
+                    .state(AutoStates.reject2)
+                    .loop(() -> {
+                        if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()){
+                            intakes.setGoodIntakePower(intakerejectspeed);
+                        }
+                    })
                     .transition(() -> follower.atParametricEnd())
-                    .transitionTimed(2.5)
+                    .transitionTimed(1.5)
 
                     .state(AutoStates.wait5)
                     .onEnter(() -> {
@@ -395,7 +409,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                     .state(AutoStates.preSHOOT5)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0.8);
+                        intakes.setGoodIntakePower(1);
                     })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT5)
@@ -403,7 +417,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         shooter.setUpperGateOpen(true);
                         spindexer.setKickerPos(true);
                     })
-                    .transitionTimed(0.4)
+                    .transitionTimed(0.55)
                     .state(AutoStates.MOVETOINTAKE5)
                     .onEnter(() -> {
                         intakes.setGoodIntakePower(1);
@@ -444,7 +458,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                     .state(AutoStates.MOVETOSHOOT6)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0);
+                        intakes.setGoodIntakePower(1);
                         PathChain toScore = follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), shootPose))
                                 .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
@@ -454,8 +468,15 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                         follower.followPath(toScore, true);
                     })
+                    .transitionTimed(1)
+                    .state(AutoStates.reject3)
+                    .loop(() -> {
+                        if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()){
+                            intakes.setGoodIntakePower(intakerejectspeed);
+                        }
+                    })
                     .transition(() -> follower.atParametricEnd())
-                    .transitionTimed(2.5)
+                    .transitionTimed(1.5)
 
                     .state(AutoStates.wait6)
                     .onEnter(() -> {
@@ -464,7 +485,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                     .state(AutoStates.preSHOOT6)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0.8);
+                        intakes.setGoodIntakePower(1);
                     })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT6)
@@ -472,7 +493,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         shooter.setUpperGateOpen(true);
                         spindexer.setKickerPos(true);
                     })
-                    .transitionTimed(0.4)
+                    .transitionTimed(0.55)
                     .state(AutoStates.MOVETOINTAKE6)
                     .onEnter(() -> {
                         intakes.setGoodIntakePower(1);
@@ -512,7 +533,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                     .transitionTimed(1.6)
                     .state(AutoStates.MOVETOSHOOT7)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0);
+                        intakes.setGoodIntakePower(1);
                         PathChain toScore = follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), shootPose))
                                 .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
@@ -522,8 +543,15 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                         follower.followPath(toScore, true);
                     })
+                    .transitionTimed(1)
+                    .state(AutoStates.reject4)
+                    .loop(() -> {
+                        if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()){
+                            intakes.setGoodIntakePower(intakerejectspeed);
+                        }
+                    })
                     .transition(() -> follower.atParametricEnd())
-                    .transitionTimed(2.5)
+                    .transitionTimed(1.5)
 
                     .state(AutoStates.wait7)
                     .onEnter(() -> {
@@ -532,7 +560,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                     .state(AutoStates.preSHOOT7)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0.8);
+                        intakes.setGoodIntakePower(1);
                     })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT7)
@@ -540,7 +568,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         shooter.setUpperGateOpen(true);
                         spindexer.setKickerPos(true);
                     })
-                    .transitionTimed(0.4)
+                    .transitionTimed(0.55)
                     .state(AutoStates.MOVETOINTAKE7)
                     .onEnter(() -> {
                         intakes.setGoodIntakePower(1);
@@ -580,7 +608,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                     .transitionTimed(1.6)
                     .state(AutoStates.MOVETOSHOOT8)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0);
+                        intakes.setGoodIntakePower(1);
                         PathChain toScore = follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), shootPose))
                                 .setLinearHeadingInterpolation(follower.getHeading(), shootPose.getHeading())
@@ -590,8 +618,15 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                         follower.followPath(toScore, true);
                     })
+                    .transitionTimed(1)
+                    .state(AutoStates.reject5)
+                    .loop(() -> {
+                        if (intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected()){
+                            intakes.setGoodIntakePower(intakerejectspeed);
+                        }
+                    })
                     .transition(() -> follower.atParametricEnd())
-                    .transitionTimed(2.5)
+                    .transitionTimed(1.5)
 
                     .state(AutoStates.wait8)
                     .onEnter(() -> {
@@ -600,7 +635,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
 
                     .state(AutoStates.preSHOOT8)
                     .onEnter(() -> {
-                        intakes.setGoodIntakePower(0.8);
+                        intakes.setGoodIntakePower(1);
                     })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT8)
@@ -608,7 +643,7 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                         shooter.setUpperGateOpen(true);
                         spindexer.setKickerPos(true);
                     })
-                    .transitionTimed(0.4)
+                    .transitionTimed(0.55)
                     .state(AutoStates.park)
                     .onEnter(() -> {
                         shooter.setUpperGateOpen(false);
@@ -628,19 +663,23 @@ public class AutoStartFarShootFarLL extends LinearOpMode {
                 for (LynxModule hub : hubs) hub.clearBulkCache();
                 Position.pose = follower.getPose();
                 if (Posmultiplier == 1) {
-                    Shooter.powerOffset = 0;
+                    Shooter.powerOffset = -50;
                     Shooter.turretOffset = 0;
                 } else {
-                    Shooter.powerOffset = 0;
-                    Shooter.turretOffset = -3;
+                    Shooter.powerOffset = -50;
+                    Shooter.turretOffset = 0;
                 }
                 autoMachine.update();
                 telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Position.pose, shooterTarget)));
-                shooter.aimAtTarget(Position.pose, shooterTarget);
+                 shooter.setTurretPos(shooter.convertDegreestoServoPos(71*Posmultiplier+limelightAdjust - Math.toDegrees(follower.getHeadingError())));
+                shooter.setTargetVelocity(1760);
+                shooter.setHood(0.5);
                 follower.update();
                 intakes.update();
                 shooter.update();
                 spindexer.update();
+                telemetry.addData("heading +90: ", follower.getHeading()*Posmultiplier);
+                telemetry.addData("heading error: ", Math.toDegrees(follower.getHeadingError()));
                 telemetry.addData("State auto: ", autoMachine.getState());
                 telemetry.addData("Shooter Target", shooter.getTargetVelo());
                 telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());

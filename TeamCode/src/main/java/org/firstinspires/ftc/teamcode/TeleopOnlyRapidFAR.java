@@ -50,7 +50,7 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
     public static double turretOffsetIncrements = 2;
     public static double stallIntakeTime = 0.15;
     public static double openGateTime = 0.6;
-    public static double intakeShooterVelo = 0.8;
+    public static double intakeShooterVelo = 0.66;
     public static double tagToCenterOffset = -2;
 
     PIDFController turretDamper = new PIDFController(0.15, 0, 0, 0);
@@ -222,10 +222,10 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                     follower.setPose(relocalizePos);
                     Shooter.limelightOffset = 0;
                     if (allianceBlue) {
-                        Shooter.powerOffset = 0;
+                        Shooter.powerOffset = 50;
                         Shooter.turretOffset = 0;
                     } else {
-                        Shooter.powerOffset = 0;
+                        Shooter.powerOffset = 70;
                         Shooter.turretOffset = 0;
                     }
                 }
@@ -243,7 +243,7 @@ public class TeleopOnlyRapidFAR extends LinearOpMode {
                     }
                     counter=0;
                     if (shooter.canReachPos) {
-                        if (resetTimer.milliseconds() > 200) {
+                        if (resetTimer.milliseconds() > 100) {
                             if (Math.abs(tx)>1) {
                                 Shooter.limelightOffset -= turretDamper.calculate(tx, 0);
                             }

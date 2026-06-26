@@ -352,10 +352,12 @@ public class Shooter {
         System.out.println("1: "+shooterEncoder1.getVelocity());
         System.out.println("2: "+shooterEncoder2.getVelocity());
 
-        return Math.max(
-                Math.abs(shooterEncoder1.getVelocity()),
-                Math.abs(shooterEncoder2.getVelocity())
-        );
+        if(shooterEncoder1.getVelocity()<10){
+                return Math.abs(shooterEncoder2.getVelocity());
+        }
+        else{
+            return Math.abs(shooterEncoder1.getVelocity());
+        }
     }
 
     // getters for vx and vy
