@@ -121,18 +121,18 @@ public class AutoStartCloseManyGateHeart21BLUE extends LinearOpMode {
         waitForStart();
 
 
-        Pose gateopen = new Pose(-3, -59*Posmultiplier, Math.toRadians(-90*Posmultiplier));
+        Pose gateopen = new Pose(-3, -63*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose gatepreopen = new Pose(-3, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
         Pose gatepreopen2ndtime = new Pose(4, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
 
-        Pose gateintake1 = new Pose(7, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
+        Pose gateintake1 = new Pose(10, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
         Pose gateintakeback1 = new Pose(14, -60*Posmultiplier, Math.toRadians(-110*Posmultiplier));
-        Pose gateintake2 = new Pose(7, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
+        Pose gateintake2 = new Pose(9.5, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
         Pose gateintakeback2 = new Pose(14, -60*Posmultiplier, Math.toRadians(-100*Posmultiplier));
-        Pose gateintake3 = new Pose(7, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
+        Pose gateintake3 = new Pose(9, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
         Pose gateintakeback3 = new Pose(14, -60*Posmultiplier, Math.toRadians(-110*Posmultiplier));
-        Pose gateintake4 = new Pose(7, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
+        Pose gateintake4 = new Pose(8.7, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
 
         Pose gateintakecontrol = new Pose(8, -42*Posmultiplier, Math.toRadians(77*Posmultiplier));
 
@@ -300,7 +300,7 @@ public class AutoStartCloseManyGateHeart21BLUE extends LinearOpMode {
                 })
 
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.3)
+                .transitionTimed(1.1)
                 .transition(()->intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected())
 
                 .state(AutoStates.back2)
@@ -385,7 +385,7 @@ public class AutoStartCloseManyGateHeart21BLUE extends LinearOpMode {
                 .state(AutoStates.MOVETOSHOOT4)
                 .onEnter(()->{
                     if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(78));
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(76));
                     }else{
                         shooter.setTurretPos(shooter.convertDegreestoServoPos(-76));
                     }
@@ -461,7 +461,7 @@ public class AutoStartCloseManyGateHeart21BLUE extends LinearOpMode {
                 .state(AutoStates.MOVETOSHOOT5)
                 .onEnter(()->{
                     if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(75));
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(73));
                     }else{
                         shooter.setTurretPos(shooter.convertDegreestoServoPos(-78));
                     }
@@ -542,7 +542,7 @@ public class AutoStartCloseManyGateHeart21BLUE extends LinearOpMode {
                 .state(AutoStates.MOVETOSHOOT6)
                 .onEnter(()->{
                     if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(75));
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(73));
                     }else{
                         shooter.setTurretPos(shooter.convertDegreestoServoPos(-77));
                     }
@@ -614,7 +614,7 @@ public class AutoStartCloseManyGateHeart21BLUE extends LinearOpMode {
                 .state(AutoStates.MOVETOSHOOT7)
                 .onEnter(()->{
                     if (Posmultiplier==1) {
-                        shooter.setTurretPos(shooter.convertDegreestoServoPos(75));
+                        shooter.setTurretPos(shooter.convertDegreestoServoPos(73));
                     }else{
                         shooter.setTurretPos(shooter.convertDegreestoServoPos(-80));
                     }

@@ -126,7 +126,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
         Pose gatepreopen2ndtime = new Pose(4, -30*Posmultiplier, Math.toRadians(-90*Posmultiplier));
 
 
-        Pose gateintake1 = new Pose(7, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
+        Pose gateintake1 = new Pose(9, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
         Pose gateintakeback1 = new Pose(14, -60*Posmultiplier, Math.toRadians(-110*Posmultiplier));
         Pose gateintake2 = new Pose(7, -63*Posmultiplier, Math.toRadians(-110*Posmultiplier));
         Pose gateintakeback2 = new Pose(14, -60*Posmultiplier, Math.toRadians(-100*Posmultiplier));
@@ -223,7 +223,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                     intakes.setGoodIntakePower(1);
                     follower.followPath(toShoot, true);
                     shooter.setHood(0.56);
-                    shooter.setTargetVelocity(1440);
+                    shooter.setTargetVelocity(1420);
                     if (Posmultiplier==1) {
                         shooter.setTurretPos(shooter.convertDegreestoServoPos(76));
                     }else{
@@ -300,7 +300,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 })
 
                 .transition(()->follower.atParametricEnd())
-                .transitionTimed(1.3)
+                .transitionTimed(1.1)
                 .transition(()->intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected())
 
                 .state(AutoStates.back2)
