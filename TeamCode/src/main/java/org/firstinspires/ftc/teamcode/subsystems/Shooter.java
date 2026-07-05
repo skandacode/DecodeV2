@@ -7,18 +7,18 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
 
-import solverslib.controller.PIDFController;
-import solverslib.controller.feedforwards.SimpleMotorFeedforward;
-import solverslib.hardware.ServoEx;
-import solverslib.hardware.motors.Motor;
+import org.firstinspires.ftc.teamcode.utils.PIDFController;
+import org.firstinspires.ftc.teamcode.utils.SimpleMotorFeedforward;
+import org.firstinspires.ftc.teamcode.utils.CachedServo;
+import org.firstinspires.ftc.teamcode.utils.CachedMotor;
 
 @Configurable
 public class Shooter {
 
-    private Motor shooterMotor1, shooterMotor2, shooterEncoder1, shooterEncoder2;
-    private ServoEx turret1, turret2, hood;
+    private CachedMotor shooterCachedMotor1, shooterCachedMotor2, shooterEncoder1, shooterEncoder2;
+    private CachedServo turret1, turret2, hood;
 
-    private ServoEx upperGate;
+    private CachedServo upperGate;
 
     VoltageSensor voltageSensor;
 
@@ -98,21 +98,21 @@ public class Shooter {
     public boolean canReachPos = true;
 
     public Shooter(HardwareMap hardwareMap) {
-        shooterMotor1 = new Motor(hardwareMap, "shooterMotor1");
-        shooterMotor2 = new Motor(hardwareMap, "shooterMotor2");
+        shooterCachedMotor1 = new CachedMotor(hardwareMap, "shooterMotor1");
+        shooterCachedMotor2 = new CachedMotor(hardwareMap, "shooterMotor2");
 
-        shooterEncoder1 = new Motor(hardwareMap, "frontright");
-        shooterEncoder2 = new Motor(hardwareMap, "shooterMotor2");
+        shooterEncoder1 = new CachedMotor(hardwareMap, "frontright");
+        shooterEncoder2 = new CachedMotor(hardwareMap, "shooterMotor2");
 
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        upperGate = new ServoEx(hardwareMap, "upperGate");
+        upperGate = new CachedServo(hardwareMap, "upperGate");
 
-        turret1 = new ServoEx(hardwareMap, "turret1");
-        turret2 = new ServoEx(hardwareMap, "turret2");
+        turret1 = new CachedServo(hardwareMap, "turret1");
+        turret2 = new CachedServo(hardwareMap, "turret2");
 
-        hood = new ServoEx(hardwareMap, "hood");
+        hood = new CachedServo(hardwareMap, "hood");
 
         pidf = new PIDFController(kP, kI, kD, 0);
         feedforward = new SimpleMotorFeedforward(kS, kV);
@@ -130,7 +130,7 @@ public class Shooter {
         prevTargetTime = System.nanoTime();
     }
 
-    public void setUpperGateOpen(boolean open){
+    public void setUpperGate(boolean open){
         if (open){
             upperGate.setPosition(upperGateOpenPos);
         } else {
@@ -190,8 +190,8 @@ public class Shooter {
         double currVelo = getCurrentVelocity();
 
         setTurretPos(servoPos);
-        setTargetVelocity(ShooterTables.getShooterVelocityFar(distance) + powerOffset);
-        setHood(ShooterTables.getHoodPositionFar(distance) + ShooterTables.getHoodAngleChangeFar(currVelo, distance));
+        setTargetVelocity(Tables.getShooterVelocityFar(distance) + powerOffset);
+        setHood(Tables.getHoodPositionFar(distance) + Tables.getHoodAngleChangeFar(currVelo, distance));
     }
     public void aimAtTarget(Pose currPosition, Pose target){
         long currTime = System.nanoTime();
@@ -232,8 +232,8 @@ public class Shooter {
         this.omega = computedOmega;
 
         double precomputedDistance = getAngleDistance(currPosition, target)[1];
-        double tFlight = ShooterTables.getBalltimeinair(precomputedDistance);
-        double tDelay = ShooterTables.instantShotCompensation;
+        double tFlight = Tables.getBalltimeinair(precomputedDistance);
+        double tDelay = Tables.instantShotCompensation;
 
         // The ball inherits the robot's velocity at the moment it launches, NOT
         // at the moment we compute the aim. During the mechanical delay (tDelay)
@@ -269,8 +269,8 @@ public class Shooter {
 
 
         setTurretPos(servoPos);
-        setTargetVelocity(ShooterTables.getShooterVelocity(distance) + powerOffset);
-        setHood(ShooterTables.getHoodPosition(distance) + ShooterTables.getHoodAngleChange(currVelo, distance));
+        setTargetVelocity(Tables.getShooterVelocity(distance) + powerOffset);
+        setHood(Tables.getHoodPosition(distance) + Tables.getHoodAngleChange(currVelo, distance));
 
         // update previous position/time for next velocity calculation
         prevX = currPosition.getX();
@@ -296,8 +296,8 @@ public class Shooter {
 
     public void setDirectPower(double power) {
         power = power * 12/voltageSensor.getVoltage();
-        shooterMotor1.set(-power);
-        shooterMotor2.set(power);
+        shooterCachedMotor1.set(-power);
+        shooterCachedMotor2.set(power);
     }
 
     public void setHood(double pos){
@@ -340,8 +340,8 @@ public class Shooter {
     }
 
     public void update_motors(){
-        shooterMotor1.update();
-        shooterMotor2.update();
+        shooterCachedMotor1.update();
+        shooterCachedMotor2.update();
     }
 
     public double getTargetVelo() {
@@ -381,5 +381,83 @@ public class Shooter {
     // getter for angular velocity (rad/s)
     public double getOmega() {
         return omega;
+    }
+
+    @Configurable
+    public static class Tables {
+        public static double minVelocity = 1200;
+        public static double getHoodPosition(double distance) {
+            double increasehood = 0;
+            return  -1.10011e-8 * Math.pow(distance, 4)
+                    - 7.29035e-7 * Math.pow(distance, 3)
+                    + 0.000614768 * Math.pow(distance, 2)
+                    - 0.06158 * distance
+                    + 2.35001 +increasehood;
+
+        }
+        public static double getShooterVelocity(double distance) {
+            double increase = 0;
+            double vel =  0.0000300474 * Math.pow(distance, 4)
+                    - 0.0077187 * Math.pow(distance, 3)
+                    + 0.686797 * Math.pow(distance, 2)
+                    - 19.03258 * distance
+                    + 1309.75735 +increase;
+            return Math.max(minVelocity, vel);
+        }
+
+        public static double getHoodPositionFar(double distance) {
+            double y=  6.99074e-7 * Math.pow(distance, 4)
+                    - 0.000384853 * Math.pow(distance, 3)
+                    + 0.0789672 * Math.pow(distance, 2)
+                    - 7.15944 * distance
+                    + 242.54567;
+            return Math.max(y,0.38);}
+        public static double getShooterVelocityFar(double distance) {
+            double y = - 0.00031736 * Math.pow(distance, 4)
+                    + 0.175946 * Math.pow(distance, 3)
+                    - 36.40257 * Math.pow(distance, 2)
+                    + 3338.84237 * distance
+                    - 113030.791;
+            return Math.max(1450,y);
+        }
+
+        public static double actualShooterVelocityNoLoad(double targetVelocity) {
+            return targetVelocity;
+        }
+
+        public static double getHoodAngleChange(double loadedVelocity, double distance){
+            //should be negative
+            double error = loadedVelocity - actualShooterVelocityNoLoad(getShooterVelocity(distance));
+            if (distance < 136){
+                error = 0;
+            }
+            System.out.println("Error "+ error);
+            return error * hoodAngleChangePer100ticksPerSecondError/100;
+        }
+        public static double getHoodAngleChangeFar(double loadedVelocity, double distance) {
+            double error = loadedVelocity - getShooterVelocityFar(distance);
+            if (distance < 136) {
+                error = 0;
+            }
+            double hoodchangeamount =0;
+            return error * hoodchangeamount / 100;
+        }
+        public static double hoodAngleChangePer100ticksPerSecondError = 0.03;
+
+        public static double hoodAdjustDistanceThreshold = 97;
+
+        public static double getBalltimeinair(double distance){
+            double y = 9.79737e-8 * Math.pow(distance, 4)
+                    - 0.0000267513 * Math.pow(distance, 3)
+                    + 0.00273554 * Math.pow(distance, 2)
+                    - 0.122443 * distance
+                    + 2.54104;
+            return Math.min(0.7,y);
+        }
+        public static double getBalltimeinairFar(double distance){
+            return 0;
+        }
+
+        public static double instantShotCompensation = 0.03;
     }
 }
