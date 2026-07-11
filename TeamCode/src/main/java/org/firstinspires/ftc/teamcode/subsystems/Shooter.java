@@ -29,12 +29,12 @@ public class Shooter {
     private double currentVelocity = 0.0;
 
     // --- Flywheel PIDF coefficients ---
-    public static double kP = 0.01;
+    public static double kP = 0.001;
     public static double kI = 0;
-    public static double kD = 0;
+    public static double kD = 0.0001;
 
-    public static double kS = 0.11; // Static feedforward
-    public static double kV = 0.000387; // Velocity feedforward
+    public static double kS = 0.059; // Static feedforward
+    public static double kV = 0.00035; // Velocity feedforward
 
     public static boolean enablePIDF = true;
 
