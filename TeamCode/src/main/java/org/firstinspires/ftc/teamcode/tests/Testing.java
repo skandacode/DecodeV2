@@ -8,21 +8,19 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.subsystems.Transfer;
+import org.firstinspires.ftc.teamcode.subsystems.Kicker;
 
 
 @Configurable
 @TeleOp
 public class Testing extends LinearOpMode {
     Intake intake;
-    Transfer transfer;
+    Kicker kicker;
     Shooter shooter;
-    Tilt tilt;
 
     public static double goodIntakePower = 0.0;
     public static double badIntakePower = 0.0;
 
-    public static Transfer.SpindexerPosition spindexerPosition = Transfer.SpindexerPosition.Shoot1;
     public static double turretPosition = 0.5;
     public static double hoodPos = 0.5;
 
@@ -38,35 +36,22 @@ public class Testing extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         intake = new Intake(hardwareMap);
-        transfer = new Transfer(hardwareMap);
+        kicker = new Kicker(hardwareMap);
         shooter = new Shooter(hardwareMap);
-        tilt = new Tilt(hardwareMap);
 
         waitForStart();
 
         while (opModeIsActive()) {
             intake.setPower(goodIntakePower);
-            intake.setBadIntakePower(badIntakePower);
-            transfer.setPosition(spindexerPosition);
             shooter.setTargetVelocity(shooterTargetVelocity);
-
-            transfer.setLowerGate(lowerGateOpen);
-            transfer.setKicker(kick);
+            kicker.setKicker(kick);
             shooter.setUpperGate(upperGateOpen);
             shooter.setHood(hoodPos);
 
             shooter.setTurretPos(turretPosition);
 
-            if (tilted){
-                tilt.tilt();
-            }else{
-                tilt.retract();
-            }
-
-            tilt.update();
-
             intake.update();
-            transfer.update();
+            kicker.update();
             shooter.update();
 
             telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());

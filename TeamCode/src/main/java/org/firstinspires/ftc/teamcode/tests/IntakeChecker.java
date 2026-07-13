@@ -8,13 +8,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.subsystems.Transfer;
+import org.firstinspires.ftc.teamcode.subsystems.Kicker;
 
 @TeleOp
 @Configurable
 public class IntakeChecker extends LinearOpMode {
     Intake intake;
-    Transfer transfer;
+    Kicker kicker;
     Shooter shooter;
 
     public static double intakePower = 0.0;
@@ -24,7 +24,6 @@ public class IntakeChecker extends LinearOpMode {
     public static boolean lowerGateOpen = true;
 
     public static boolean useRawSpindexerPos = false;
-    public static Transfer.SpindexerPosition spindexerPosition = Transfer.SpindexerPosition.Shoot1;
     public static double rawSpindexerPosition = 0;
 
 
@@ -32,20 +31,14 @@ public class IntakeChecker extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         intake = new Intake(hardwareMap);
-        transfer = new Transfer(hardwareMap);
+        kicker = new Kicker(hardwareMap);
         shooter = new Shooter(hardwareMap);
 
         waitForStart();
 
         while (opModeIsActive()){
-            transfer.setKicker(kick);
-            if (useRawSpindexerPos){
-                transfer.setPosition(rawSpindexerPosition);
-            }else {
-                transfer.setPosition(spindexerPosition);
-            }
+            kicker.setKicker(kick);
             shooter.setUpperGate(false);
-            transfer.setLowerGate(lowerGateOpen);
 
             intake.setIntakePower(intakePower);
             intake.setTransferPower(transferPower);
@@ -57,7 +50,7 @@ public class IntakeChecker extends LinearOpMode {
 
 
             intake.update();
-            transfer.update();
+            kicker.update();
             shooter.update();
 
             telemetry.update();

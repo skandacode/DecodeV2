@@ -27,8 +27,7 @@ public class Auto extends CommandOpMode {
 
         robot.shooter.setUpperGate(false);
         robot.shooter.setTurretPos(robot.shooter.convertDegreestoServoPos(0));
-        robot.transfer.setLowerGate(true);
-        robot.transfer.setKicker(false);
+        robot.kicker.setKicker(false);
         robot.intake.setPower(0);
         robot.update();
     }
@@ -44,15 +43,14 @@ public class Auto extends CommandOpMode {
     @Override
     public void start() {
         robot.follower.setStartingPose(paths.start);
-        robot.transfer.setLowerGate(true);
         robot.shooter.setUpperGate(false);
         robot.shooter.setTurretPos(robot.shooter.convertDegreestoServoPos(0));
         robot.intake.setPower(0);
-        robot.transfer.setKicker(false);
+        robot.kicker.setKicker(false);
 
         schedule(
                 infinite(() -> {
-                    Robot.endPose = robot.follower.getPose();
+                    Robot.savedPose = robot.follower.getPose();
                     robot.update();
                 }),
                 sequential(
@@ -71,7 +69,6 @@ public class Auto extends CommandOpMode {
     public void stop() {
         if (robot != null) {
             robot.saveEnd();
-            robot.transfer.setLowerGate(true);
         }
         super.stop();
     }
@@ -191,9 +188,8 @@ public class Auto extends CommandOpMode {
 
     private CommandBuilder prepareScore(double blueTurretDeg, double redTurretDeg, double hood, double velocity) {
         return instant(() -> {
-            robot.transfer.setLowerGate(true);
             robot.intake.setPower(1);
-            robot.transfer.setKicker(false);
+            robot.kicker.setKicker(false);
             robot.shooter.setUpperGate(false);
             robot.shooter.setHood(hood);
             robot.shooter.setTargetVelocity(velocity);
@@ -203,9 +199,8 @@ public class Auto extends CommandOpMode {
 
     private CommandBuilder prepareIntake() {
         return instant(() -> {
-            robot.transfer.setKicker(false);
+            robot.kicker.setKicker(false);
             robot.shooter.setUpperGate(false);
-            robot.transfer.setLowerGate(true);
             robot.intake.setPower(1);
         });
     }
@@ -219,12 +214,12 @@ public class Auto extends CommandOpMode {
     }
 
     private CommandBuilder kick() {
-        return instant(() -> robot.transfer.setKicker(true));
+        return instant(() -> robot.kicker.setKicker(true));
     }
 
     private CommandBuilder resetAfterScore() {
         return instant(() -> {
-            robot.transfer.setKicker(false);
+            robot.kicker.setKicker(false);
             robot.shooter.setUpperGate(false);
         });
     }
