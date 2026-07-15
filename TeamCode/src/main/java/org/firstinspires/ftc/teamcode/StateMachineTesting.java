@@ -77,7 +77,7 @@ public class StateMachineTesting extends LinearOpMode {
         System.out.println("started");
 
         StateMachine stateMachine = new StateMachineBuilder()
-                .state(TeleopOnlyRapidFAR.States.Intake)
+                .state(TeleopOnlyRapidManual.States.Intake)
                 .onEnter(() -> {
                     intakes.setGoodIntakePower(1);
                     shooter.setUpperGateOpen(false);
@@ -86,31 +86,39 @@ public class StateMachineTesting extends LinearOpMode {
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
                 .loop(()->{
-                    if (gamepadEx.getButton(stopIntakeButton)){
-                        intakes.setGoodIntakePower(0);
-                    }
-                    if (gamepadEx.getButton(restartIntake)){
-                        intakes.setGoodIntakePower(1);
+                    if ((intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected())) {
+                        intakes.setGoodIntakePower(0.4);
+                    } else {
+                        intakes.setFrontIntakePower(1);
+                        intakes.setTransferIntakePower(0.6);
                     }
                 })
-                .transition(() -> gamepadEx.getButton(shooterButton), TeleopOnlyRapidFAR.States.OpenUpperGate)
-                .state(TeleopOnlyRapidFAR.States.OpenUpperGate)
+                .transition(() -> gamepadEx.getButton(shooterButton), TeleopOnlyRapidManual.States.OpenUpperGate)
+                .transition(() -> gamepadEx.getButton(stopIntakeButton), TeleopOnlyRapidManual.States.HoldBalls)
+
+                .state(TeleopOnlyRapidManual.States.HoldBalls)
                 .onEnter(() -> {
-                    intakes.setGoodIntakePower(intakeShooterVelo);
                 })
-                .transitionTimed(stallIntakeTime, TeleopOnlyRapidFAR.States.PreShoot)
-                .state(TeleopOnlyRapidFAR.States.PreShoot)
+                .loop(()->{
+                    intakes.setGoodIntakePower(0.3);
+                })
+                .transition(() -> gamepadEx.getButton(shooterButton), TeleopOnlyRapidManual.States.OpenUpperGate)
+                .transition(() -> gamepadEx.getButton(restartIntake), TeleopOnlyRapidManual.States.Intake)
+
+
+                .state(TeleopOnlyRapidManual.States.OpenUpperGate)
                 .onEnter(() -> {
+                    intakes.setGoodIntakePower(0);
                     shooter.setUpperGateOpen(true);
                 })
-                .transitionTimed(0.1, TeleopOnlyRapidFAR.States.Shoot)
-                .state(TeleopOnlyRapidFAR.States.Shoot)
+                .transitionTimed(0.1, TeleopOnlyRapidManual.States.Shoot)
+                .state(TeleopOnlyRapidManual.States.Shoot)
                 .onEnter(() -> {
+                    intakes.setGoodIntakePower(1);
                     spindexer.setKickerPos(true);
                 })
-                .transitionTimed(openGateTime, TeleopOnlyRapidFAR.States.Intake)
+                .transitionTimed(0.35, TeleopOnlyRapidManual.States.Intake)
                 .build();
-
 
         stateMachine.start();
 

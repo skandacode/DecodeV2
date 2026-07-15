@@ -22,7 +22,7 @@ public class Intakes {
 
     private double cachedGoodDistance;
 
-    public static double goodIntakeSensorThresh = 3.3;
+    public static double goodIntakeSensorThresh = 1.5;
 
 
     public double goodPower, badPower;

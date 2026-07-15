@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.followerConstants;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
@@ -11,13 +10,10 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.PanelsDrawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
 import org.firstinspires.ftc.teamcode.subsystems.Intakes;
 import org.firstinspires.ftc.teamcode.subsystems.LEDIndicator;
 import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
@@ -26,10 +22,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.subsystems.Tilt;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import solverslib.gamepad.GamepadEx;
 import solverslib.gamepad.GamepadKeys;
@@ -37,7 +31,7 @@ import solverslib.hardware.motors.Motor;
 
 @Configurable
 @TeleOp
-public class TeleopOnlyRapid extends LinearOpMode {
+public class TeleopOnlyRapidManual extends LinearOpMode {
     Intakes intakes;
     Spindexer spindexer;
     Shooter shooter;
@@ -110,8 +104,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
         GamepadKeys.Button restartIntake = GamepadKeys.Button.Y;
         GamepadKeys.Button limelightAdjust = GamepadKeys.Button.X;
 
-        GamepadKeys.Button tiltButton = GamepadKeys.Button.OPTIONS;
-
         follower.setStartingPose(Position.pose);
 
         StateMachine stateMachine = new StateMachineBuilder()
@@ -119,60 +111,33 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 .onEnter(() -> {
                     indicator.setRed();
                     intakes.setGoodIntakePower(1);
-
                     shooter.setUpperGateOpen(false);
                     spindexer.setLowerGateOpen(true);
                     spindexer.setKickerPos(false);
                     spindexer.setPosition(Spindexer.SpindexerPosition.Shoot0);
                 })
                 .loop(()->{
-                    if (intakes.getGoodIntakeDetected()){
-                        intakes.setTransferIntakePower(1);
-                    }else{
-                        intakes.setTransferIntakePower(1);
+                    if ((intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected())) {
+                        indicator.setGreen();
+                        intakes.setGoodIntakePower(0.4);
+                    } else {
+                        intakes.setFrontIntakePower(1);
+                        intakes.setTransferIntakePower(0.6);
+                        indicator.setOrange();
                     }
                 })
                 .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-                .transition(() -> intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.TransferOff)
                 .transition(() -> gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
-
-                .state(States.TransferOff)
-                .onEnter(() -> intakes.setTransferIntakePower(0.2))
-                .transition(() -> gamepadEx.getButton(stopIntakeButton), States.HoldBalls)
-                .transition(() -> intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside() && intakes.getGoodIntakeDetected(), States.BeforePulseOut)
-                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-
-                .state(States.BeforePulseOut)
-                .onEnter(() -> intakes.setFrontIntakePower(1))
-                .transitionTimed(0.3)
-                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-
-                .state(States.PulseOut)
-                .onEnter(() -> intakes.setFrontIntakePower(-0.1))
-                .transitionTimed(pulseTime)
-                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
-
-                .state(States.PulseIn)
-                .onEnter(() -> intakes.setFrontIntakePower(1))
-                .transitionTimed(0.2)
-                .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
 
                 .state(States.HoldBalls)
-                .onEnter(() -> intakes.setGoodIntakePower(0.1))
-                .loop(() -> {
-                    if ((intakes.getGoodBeamBreakOutside() && intakes.getGoodBeamBreakInside())) {
-                        intakes.setGoodIntakePower(0.1);
-                        indicator.setGreen();
-                    } else {
-                        intakes.setGoodIntakePower(1);
-                        indicator.setOrange();
-                    }
-                    if (!shooter.canReachPos){
-                        indicator.setRed();
-                    }
+                .onEnter(() -> {
+                })
+                .loop(()->{
+                    intakes.setGoodIntakePower(0.3);
                 })
                 .transition(() -> gamepadEx.getButton(shooterButton), States.OpenUpperGate)
                 .transition(() -> gamepadEx.getButton(restartIntake), States.Intake)
+
 
                 .state(States.OpenUpperGate)
                 .onEnter(() -> {
@@ -219,7 +184,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
             follower.startTeleopDrive();
 
             long lastLoopTime = System.nanoTime();
-            boolean tilted = false;
 
             tilt.retract();
             while (opModeIsActive()) {
@@ -270,14 +234,6 @@ public class TeleopOnlyRapid extends LinearOpMode {
                 }
                 if (gamepadEx.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
                     Shooter.powerOffset += powerOffsetIncrements;
-                }
-                if (gamepadEx.wasJustPressed(tiltButton)) {
-                    tilted = !tilted;
-                    if (tilted) {
-                        tilt.tilt();
-                    } else {
-                        tilt.retract();
-                    }
                 }
                 stateMachine.update();
 

@@ -6,16 +6,16 @@ import com.bylazar.configurables.annotations.Configurable;
 public class ShooterTables {
     public static double minVelocity = 1200;
     public static double getHoodPosition(double distance) {
-        double increasehood = 0;
-        return  -1.10011e-8 * Math.pow(distance, 4)
+        double increasehood = 0.1;
+        double velo =  -1.10011e-8 * Math.pow(distance, 4)
                 - 7.29035e-7 * Math.pow(distance, 3)
                 + 0.000614768 * Math.pow(distance, 2)
                 - 0.06158 * distance
                 + 2.35001 +increasehood;
-
+        return Math.min(1700,velo);
     }
     public static double getShooterVelocity(double distance) {
-        double increase = 0;
+        double increase = 50;
         double vel =  0.0000300474 * Math.pow(distance, 4)
                 - 0.0077187 * Math.pow(distance, 3)
                 + 0.686797 * Math.pow(distance, 2)
