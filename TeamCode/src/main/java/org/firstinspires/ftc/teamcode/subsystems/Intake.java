@@ -19,7 +19,7 @@ public class Intake {
     RevColorSensorV3 intakeSensor;
 
     private double cachedDistance;
-    public static double intakeSensorThresh = 3.3;
+    public static double intakeSensorThresh = 1.5;
     public static double currentLimit = 4;
     public double intakePower;
 
