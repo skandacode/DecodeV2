@@ -11,7 +11,7 @@ public class Kicker {
     CachedServo kicker;
 
 
-    public static double kickerKickPos = 0.36;
+    public static double kickerKickPos = 0.35;
     public static double kickerIdlePos = 0.31;
 
     public boolean kicked = false;

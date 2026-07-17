@@ -120,14 +120,15 @@ public class Tele extends OpMode {
                 .state(States.OpenUpperGate)
                 .onEnter(() -> {
                     robot.shooter.setUpperGate(true);
-                    robot.intake.setPower(1);
+                    robot.intake.setPower(0);
                 })
-                .transitionTimed(0.04, States.Shoot)
+                .transitionTimed(0.1, States.Shoot)
                 .state(States.Shoot)
                 .onEnter(() -> {
+                    robot.intake.setPower(1);
                     robot.kicker.setKicker(true);
                 })
-                .transitionTimed(0.35, States.Intake)
+                .transitionTimed(0.3, States.Intake)
                 .build();
     }
 

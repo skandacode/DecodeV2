@@ -70,7 +70,7 @@ public class Shooter {
     public static double limelightOffset = 0;
 
 
-    public static double upperGateOpenPos = 0.38;
+    public static double upperGateOpenPos = 0.68;
     public static double upperGateClosedPos = 0.56;
 
     private double prevX, prevY;

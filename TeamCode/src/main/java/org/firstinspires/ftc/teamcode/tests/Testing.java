@@ -18,8 +18,9 @@ public class Testing extends LinearOpMode {
     Kicker kicker;
     Shooter shooter;
 
-    public static double goodIntakePower = 0.0;
-    public static double badIntakePower = 0.0;
+    public static double intakePower = 0.0;
+    public static double transferPower = 0.0;
+
 
     public static double turretPosition = 0.5;
     public static double hoodPos = 0.5;
@@ -27,7 +28,6 @@ public class Testing extends LinearOpMode {
     public static int shooterTargetVelocity = 0;
 
     public static boolean kick = false;
-    public static boolean lowerGateOpen = false;
     public static boolean upperGateOpen = false;
 
     public static boolean tilted = false;
@@ -42,7 +42,8 @@ public class Testing extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            intake.setPower(goodIntakePower);
+            intake.setIntakePower(intakePower);
+            intake.setTransferPower(transferPower);
             shooter.setTargetVelocity(shooterTargetVelocity);
             kicker.setKicker(kick);
             shooter.setUpperGate(upperGateOpen);
