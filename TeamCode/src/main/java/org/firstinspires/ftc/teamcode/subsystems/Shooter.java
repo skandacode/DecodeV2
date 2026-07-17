@@ -39,13 +39,13 @@ public class Shooter {
     public static boolean enablePIDF = true;
 
     // --- Turret bounds ---
-    public static double turretUpperBound = 0.94;
-    public static double turretLowerBound = 0.06;
+    public static double turretUpperBound = 0.97;
+    public static double turretLowerBound = 0.03;
 
     // --- Hood bounds ---
 
-    public static double hoodLowerBound = 0.39;
-    public static double hoodUpperBound = 0.92;
+    public static double hoodLowerBound = 0.48;
+    public static double hoodUpperBound = 0.85;
 
     // --- Low-pass filter coefficient (for smoothing) ---
     public static double ALPHA = 0.3;
@@ -70,8 +70,8 @@ public class Shooter {
     public static double limelightOffset = 0;
 
 
-    public static double upperGateOpenPos = 0.52;
-    public static double upperGateClosedPos = 0.39;
+    public static double upperGateOpenPos = 0.38;
+    public static double upperGateClosedPos = 0.56;
 
     private double prevX, prevY;
     private long prevPosTime;
@@ -296,8 +296,8 @@ public class Shooter {
 
     public void setDirectPower(double power) {
         power = power * 12/voltageSensor.getVoltage();
-        shooterCachedMotor1.set(-power);
-        shooterCachedMotor2.set(power);
+        shooterCachedMotor1.set(power);
+        shooterCachedMotor2.set(-power);
     }
 
     public void setHood(double pos){
