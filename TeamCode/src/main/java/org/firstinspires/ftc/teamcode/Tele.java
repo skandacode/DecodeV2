@@ -17,7 +17,6 @@ import java.util.Arrays;
 
 import org.firstinspires.ftc.teamcode.utils.Alliance;
 @Configurable
-@TeleOp
 public class Tele extends OpMode {
     Robot robot;
     Alliance alliance;
