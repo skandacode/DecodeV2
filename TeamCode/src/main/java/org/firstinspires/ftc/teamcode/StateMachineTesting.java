@@ -27,7 +27,8 @@ public class StateMachineTesting extends OpMode {
     public static double shoot_velo = 1000;
     public static double hood_angle = 0.7;
     public static double intakepowershoot = 1;
-    public static double timeopen = 0.4;
+    public static double timeopen = 0.3;
+    public static double uppergatetime = 0.07;
 
 
 
@@ -125,7 +126,7 @@ public class StateMachineTesting extends OpMode {
                     robot.shooter.setUpperGate(true);
                     robot.intake.setPower(0);
                 })
-                .transitionTimed(0.1, States.Shoot)
+                .transitionTimed(uppergatetime, States.Shoot)
                 .state(States.Shoot)
                 .onEnter(() -> {
                     robot.intake.setPower(intakepowershoot);

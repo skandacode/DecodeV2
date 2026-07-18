@@ -29,12 +29,12 @@ public class Shooter {
     private double currentVelocity = 0.0;
 
     // --- Flywheel PIDF coefficients ---
-    public static double kP = 0.01;
+    public static double kP = 0.005;
     public static double kI = 0;
     public static double kD = 0;
 
-    public static double kS = 0.11; // Static feedforward
-    public static double kV = 0.000387; // Velocity feedforward
+    public static double kS = 0.0613641; // Static feedforward
+    public static double kV = 0.000375058; // Velocity feedforward
 
     public static boolean enablePIDF = true;
 
@@ -176,23 +176,6 @@ public class Shooter {
     public void aimAtTarget(Pose currPosition, Goal target){
         aimAtTarget(currPosition, target.position);
     }
-    public void aimAtTargetFar(Pose currPosition, Goal target){
-        aimAtTargetFar(currPosition, target.position);
-    }
-    public void aimAtTargetFar(Pose currPosition, Pose target) {
-        double[] angleDistance = getAngleDistance(currPosition, target);
-        double angle = angleDistance[0];
-        double distance = angleDistance[1];
-
-        double servoPos = convertDegreestoServoPos(angle + turretOffset + limelightOffset);
-        servoPos = Range.clip(servoPos, turretLowerBound, turretUpperBound);
-
-        double currVelo = getCurrentVelocity();
-
-        setTurretPos(servoPos);
-        setTargetVelocity(Tables.getShooterVelocityFar(distance) + powerOffset);
-        setHood(Tables.getHoodPositionFar(distance) + Tables.getHoodAngleChangeFar(currVelo, distance));
-    }
     public void aimAtTarget(Pose currPosition, Pose target){
         long currTime = System.nanoTime();
         double dt = (currTime - prevPosTime) / 1e9; // convert ns to seconds
@@ -270,7 +253,7 @@ public class Shooter {
 
         setTurretPos(servoPos);
         setTargetVelocity(Tables.getShooterVelocity(distance) + powerOffset);
-        setHood(Tables.getHoodPosition(distance) + Tables.getHoodAngleChange(currVelo, distance));
+        setHood(Tables.getHoodPosition(distance));
 
         // update previous position/time for next velocity calculation
         prevX = currPosition.getX();
@@ -388,74 +371,30 @@ public class Shooter {
         public static double minVelocity = 1200;
         public static double getHoodPosition(double distance) {
             double increasehood = 0;
-            return  -1.10011e-8 * Math.pow(distance, 4)
-                    - 7.29035e-7 * Math.pow(distance, 3)
-                    + 0.000614768 * Math.pow(distance, 2)
-                    - 0.06158 * distance
-                    + 2.35001 +increasehood;
+            double hood =  1.82496e-8 * Math.pow(distance, 4)
+                    - 0.00000387675 * Math.pow(distance, 3)
+                    + 0.000164823 * Math.pow(distance, 2)
+                    + 0.0128326 * distance
+                    - 0.148405 +increasehood;
+            return Math.min(hood, 0.8);
 
         }
         public static double getShooterVelocity(double distance) {
             double increase = 0;
-            double vel =  0.0000300474 * Math.pow(distance, 4)
-                    - 0.0077187 * Math.pow(distance, 3)
-                    + 0.686797 * Math.pow(distance, 2)
-                    - 19.03258 * distance
-                    + 1309.75735 +increase;
+            double vel =  -0.0000108852 * Math.pow(distance, 4)
+                    + 0.00192886 * Math.pow(distance, 3)
+                    - 0.0697063 * Math.pow(distance, 2)
+                    + 5.6394 * distance
+                    + 950.93742 +increase;
             return Math.max(minVelocity, vel);
         }
-
-        public static double getHoodPositionFar(double distance) {
-            double y=  6.99074e-7 * Math.pow(distance, 4)
-                    - 0.000384853 * Math.pow(distance, 3)
-                    + 0.0789672 * Math.pow(distance, 2)
-                    - 7.15944 * distance
-                    + 242.54567;
-            return Math.max(y,0.38);}
-        public static double getShooterVelocityFar(double distance) {
-            double y = - 0.00031736 * Math.pow(distance, 4)
-                    + 0.175946 * Math.pow(distance, 3)
-                    - 36.40257 * Math.pow(distance, 2)
-                    + 3338.84237 * distance
-                    - 113030.791;
-            return Math.max(1450,y);
-        }
-
-        public static double actualShooterVelocityNoLoad(double targetVelocity) {
-            return targetVelocity;
-        }
-
-        public static double getHoodAngleChange(double loadedVelocity, double distance){
-            //should be negative
-            double error = loadedVelocity - actualShooterVelocityNoLoad(getShooterVelocity(distance));
-            if (distance < 136){
-                error = 0;
-            }
-            System.out.println("Error "+ error);
-            return error * hoodAngleChangePer100ticksPerSecondError/100;
-        }
-        public static double getHoodAngleChangeFar(double loadedVelocity, double distance) {
-            double error = loadedVelocity - getShooterVelocityFar(distance);
-            if (distance < 136) {
-                error = 0;
-            }
-            double hoodchangeamount =0;
-            return error * hoodchangeamount / 100;
-        }
-        public static double hoodAngleChangePer100ticksPerSecondError = 0.03;
-
-        public static double hoodAdjustDistanceThreshold = 97;
-
         public static double getBalltimeinair(double distance){
-            double y = 9.79737e-8 * Math.pow(distance, 4)
-                    - 0.0000267513 * Math.pow(distance, 3)
-                    + 0.00273554 * Math.pow(distance, 2)
-                    - 0.122443 * distance
-                    + 2.54104;
+            double y = -6.63534e-9 * Math.pow(distance, 4)
+                    + 6.34987e-7 * Math.pow(distance, 3)
+                    + 0.000190155 * Math.pow(distance, 2)
+                    - 0.0291651 * distance
+                    + 1.6084;
             return Math.min(0.7,y);
-        }
-        public static double getBalltimeinairFar(double distance){
-            return 0;
         }
 
         public static double instantShotCompensation = 0.03;
