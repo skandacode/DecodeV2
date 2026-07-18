@@ -24,6 +24,7 @@ public class Paths {
     public Pose gateIntake3 = new Pose(7.75, 61.75, Math.toRadians(250));
     public Pose gateIntakeBack3 = new Pose(10.75, 56.75, Math.toRadians(250));
     public Pose gateIntake4 = new Pose(7.75, 62.05, Math.toRadians(250));
+    public Pose gateIntake5 = new Pose(7.75, 62.05, Math.toRadians(250));
 
     public Pose gateIntakeControl = new Pose(28.75, 62.75, Math.toRadians(347));
 
@@ -195,6 +196,10 @@ public class Paths {
 
     public CommandBuilder intakeGate4(double brakingStrength) {
         return intakeGate(gateIntake4, brakingStrength);
+    }
+
+    public CommandBuilder intakeGate5(double brakingStrength) {
+        return intakeGate(gateIntake5, brakingStrength);
     }
 
     public CommandBuilder scoreGate() {

@@ -60,7 +60,8 @@ public class Auto extends CommandOpMode {
                         gate1(),
                         gate2(),
                         gate3(),
-                        gate4()
+                        gate4(),
+                        gate5()
                 )
         );
     }
@@ -162,6 +163,21 @@ public class Auto extends CommandOpMode {
     private CommandBuilder gate4() {
         return sequential(
                 intake(paths.intakeGate4(0.6), 2500.0),
+                waitMs(300.0),
+                prepareScore(75, -80, 0.52, 1430),
+                paths.scoreGate(),
+                waitMs(1500.0),
+                openGate(),
+                waitMs(100.0),
+                kick(),
+                waitMs(300.0),
+                resetAfterScore()
+        );
+    }
+
+    private CommandBuilder gate5() {
+        return sequential(
+                intake(paths.intakeGate5(0.6), 2500.0),
                 waitMs(300.0),
                 prepareScore(75, -80, 0.52, 1430),
                 paths.scoreGate(),
