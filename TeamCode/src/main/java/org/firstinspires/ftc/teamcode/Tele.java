@@ -176,8 +176,7 @@ public class Tele extends OpMode {
             turn *= 0.3;
         }
 
-        robot.follower.setTeleOpDrive(forward, -1 * strafe, -1 * turn, true);
-
+        robot.follower.setTeleOpDrive(-1*forward, -1 * strafe, -1 * turn, true);
         if (gamepad1.leftBumperWasPressed()) {
             robot.follower.setPose(relocalizePos);
             Shooter.limelightOffset = 0;
