@@ -120,7 +120,7 @@ public class Auto extends CommandOpMode {
 
     private CommandBuilder gate1() {
         return sequential(
-                intake(autoPaths.(0.4), 2500.0),
+                intake(autoPaths.intakeGate1(0.4), 2500.0),
                 waitMs(300.0),
                 prepareScore(78, -76, 0.54, 1440),
                 autoPaths.scoreGate(),

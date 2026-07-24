@@ -137,4 +137,24 @@ public class AutoPaths {
         return new FollowPath(this.f, curve(f.pose(), gateIntakeControl, target).linear(f.pose(), target));
         // braking(brakingStrength)
     }
+
+    public CommandBuilder intakeGate1(double brakingStrength) {
+        return intakeGate(gateIntake1, brakingStrength);
+    }
+
+    public CommandBuilder intakeGate2(double brakingStrength) {
+        return intakeGate(gateIntake2, brakingStrength);
+    }
+
+    public CommandBuilder intakeGate3(double brakingStrength) {
+        return intakeGate(gateIntake3, brakingStrength);
+    }
+
+    public CommandBuilder intakeGate4(double brakingStrength) {
+        return intakeGate(gateIntake4, brakingStrength);
+    }
+
+    public CommandBuilder intakeGate5(double brakingStrength) {
+        return intakeGate(gateIntake5, brakingStrength);
+    }
 }
