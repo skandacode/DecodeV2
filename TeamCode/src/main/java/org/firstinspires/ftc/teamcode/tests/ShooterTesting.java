@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-import static org.firstinspires.ftc.teamcode.pedro.Constants.createFollower;
+//import static org.firstinspires.ftc.teamcode.pedro.Constants.createFollower;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
@@ -10,6 +10,8 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
@@ -36,7 +38,7 @@ public class ShooterTesting extends LinearOpMode {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
 
-        follower = createFollower(hardwareMap);
+        follower = Constants.create(hardwareMap);
         follower.setPose(new Pose(60, 0, Math.toRadians(180)));
 
         waitForStart();

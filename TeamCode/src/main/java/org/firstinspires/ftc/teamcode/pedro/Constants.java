@@ -16,10 +16,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Constants {
     public static MecanumConfig mecanumConfig = new MecanumConfig(
             c -> {
-                c.frontLeftName.set("lf");
-                c.backLeftName.set("lb");
-                c.frontRightName.set("rf");
-                c.backRightName.set("rb");
+                c.frontLeftName.set("frontleft");
+                c.backLeftName.set("backleft");
+                c.frontRightName.set("frontright");
+                c.backRightName.set("backright");
                 c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
                 c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
                 c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
@@ -30,7 +30,7 @@ public class Constants {
 
     public static PinpointConfig pinpointConfig = new PinpointConfig(
             c -> {
-                c.name.set("pinpoint");
+                c.name.set("odo");
                 c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
                 c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
                 c.xPodOffset.set(0.0);
