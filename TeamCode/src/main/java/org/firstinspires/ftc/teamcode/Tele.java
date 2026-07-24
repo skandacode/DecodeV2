@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
-import com.pedropathing.math.Pose;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
+import org.firstinspires.ftc.teamcode.pedro.PanelsDrawing;
 import org.firstinspires.ftc.teamcode.subsystems.vision.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
@@ -63,7 +65,7 @@ public class Tele extends OpMode {
         robot = new Robot(hardwareMap, alliance, true);
         robot.update();
 
-        robot.follower.setPose(Robot.savedPose);
+        robot.follower.setStartingPose(Robot.savedPose);
 
         stateMachine = new StateMachineBuilder()
                 .state(States.Intake)
@@ -144,7 +146,7 @@ public class Tele extends OpMode {
 //        }
 
         telemetry.addData("Shooter Target", target);
-        telemetry.addData("Current Pos", robot.follower.pose());
+        telemetry.addData("Current Pos", robot.follower.getPose());
         telemetry.update();
     }
 
@@ -156,13 +158,13 @@ public class Tele extends OpMode {
         }
 
         stateMachine.start();
-//        robot.follower.startTeleopDrive();
+        robot.follower.startTeleopDrive();
     }
 
     public void loop() {
         robot.update();
-        telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), target)));
-        robot.shooter.aimAtTarget(robot.follower.pose(), target);
+        telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.getPose(), target)));
+        robot.shooter.aimAtTarget(robot.follower.getPose(), target);
 
         double forward = gamepad1.left_stick_y;
         double strafe = gamepad1.left_stick_x;
@@ -174,7 +176,7 @@ public class Tele extends OpMode {
             turn *= 0.3;
         }
 
-        robot.follower.manual(-1*forward, -1 * strafe, -1 * turn);
+        robot.follower.setTeleOpDrive(-1*forward, -1 * strafe, -1 * turn, true);
         if (gamepad1.leftBumperWasPressed()) {
             robot.follower.setPose(relocalizePos);
             Shooter.limelightOffset = 0;
@@ -204,14 +206,14 @@ public class Tele extends OpMode {
 
         stateMachine.update();
 
-        telemetry.addData("Current Pos", robot.follower.pose());
+        telemetry.addData("Current Pos", robot.follower.getPose());
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
         telemetry.addData("Spindexer kick", robot.kicker.kicked);
         telemetry.addData("Statemachine State", stateMachine.getState());
         telemetry.addData("Loop time hz", robot.getLoopTimeHz());
 
-//        PanelsDrawing.drawDebug(robot.follower);
+        PanelsDrawing.drawDebug(robot.follower);
         telemetry.update();
     }
 }

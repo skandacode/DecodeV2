@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
-//import com.pedropathing.geometry.Pose;
+import com.pedropathing.geometry.Pose;
 
-import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -144,10 +143,10 @@ public class Shooter {
     }
 
     public double[] getAngleDistance(Pose currPosition, Pose target){
-        double dx = target.x()-currPosition.x();
-        double dy = target.y()-currPosition.y();
+        double dx = target.getX()-currPosition.getX();
+        double dy = target.getY()-currPosition.getY();
         double angle = Math.atan2(dy, dx);
-        double turretAngle = Math.toDegrees(-angle + currPosition.heading());
+        double turretAngle = Math.toDegrees(-angle + currPosition.getHeading());
 
         while (Math.abs(turretAngle)>180){
             if (turretAngle>0){
@@ -184,8 +183,8 @@ public class Shooter {
         double computedVx = 0.0;
         double computedVy = 0.0;
         if (prevPosTime != 0 && dt > 1e-6) {
-            computedVx = (currPosition.x() - prevX) / dt;
-            computedVy = (currPosition.y() - prevY) / dt;
+            computedVx = (currPosition.getX() - prevX) / dt;
+            computedVy = (currPosition.getY() - prevY) / dt;
         }
 
         // calculate acceleration the same way velocity is calculated
@@ -207,7 +206,7 @@ public class Shooter {
         double dtHeading = (currTime - prevHeadingTime) / 1e9;
         double computedOmega = 0.0;
         if (prevHeadingTime != 0 && dtHeading > 1e-6) {
-            double dHeading = currPosition.heading() - prevHeading;
+            double dHeading = currPosition.getHeading() - prevHeading;
             // wrap to [-π, π] to handle crossing ±π boundary
             while (dHeading > Math.PI) dHeading -= 2 * Math.PI;
             while (dHeading < -Math.PI) dHeading += 2 * Math.PI;
@@ -233,9 +232,9 @@ public class Shooter {
         double offsetY = this.vy * (tDelay + tFlight) + this.ay * tDelay * (0.5 * tDelay + tFlight);
 
         Pose realTarget = new Pose(
-                target.x() - offsetX,
-                target.y() - offsetY,
-                target.heading());
+                target.getX() - offsetX,
+                target.getY() - offsetY,
+                target.getHeading());
 
 
         double[] angleDistance = getAngleDistance(currPosition, realTarget);
@@ -257,15 +256,15 @@ public class Shooter {
         setHood(Tables.getHoodPosition(distance));
 
         // update previous position/time for next velocity calculation
-        prevX = currPosition.x();
-        prevY = currPosition.y();
+        prevX = currPosition.getX();
+        prevY = currPosition.getY();
         prevPosTime = currTime;
         // update previous velocity/time for next acceleration calculation
         prevVx = this.vx;
         prevVy = this.vy;
         prevVelTime = currTime;
         // update previous heading/time for next angular velocity calculation
-        prevHeading = currPosition.heading();
+        prevHeading = currPosition.getHeading();
         prevHeadingTime = currTime;
     }
 

@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.utils.CommandOpMode;
 
 public class Auto extends CommandOpMode {
     private Robot robot;
-    private AutoPaths autoPaths;
+    private Paths paths;
     private final Alliance alliance;
 
     public Auto(Alliance alliance) {
@@ -22,8 +22,8 @@ public class Auto extends CommandOpMode {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
         robot = new Robot(hardwareMap, alliance);
-        autoPaths = new AutoPaths(robot.follower, alliance);
-        robot.follower.setPose(autoPaths.start);
+        paths = new Paths(robot.follower, alliance);
+        robot.follower.setStartingPose(paths.start);
 
         robot.shooter.setUpperGate(false);
         robot.shooter.setTurretPos(robot.shooter.convertDegreestoServoPos(0));
@@ -36,13 +36,13 @@ public class Auto extends CommandOpMode {
     public void init_loop() {
         robot.update();
 
-        telemetry.addData("Init Pose", robot.follower.pose());
+        telemetry.addData("Init Pose", robot.follower.getPose());
         telemetry.update();
     }
 
     @Override
     public void start() {
-        robot.follower.setPose(autoPaths.start);
+        robot.follower.setStartingPose(paths.start);
         robot.shooter.setUpperGate(false);
         robot.shooter.setTurretPos(robot.shooter.convertDegreestoServoPos(0));
         robot.intake.setPower(0);
@@ -50,11 +50,8 @@ public class Auto extends CommandOpMode {
 
         schedule(
                 infinite(() -> {
-                    Robot.savedPose = robot.follower.pose();
+                    Robot.savedPose = robot.follower.getPose();
                     robot.update();
-
-                    telemetry.addData("Pose", robot.follower.pose());
-                    telemetry.update();
                 }),
                 sequential(
                         preload(),
@@ -80,7 +77,7 @@ public class Auto extends CommandOpMode {
     private CommandBuilder preload() {
         return sequential(
                 prepareScore(76, -78, 0.56, 1440),
-                autoPaths.preload(),
+                paths.preload(),
                 waitMs(1700.0),
                 openGate(),
                 waitMs(100.0),
@@ -92,9 +89,9 @@ public class Auto extends CommandOpMode {
 
     private CommandBuilder spike1() {
         return sequential(
-                intake(autoPaths.intakeSpike1(), 2000.0),
+                intake(paths.intakeSpike1(), 2000.0),
                 prepareScore(90, -95, 0.53, 1420),
-                autoPaths.scoreSpike1(),
+                paths.scoreSpike1(),
                 waitMs(1500.0),
                 openGate(),
                 waitMs(100.0),
@@ -106,9 +103,9 @@ public class Auto extends CommandOpMode {
 
     private CommandBuilder spike2() {
         return sequential(
-                intake(autoPaths.intakeSpike2(), 2000.0),
+                intake(paths.intakeSpike2(), 2000.0),
                 prepareScore(64, -65, 0.54, 1430),
-                autoPaths.scoreSpike2(),
+                paths.scoreSpike2(),
                 waitMs(1460.0),
                 openGate(),
                 waitMs(100.0),
@@ -120,10 +117,10 @@ public class Auto extends CommandOpMode {
 
     private CommandBuilder gate1() {
         return sequential(
-                intake(autoPaths.intakeGate1(0.4), 2500.0),
+                intake(paths.intakeGate1(0.4), 2500.0),
                 waitMs(300.0),
                 prepareScore(78, -76, 0.54, 1440),
-                autoPaths.scoreGate(),
+                paths.scoreGate(),
                 waitMs(1500.0),
                 openGate(),
                 waitMs(100.0),
@@ -135,10 +132,10 @@ public class Auto extends CommandOpMode {
 
     private CommandBuilder gate2() {
         return sequential(
-                intake(autoPaths.intakeGate2(0.6), 2500.0),
+                intake(paths.intakeGate2(0.6), 2500.0),
                 waitMs(300.0),
                 prepareScore(75, -78, 0.54, 1430),
-                autoPaths.scoreGate(),
+                paths.scoreGate(),
                 waitMs(1400.0),
                 openGate(),
                 waitMs(100.0),
@@ -150,10 +147,10 @@ public class Auto extends CommandOpMode {
 
     private CommandBuilder gate3() {
         return sequential(
-                intake(autoPaths.intakeGate3(0.6), 2100.0),
+                intake(paths.intakeGate3(0.6), 2100.0),
                 waitMs(300.0),
                 prepareScore(75, -77, 0.54, 1430),
-                autoPaths.scoreGate(),
+                paths.scoreGate(),
                 waitMs(1500.0),
                 openGate(),
                 waitMs(100.0),
@@ -165,10 +162,10 @@ public class Auto extends CommandOpMode {
 
     private CommandBuilder gate4() {
         return sequential(
-                intake(autoPaths.intakeGate4(0.6), 2500.0),
+                intake(paths.intakeGate4(0.6), 2500.0),
                 waitMs(300.0),
                 prepareScore(75, -80, 0.52, 1430),
-                autoPaths.scoreGate(),
+                paths.scoreGate(),
                 waitMs(1500.0),
                 openGate(),
                 waitMs(100.0),
@@ -180,10 +177,10 @@ public class Auto extends CommandOpMode {
 
     private CommandBuilder gate5() {
         return sequential(
-                intake(autoPaths.intakeGate5(0.6), 2500.0),
+                intake(paths.intakeGate5(0.6), 2500.0),
                 waitMs(300.0),
                 prepareScore(75, -80, 0.52, 1430),
-                autoPaths.scoreGate(),
+                paths.scoreGate(),
                 waitMs(1500.0),
                 openGate(),
                 waitMs(100.0),

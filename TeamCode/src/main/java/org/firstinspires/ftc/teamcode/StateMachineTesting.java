@@ -3,11 +3,12 @@ package org.firstinspires.ftc.teamcode;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
-import com.pedropathing.math.Pose;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
+import org.firstinspires.ftc.teamcode.pedro.PanelsDrawing;
 import org.firstinspires.ftc.teamcode.subsystems.vision.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
@@ -68,7 +69,7 @@ public class StateMachineTesting extends OpMode {
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         robot = new Robot(hardwareMap, alliance, true);
         robot.update();
-        robot.follower.setPose(new Pose(60, 0, Math.toRadians(180)));
+        robot.follower.setStartingPose(new Pose(60, 0, Math.toRadians(180)));
 
         stateMachine = new StateMachineBuilder()
                 .state(States.Intake)
@@ -149,7 +150,7 @@ public class StateMachineTesting extends OpMode {
 //        }
 
         telemetry.addData("Shooter Target", target);
-        telemetry.addData("Current Pos", robot.follower.pose());
+        telemetry.addData("Current Pos", robot.follower.getPose());
         telemetry.update();
     }
 
@@ -161,13 +162,13 @@ public class StateMachineTesting extends OpMode {
         }
 
         stateMachine.start();
-//        robot.follower.startTeleopDrive();
+        robot.follower.startTeleopDrive();
     }
 
     public void loop() {
         robot.update();
-        robot.shooter.aimAtTarget(robot.follower.pose(), target);
-        telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), target)));
+        robot.shooter.aimAtTarget(robot.follower.getPose(), target);
+        telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.getPose(), target)));
         robot.shooter.setHood(hood_angle);
         robot.shooter.setTargetVelocity(shoot_velo);
 
@@ -181,7 +182,7 @@ public class StateMachineTesting extends OpMode {
             turn *= 0.3;
         }
 
-        robot.follower.manual(-1 * forward, strafe, turn);
+        robot.follower.setTeleOpDrive(forward, -1 * strafe, -1 * turn, true);
 
         if (gamepad1.leftBumperWasPressed()) {
             robot.follower.setPose(relocalizePos);
@@ -206,14 +207,14 @@ public class StateMachineTesting extends OpMode {
             Shooter.turretOffset += 2;
         stateMachine.update();
 
-        telemetry.addData("Current Pos", robot.follower.pose());
+        telemetry.addData("Current Pos", robot.follower.getPose());
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
         telemetry.addData("Spindexer kick", robot.kicker.kicked);
         telemetry.addData("Statemachine State", stateMachine.getState());
         telemetry.addData("Loop time hz", robot.getLoopTimeHz());
 
-//        PanelsDrawing.drawDebug(robot.follower);
+        PanelsDrawing.drawDebug(robot.follower);
         telemetry.update();
     }
 }
