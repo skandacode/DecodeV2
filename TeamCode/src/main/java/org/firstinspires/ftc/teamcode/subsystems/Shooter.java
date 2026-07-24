@@ -28,7 +28,7 @@ public class Shooter {
 
     private double targetVelocity = 0.0;
     private double currentVelocity = 0.0;
-
+    public static double diffTurret = -0.004;
     // --- Flywheel PIDF coefficients ---
     public static double kP = 0.005;
     public static double kI = 0;
@@ -165,13 +165,13 @@ public class Shooter {
     public void setTurretPos(double pos){
         double safePos = Range.clip(pos, turretLowerBound, turretUpperBound);
         canReachPos = safePos == pos;
-        turret1.setPosition(safePos);
-        turret2.setPosition(safePos);
+        turret1.setPosition(safePos+diffTurret);
+        turret2.setPosition(safePos-diffTurret);
 
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*-0.003222222222222222+0.5;
+        return deg*-0.0031111111111111114+0.503;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){
