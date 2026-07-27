@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.MathFunctions;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.sfdev.assembly.state.StateMachine;
@@ -16,6 +18,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import java.util.Arrays;
 
 import org.firstinspires.ftc.teamcode.utils.Alliance;
+import org.firstinspires.ftc.teamcode.utils.PIDFController;
+
 @Configurable
 public class Tele extends OpMode {
     Robot robot;
@@ -27,6 +31,9 @@ public class Tele extends OpMode {
     public static double turretOffsetIncrements = 2;
 
     public static double pulseTime = 0.05;
+
+    public static double headingLock;
+    private PIDFController headingPID, secondaryHeadingPID;
 
 
     public Pose relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
@@ -55,15 +62,20 @@ public class Tele extends OpMode {
             target = Shooter.Goal.BLUE;
             allianceBlue = true;
             relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
+            headingLock = -122;
         } else {
             target = Shooter.Goal.RED;
             allianceBlue = false;
             relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
+            headingLock = 122;
         }
 
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         robot = new Robot(hardwareMap, alliance, true);
         robot.update();
+
+        headingPID = new PIDFController(1.4426, 0, 0.2179, 0);
+        secondaryHeadingPID = new PIDFController(0.6412, 0 ,0.1141, 0);
 
         robot.follower.setStartingPose(Robot.savedPose);
 
@@ -176,7 +188,24 @@ public class Tele extends OpMode {
             turn *= 0.3;
         }
 
-        robot.follower.setTeleOpDrive(-1*forward, -1 * strafe, -1 * turn, true);
+        if (gamepad1.right_trigger > 0.1) {
+            headingPID.setSetPoint(Math.toRadians(headingLock));
+            secondaryHeadingPID.setSetPoint(Math.toRadians(headingLock));
+
+            double error = MathFunctions.normalizeAngle(Math.toRadians(headingLock) - robot.follower.getHeading());
+            double calc;
+
+            if (Math.abs(error) > Math.PI/20)
+                calc = headingPID.calculate(robot.follower.getHeading());
+            else
+                calc = secondaryHeadingPID.calculate(robot.follower.getHeading());
+
+            telemetry.addData("heading lock enabled", calc);
+            robot.follower.setTeleOpDrive(-forward, -strafe, calc, true);
+        } else {
+            telemetry.addLine("heading lock disabled");
+            robot.follower.setTeleOpDrive(-forward, -strafe, -turn, true);
+        }
         if (gamepad1.leftBumperWasPressed()) {
             robot.follower.setPose(relocalizePos);
             Shooter.limelightOffset = 0;

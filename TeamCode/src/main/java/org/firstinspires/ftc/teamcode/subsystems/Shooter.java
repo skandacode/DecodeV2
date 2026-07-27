@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
 
@@ -16,7 +17,8 @@ import org.firstinspires.ftc.teamcode.utils.CachedMotor;
 public class Shooter {
 
     private CachedMotor shooterCachedMotor1, shooterCachedMotor2, shooterEncoder1, shooterEncoder2;
-    private CachedServo turret1, turret2, hood;
+    private CachedServo turret1, turret2;
+    private Servo hood;
 
     private CachedServo upperGate;
 
@@ -27,7 +29,7 @@ public class Shooter {
 
     private double targetVelocity = 0.0;
     private double currentVelocity = 0.0;
-    public static double diffTurret = -0.004;
+    public static double diffTurret = -0.006;
     // --- Flywheel PIDF coefficients ---
     public static double kP = 0.005;
     public static double kI = 0;
@@ -112,7 +114,7 @@ public class Shooter {
         turret1 = new CachedServo(hardwareMap, "turret1");
         turret2 = new CachedServo(hardwareMap, "turret2");
 
-        hood = new CachedServo(hardwareMap, "hood");
+        hood = hardwareMap.servo.get("hood");
 
         pidf = new PIDFController(kP, kI, kD, 0);
         feedforward = new SimpleMotorFeedforward(kS, kV);
@@ -148,7 +150,7 @@ public class Shooter {
         double angle = Math.atan2(dy, dx);
         double turretAngle = Math.toDegrees(-angle + currPosition.getHeading());
 
-        while (Math.abs(turretAngle)>180){
+        while (Math.abs(turretAngle)>=180){
             if (turretAngle>0){
                 turretAngle -= 360;
             }else{
@@ -170,102 +172,37 @@ public class Shooter {
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*-0.0031111111111111114+0.503;
+        return deg*-0.003111111111111111+0.503;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){
         aimAtTarget(currPosition, target.position);
     }
-    public void aimAtTarget(Pose currPosition, Pose target){
-        long currTime = System.nanoTime();
-        double dt = (currTime - prevPosTime) / 1e9; // convert ns to seconds
 
-        double computedVx = 0.0;
-        double computedVy = 0.0;
-        if (prevPosTime != 0 && dt > 1e-6) {
-            computedVx = (currPosition.getX() - prevX) / dt;
-            computedVy = (currPosition.getY() - prevY) / dt;
-        }
-
-        // calculate acceleration the same way velocity is calculated
-        double dtVel = (currTime - prevVelTime) / 1e9;
-        double computedAx = 0.0;
-        double computedAy = 0.0;
-        if (prevVelTime != 0 && dtVel > 1e-6) {
-            computedAx = (computedVx - prevVx) / dtVel;
-            computedAy = (computedVy - prevVy) / dtVel;
-        }
-
-        // store to instance fields for external access if needed
-        this.vx = computedVx;
-        this.vy = computedVy;
-        this.ax = computedAx;
-        this.ay = computedAy;
-
-        // calculate angular velocity of heading the same way linear velocity is calculated
-        double dtHeading = (currTime - prevHeadingTime) / 1e9;
-        double computedOmega = 0.0;
-        if (prevHeadingTime != 0 && dtHeading > 1e-6) {
-            double dHeading = currPosition.getHeading() - prevHeading;
-            // wrap to [-π, π] to handle crossing ±π boundary
-            while (dHeading > Math.PI) dHeading -= 2 * Math.PI;
-            while (dHeading < -Math.PI) dHeading += 2 * Math.PI;
-            computedOmega = dHeading / dtHeading;
-        }
-        this.omega = computedOmega;
-
-        double precomputedDistance = getAngleDistance(currPosition, target)[1];
-        double tFlight = Tables.getBalltimeinair(precomputedDistance);
-        double tDelay = Tables.instantShotCompensation;
-
-        // The ball inherits the robot's velocity at the moment it launches, NOT
-        // at the moment we compute the aim. During the mechanical delay (tDelay)
-        // the robot accelerates, so the launch velocity is:
-        //   v_launch = v_now + a * tDelay
-        //
-        // Two sources of positional offset:
-        // 1) Robot physically moves during tDelay:  v_now*tDelay + 0.5*a*tDelay²
-        // 2) Ball drifts during tFlight at the launch velocity:  v_launch * tFlight
-        //
-        // Total offset = v_now*(tDelay + tFlight) + a*tDelay*(0.5*tDelay + tFlight)
-        double offsetX = this.vx * (tDelay + tFlight) + this.ax * tDelay * (0.5 * tDelay + tFlight);
-        double offsetY = this.vy * (tDelay + tFlight) + this.ay * tDelay * (0.5 * tDelay + tFlight);
-
-        Pose realTarget = new Pose(
-                target.getX() - offsetX,
-                target.getY() - offsetY,
-                target.getHeading());
-
-
-        double[] angleDistance = getAngleDistance(currPosition, realTarget);
+    public void aimTurret(Pose currPosition, Goal target){
+        double[] angleDistance = getAngleDistance(currPosition, target);
         double angle = angleDistance[0];
         double distance = angleDistance[1];
 
-        // Compensate turret angle for the robot's rotation during the mechanical
-        // delay only — once the ball leaves, the robot's rotation no longer matters.
-        double omegaCompensationDeg = Math.toDegrees(this.omega * tDelay);
-        double servoPos = convertDegreestoServoPos(angle + turretOffset + omegaCompensationDeg + limelightOffset);
-
-        double currVelo = getCurrentVelocity();
+        double servoPos = convertDegreestoServoPos(angle + turretOffset + limelightOffset);
 
         servoPos = Range.clip(servoPos, turretLowerBound, turretUpperBound);
 
+        setTurretPos(servoPos);
+    }
+
+    public void aimAtTarget(Pose currPosition, Pose target){
+        double[] angleDistance = getAngleDistance(currPosition, target);
+        double angle = angleDistance[0];
+        double distance = angleDistance[1];
+
+        double servoPos = convertDegreestoServoPos(angle + turretOffset + limelightOffset);
+
+        servoPos = Range.clip(servoPos, turretLowerBound, turretUpperBound);
 
         setTurretPos(servoPos);
         setTargetVelocity(Tables.getShooterVelocity(distance) + powerOffset);
         setHood(Tables.getHoodPosition(distance));
-
-        // update previous position/time for next velocity calculation
-        prevX = currPosition.getX();
-        prevY = currPosition.getY();
-        prevPosTime = currTime;
-        // update previous velocity/time for next acceleration calculation
-        prevVx = this.vx;
-        prevVy = this.vy;
-        prevVelTime = currTime;
-        // update previous heading/time for next angular velocity calculation
-        prevHeading = currPosition.getHeading();
-        prevHeadingTime = currTime;
     }
 
     public void setTargetVelocity(double target) {
@@ -284,7 +221,7 @@ public class Shooter {
     }
 
     public void setHood(double pos){
-        System.out.println(pos);
+        System.out.println("hood"+pos);
         hood.setPosition(Range.clip(pos, hoodLowerBound, hoodUpperBound));
     }
 
@@ -310,16 +247,20 @@ public class Shooter {
         } else {
             outputPower = feedforward.calculate(targetVelocity, accel);
             if (enablePIDF){
-                outputPower += pidf.calculate(smoothedVelocity, targetVelocity);
+                double error = (targetVelocity - currentVelocity);
+
+                if (Math.abs(error) > 60)
+                    outputPower = Math.signum(error);
+                else
+                    outputPower += pidf.calculate(smoothedVelocity, targetVelocity);
             }
         }
 
-        setDirectPower(outputPower);
+        setDirectPower(Math.max(outputPower,0));
         upperGate.update();
         update_motors();
         turret1.update();
         turret2.update();
-        hood.update();
     }
 
     public void update_motors(){
@@ -388,15 +329,5 @@ public class Shooter {
                     + 950.93742 +increase;
             return Math.max(minVelocity, vel);
         }
-        public static double getBalltimeinair(double distance){
-            double y = -6.63534e-9 * Math.pow(distance, 4)
-                    + 6.34987e-7 * Math.pow(distance, 3)
-                    + 0.000190155 * Math.pow(distance, 2)
-                    - 0.0291651 * distance
-                    + 1.6084;
-            return Math.min(0.7,y);
-        }
-
-        public static double instantShotCompensation = 0.03;
     }
 }

@@ -4,7 +4,8 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import androidx.annotation.NonNull;
 
-import com.pedropathing.utils.Utils;
+//import com.pedropathing.utils.Utils;
+import com.pedropathing.math.MathFunctions;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -132,7 +133,7 @@ public class CachedMotor {
      * @param output the power to set the motor to, between -1.0 and 1.0
      */
     public void set(double output) {
-        currPower= Utils.clamp(output, -1.0, 1.0);
+        currPower= MathFunctions.clamp(output, -1.0, 1.0);
     }
 
     /**

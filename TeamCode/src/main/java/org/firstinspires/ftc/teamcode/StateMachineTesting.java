@@ -167,7 +167,7 @@ public class StateMachineTesting extends OpMode {
 
     public void loop() {
         robot.update();
-        robot.shooter.aimAtTarget(robot.follower.getPose(), target);
+        robot.shooter.aimTurret(robot.follower.getPose(), target);
         telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.getPose(), target)));
         robot.shooter.setHood(hood_angle);
         robot.shooter.setTargetVelocity(shoot_velo);
