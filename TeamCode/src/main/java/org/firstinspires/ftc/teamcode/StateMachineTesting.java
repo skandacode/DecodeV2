@@ -9,7 +9,6 @@ import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
 import org.firstinspires.ftc.teamcode.pedro.PanelsDrawing;
-import org.firstinspires.ftc.teamcode.subsystems.vision.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 import java.util.Arrays;
@@ -67,7 +66,7 @@ public class StateMachineTesting extends OpMode {
         }
 
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
-        robot = new Robot(hardwareMap, alliance, true);
+        robot = new Robot(hardwareMap, alliance);
         robot.update();
         robot.follower.setStartingPose(new Pose(60, 0, Math.toRadians(180)));
 
@@ -155,12 +154,6 @@ public class StateMachineTesting extends OpMode {
     }
 
     public void start() {
-        if (target == Shooter.Goal.BLUE) {
-            robot.limelight.setCurrentPipeline(LimelightCamera.Pipelines.BLUETRACK);
-        } else {
-            robot.limelight.setCurrentPipeline(LimelightCamera.Pipelines.REDTRACK);
-        }
-
         stateMachine.start();
         robot.follower.startTeleopDrive();
     }
@@ -186,7 +179,6 @@ public class StateMachineTesting extends OpMode {
 
         if (gamepad1.leftBumperWasPressed()) {
             robot.follower.setPose(relocalizePos);
-            Shooter.limelightOffset = 0;
             if (allianceBlue) {
                 Shooter.powerOffset = 0;
                 Shooter.turretOffset = 0;
@@ -195,10 +187,6 @@ public class StateMachineTesting extends OpMode {
                 Shooter.turretOffset = 2;
             }
         }
-
-        if (gamepad1.xWasPressed())
-            Shooter.limelightOffset += robot.limelight.getTrackingResults();
-
 
         if (gamepad1.dpadLeftWasPressed())
             Shooter.turretOffset -= 2;

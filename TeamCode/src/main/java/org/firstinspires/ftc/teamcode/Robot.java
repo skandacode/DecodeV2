@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Light;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Kicker;
-import org.firstinspires.ftc.teamcode.subsystems.vision.LimelightCamera;
 import org.firstinspires.ftc.teamcode.utils.Alliance;
 
 import java.util.List;
@@ -23,13 +22,12 @@ public class Robot {
     public Shooter shooter;
     public Follower follower;
     public Light light;
-    public LimelightCamera limelight = null;
     public static Pose savedPose = new Pose();
     public Alliance alliance;
     private final Timer loop = new Timer();
     public double loops = 0, lastLoop = 0, loopTime = 0;
 
-    public Robot(HardwareMap hardwareMap, Alliance alliance, boolean activateLimelight) {
+    public Robot(HardwareMap hardwareMap, Alliance alliance) {
         this.alliance = alliance;
 
         hubs = hardwareMap.getAll(LynxModule.class);
@@ -43,13 +41,6 @@ public class Robot {
         light = new Light(hardwareMap);
 
         loop.resetTimer();
-
-        if (activateLimelight)
-            limelight = new LimelightCamera(hardwareMap);
-    }
-
-    public Robot(HardwareMap hardwareMap, Alliance alliance) {
-        this(hardwareMap, alliance, false);
     }
 
     public void update() {

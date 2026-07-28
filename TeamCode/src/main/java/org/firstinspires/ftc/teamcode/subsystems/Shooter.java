@@ -66,7 +66,6 @@ public class Shooter {
 
     public static double powerOffset = 0;
     public static double turretOffset = 0;
-    public static double limelightOffset = 0;
 
 
     public static double upperGateOpenPos = 0.68;
@@ -133,7 +132,9 @@ public class Shooter {
     }
 
     public void setTurretPos(double pos){
-        double safePos = Range.clip(pos, turretLowerBound, turretUpperBound);
+        // leave room for diffTurret so the servos never get pushed past their bounds
+        double diff = Math.abs(diffTurret);
+        double safePos = Range.clip(pos, turretLowerBound + diff, turretUpperBound - diff);
         canReachPos = safePos == pos;
         turret1.setPosition(safePos+diffTurret);
         turret2.setPosition(safePos-diffTurret);
@@ -152,11 +153,8 @@ public class Shooter {
         double[] angleDistance = getAngleDistance(currPosition, target);
         double angle = angleDistance[0];
 
-        double servoPos = convertDegreestoServoPos(angle + turretOffset + limelightOffset);
-
-        servoPos = Range.clip(servoPos, turretLowerBound, turretUpperBound);
-
-        setTurretPos(servoPos);
+        // setTurretPos clips and reports whether the angle was actually reachable
+        setTurretPos(convertDegreestoServoPos(angle + turretOffset));
     }
 
     public void aimAtTarget(Pose currPosition, Pose target){
@@ -164,11 +162,8 @@ public class Shooter {
         double angle = angleDistance[0];
         double distance = angleDistance[1];
 
-        double servoPos = convertDegreestoServoPos(angle + turretOffset + limelightOffset);
-
-        servoPos = Range.clip(servoPos, turretLowerBound, turretUpperBound);
-
-        setTurretPos(servoPos);
+        // setTurretPos clips and reports whether the angle was actually reachable
+        setTurretPos(convertDegreestoServoPos(angle + turretOffset));
         setTargetVelocity(Tables.getShooterVelocity(distance) + powerOffset);
         setHood(Tables.getHoodPosition(distance));
     }
