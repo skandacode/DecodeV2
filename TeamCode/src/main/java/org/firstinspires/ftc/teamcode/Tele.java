@@ -140,7 +140,7 @@ public class Tele extends OpMode {
                     robot.intake.setPower(1);
                     robot.kicker.setKicker(true);
                 })
-                .transitionTimed(0.3, States.Intake)
+                .transitionTimed(0.5, States.Intake)
                 .build();
     }
 
