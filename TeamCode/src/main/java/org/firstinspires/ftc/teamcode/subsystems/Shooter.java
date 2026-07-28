@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -19,6 +20,7 @@ public class Shooter {
     private CachedMotor shooterCachedMotor1, shooterCachedMotor2, shooterEncoder1, shooterEncoder2;
     private CachedServo turret1, turret2;
     private Servo hood;
+    private Timer hoodTimer = new Timer();
 
     private CachedServo upperGate;
 
@@ -43,9 +45,10 @@ public class Shooter {
     public static double turretLowerBound = 0.03;
 
     // --- Hood bounds ---
-
+    public static double hoodCompensationConstant = 0.01;
     public static double hoodLowerBound = 0.48;
     public static double hoodUpperBound = 0.85;
+    private double baseHoodPosition = hoodLowerBound;
 
     public static Pose RedGoalPose = new Pose(-70.25, 70.25);
     public static Pose BlueGoalPose
@@ -219,6 +222,9 @@ public class Shooter {
             }
         }
 
+        if (hoodTimer.getElapsedTimeSeconds() < 1)
+            hoodCompensation();
+
         setDirectPower(Math.max(outputPower,0));
         upperGate.update();
         update_motors();
@@ -245,6 +251,23 @@ public class Shooter {
         else{
             return Math.abs(shooterEncoder1.getVelocity());
         }
+    }
+
+    public void hoodCompensation() {
+        double ticksUnderTarget = targetVelocity - currentVelocity;
+
+        if (ticksUnderTarget <= 0) {
+            hood.setPosition(Range.clip(baseHoodPosition, hoodLowerBound, hoodUpperBound));
+            return;
+        }
+
+        double compensation = (ticksUnderTarget / 100.0) * hoodCompensationConstant;
+        double compensatedPos = baseHoodPosition - compensation;
+
+        hood.setPosition(Range.clip(compensatedPos, hoodLowerBound, hoodUpperBound));
+    }
+    public void resetTimer() {
+        hoodTimer.resetTimer();
     }
 
     @Configurable

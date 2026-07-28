@@ -131,6 +131,7 @@ public class Tele extends OpMode {
 
                 .state(States.OpenUpperGate)
                 .onEnter(() -> {
+                    robot.shooter.resetTimer();
                     robot.shooter.setUpperGate(true);
                     robot.intake.setPower(0);
                 })
