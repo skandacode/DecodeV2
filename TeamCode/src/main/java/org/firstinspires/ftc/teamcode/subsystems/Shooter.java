@@ -32,8 +32,6 @@ public class Shooter {
     public static double diffTurret = -0.006;
     // --- Flywheel PIDF coefficients ---
     public static double kP = 0.005;
-    public static double kI = 0;
-    public static double kD = 0;
 
     public static double kS = 0.0613641; // Static feedforward
     public static double kV = 0.000375058; // Velocity feedforward
@@ -48,10 +46,6 @@ public class Shooter {
 
     public static double hoodLowerBound = 0.48;
     public static double hoodUpperBound = 0.85;
-
-    // --- Low-pass filter coefficient (for smoothing) ---
-    public static double ALPHA = 0.3;
-    private double smoothedVelocity = 0.0;
 
     public static Pose RedGoalPose = new Pose(-70.25, 70.25);
     public static Pose BlueGoalPose
@@ -98,7 +92,7 @@ public class Shooter {
 
         hood = hardwareMap.servo.get("hood");
 
-        pidf = new PIDFController(kP, kI, kD, 0);
+        pidf = new PIDFController(kP, 0, 0, 0);
         feedforward = new SimpleMotorFeedforward(kS, kV);
 
         prevTargetTime = System.nanoTime();
@@ -154,7 +148,6 @@ public class Shooter {
     public void aimTurret(Pose currPosition, Goal target){
         double[] angleDistance = getAngleDistance(currPosition, target);
         double angle = angleDistance[0];
-        double distance = angleDistance[1];
 
         double servoPos = convertDegreestoServoPos(angle + turretOffset + limelightOffset);
 
@@ -183,7 +176,7 @@ public class Shooter {
     }
 
     public double getCurrentVelocity() {
-        return smoothedVelocity;
+        return currentVelocity;
     }
 
     public void setDirectPower(double power) {
@@ -200,7 +193,6 @@ public class Shooter {
     public void update() {
         // Measure velocity
         currentVelocity = getCurrentVelo();
-        smoothedVelocity = ALPHA * currentVelocity + (1 - ALPHA) * smoothedVelocity;
 
         long currTime = System.nanoTime();
         double dt = (currTime - prevTargetTime) / 1e9;
@@ -215,7 +207,6 @@ public class Shooter {
 
         if (targetVelocity <= 0) {
             outputPower = 0;
-            smoothedVelocity = 0;
         } else {
             outputPower = feedforward.calculate(targetVelocity, accel);
             if (enablePIDF){
@@ -224,7 +215,7 @@ public class Shooter {
                 if (Math.abs(error) > 60)
                     outputPower = Math.signum(error);
                 else
-                    outputPower += pidf.calculate(smoothedVelocity, targetVelocity);
+                    outputPower += pidf.calculate(currentVelocity, targetVelocity);
             }
         }
 
