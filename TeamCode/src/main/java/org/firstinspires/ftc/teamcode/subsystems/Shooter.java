@@ -75,27 +75,9 @@ public class Shooter {
     public static double upperGateOpenPos = 0.68;
     public static double upperGateClosedPos = 0.56;
 
-    private double prevX, prevY;
-    private long prevPosTime;
-
-    // add vx and vy fields
-    private double vx = 0.0;
-    private double vy = 0.0;
-
-    // angular velocity field
-    private double omega = 0.0;
-    private double prevHeading = 0.0;
-    private long prevHeadingTime = 0;
-
-    // acceleration fields
-    private double ax = 0.0;
-    private double ay = 0.0;
-    private double prevVx = 0.0;
-    private double prevVy = 0.0;
-    private long prevVelTime = 0;
 
     private double prevTargetVelocity = 0.0;
-    private long prevTargetTime = 0;
+    private long prevTargetTime;
 
     public boolean canReachPos = true;
 
@@ -118,16 +100,6 @@ public class Shooter {
 
         pidf = new PIDFController(kP, kI, kD, 0);
         feedforward = new SimpleMotorFeedforward(kS, kV);
-
-        // initialize previous pos time to avoid large dt on first call
-        prevPosTime = System.nanoTime();
-        prevX = 0.0;
-        prevY = 0.0;
-        prevVelTime = System.nanoTime();
-        prevVx = 0.0;
-        prevVy = 0.0;
-        prevHeadingTime = System.nanoTime();
-        prevHeading = 0.0;
 
         prevTargetTime = System.nanoTime();
     }
@@ -282,29 +254,6 @@ public class Shooter {
         else{
             return Math.abs(shooterEncoder1.getVelocity());
         }
-    }
-
-    // getters for vx and vy
-    public double getVx() {
-        return vx;
-    }
-
-    public double getVy() {
-        return vy;
-    }
-
-    // getters for ax and ay
-    public double getAx() {
-        return ax;
-    }
-
-    public double getAy() {
-        return ay;
-    }
-
-    // getter for angular velocity (rad/s)
-    public double getOmega() {
-        return omega;
     }
 
     @Configurable
