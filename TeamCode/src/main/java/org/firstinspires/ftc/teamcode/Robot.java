@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
-import com.pedropathing.util.Timer;
+import com.pedropathing.math.Pose;
+import com.pedropathing.utils.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.utils.Alliance;
 
 import java.util.List;
 
-import static org.firstinspires.ftc.teamcode.pedro.Constants.createFollower;
+import static org.firstinspires.ftc.teamcode.pedro.Constants.create;
 
 public class Robot {
     private List<LynxModule> hubs;
@@ -22,7 +22,7 @@ public class Robot {
     public Shooter shooter;
     public Follower follower;
     public Light light;
-    public static Pose savedPose = new Pose();
+    public static Pose savedPose = Pose.zero();
     public Alliance alliance;
     private final Timer loop = new Timer();
     public double loops = 0, lastLoop = 0, loopTime = 0;
@@ -37,17 +37,17 @@ public class Robot {
         intake = new Intake(hardwareMap);
         shooter = new Shooter(hardwareMap);
         kicker = new Kicker(hardwareMap);
-        follower = createFollower(hardwareMap);
+        follower = create(hardwareMap);
         light = new Light(hardwareMap);
 
-        loop.resetTimer();
+        loop.reset();
     }
 
     public void update() {
         loops++;
 
         if (loops > 10) {
-            double now = loop.getElapsedTime();
+            double now = loop.milliseconds();
             loopTime = (now - lastLoop) / loops;
             lastLoop = now;
             loops = 0;
@@ -59,7 +59,7 @@ public class Robot {
         shooter.update();
         light.update();
         follower.update();
-        savedPose = follower.getPose();
+        savedPose = follower.pose();
     }
 
     public void clearCache() {
@@ -67,7 +67,7 @@ public class Robot {
     }
 
     public void saveEnd() {
-        savedPose = follower.getPose();
+        savedPose = follower.pose();
     }
 
     public double getLoopTimeMs() {

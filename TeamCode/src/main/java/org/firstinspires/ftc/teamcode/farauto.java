@@ -1,16 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
-
-import static org.firstinspires.ftc.teamcode.pedro.Constants.createFollower;
+import static com.pedropathing.api.Paths.*;
+import static org.firstinspires.ftc.teamcode.pedro.Constants.create;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
-import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.PathChain;
+import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -18,13 +16,11 @@ import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
 //import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Kicker;
 //import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
 //import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.subsystems.Kicker;
 
 import java.util.Arrays;
 import java.util.List;
@@ -97,13 +93,13 @@ public class farauto extends LinearOpMode {
         intakes = new Intake(hardwareMap);
         shooter = new Shooter(hardwareMap);
         spindexer = new Kicker(hardwareMap);
-        follower = createFollower(hardwareMap);
+        follower = create(hardwareMap);
         //limelight = new LimelightCamera(hardwareMap);
 
         while (opModeInInit()) {
             for (LynxModule hub : hubs) hub.clearBulkCache();
             follower.update();
-            telemetry.addData("Init Pose: ", follower.getPose());
+            telemetry.addData("Init Pose: ", follower.pose());
             telemetry.addData("ALLIANCE: ", colorAlliance);
             if (gamepad1.a){
                 colorAlliance="BLUE";
@@ -123,12 +119,13 @@ public class farauto extends LinearOpMode {
             telemetry.update();
             spindexer.update();
         }
+
         if (opModeIsActive()) {
             waitForStart();
             Pose startPose = new Pose(57, -12 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
             Pose shootPose1 = new Pose(57, -12 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
 
-            Pose shootPose = new Pose(53, -22 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+            Pose shootPose = new Pose(50, -20 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
             Pose intakeHuman = new Pose(58, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
             Pose intake1Pose = new Pose(20, -28 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
             Pose intake1donePose = new Pose(33, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
@@ -139,7 +136,8 @@ public class farauto extends LinearOpMode {
             Pose leave = new Pose(33, -30 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
 
 
-            follower.setStartingPose(startPose);
+            follower.setPose(startPose);
+            follower.update();
 
             StateMachine autoMachine = new StateMachineBuilder() //Autonomia
                     .state(AutoStates.MOVETOSHOOT1)
@@ -148,12 +146,8 @@ public class farauto extends LinearOpMode {
                         shooter.setHood(0.68);
                         intakes.setPower(0.4);
                         spindexer.setKicker(false);
-                        PathChain toScore = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), shootPose1))
-                                .setLinearHeadingInterpolation(follower.heading(), shootPose1.heading())
-                                .setBrakingStrength(3)
-                                .build();
-                        follower.followPath(toScore, true);
+                        Path toScore = line(follower.pose(), shootPose1).linear(follower.pose(), shootPose1);
+                        follower.follow(toScore);
                         //shooter.setHood(0.67);
                         //shooter.setTargetVelocity(1900);
 //                        shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
@@ -168,7 +162,7 @@ public class farauto extends LinearOpMode {
                     .state(AutoStates.SHOOT1)
                     .onEnter(() -> {
                         intakes.setPower(1);
-                       spindexer.setKicker(true);
+                        spindexer.setKicker(true);
                     })
                     .transitionTimed(0.3)
 
@@ -185,24 +179,16 @@ public class farauto extends LinearOpMode {
 //                        shooter.setHood(0.67);
 //                        shooter.setTargetVelocity(1900);
 
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierCurve(follower.getPose(), intake1Pose, intake1donePose))
-                                .setLinearHeadingInterpolation(follower.heading(), intake1donePose.heading())
-                                .setBrakingStrength(3)
-                                .build();
-                        follower.followPath(toIntake, true);
+                        Path toIntake = curve(follower.pose(), intake1Pose, intake1donePose).linear(follower.pose(), intake1donePose);
+                        follower.follow(toIntake);
                     })
                     .transitionTimed(1.5)
 
                     .state(AutoStates.MOVETOSHOOT2)
                     .onEnter(() -> {
                         intakes.setTransferPower(0.5);
-                        PathChain toScore = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), shootPose))
-                                .setLinearHeadingInterpolation(follower.heading(), shootPose.heading())
-                                .setBrakingStrength(3)
-                                .build();
-                        follower.followPath(toScore, true);
+                        Path toScore = line(follower.pose(), shootPose).linear(follower.pose(), shootPose);
+                        follower.follow(toScore);
                     })
                     .transition(() -> follower.atParametricEnd())
                     .transitionTimed(2.4)
@@ -232,23 +218,16 @@ public class farauto extends LinearOpMode {
 
 //                        shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
 
-                        PathChain toIntakeHuman = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakeHuman))
-                                .setLinearHeadingInterpolation(follower.heading(), intakeHuman.heading())
-                                .build();
-                        follower.followPath(toIntakeHuman, true);
+                        Path toIntakeHuman = line(follower.pose(), intakeHuman).linear(follower.pose(), intakeHuman);
+                        follower.follow(toIntakeHuman);
                     })
                     .transitionTimed(1.2)
 
                     .state(AutoStates.MOVETOSHOOT3)
                     .onEnter(() -> {
                         intakes.setTransferPower(0.4);
-                        PathChain toScore = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), shootPose))
-                                .setLinearHeadingInterpolation(follower.heading(), shootPose.heading())
-                                .setBrakingStrength(3)
-                                .build();
-                        follower.followPath(toScore, true);
+                        Path toScore = line(follower.pose(), shootPose).linear(follower.pose(), shootPose);
+                        follower.follow(toScore);
                     })
                     .transition(()->intakes.getBeamBreakOutside() && intakes.getBeamBreakInside() && intakes.getDetected(), AutoStates.reject3)
                     .transition(() -> follower.atParametricEnd())
@@ -263,10 +242,10 @@ public class farauto extends LinearOpMode {
                             intakes.setIntakePower(1);
                         }
                     })
-                    .transition(() -> follower.getCurrentTValue() > 0.9).transitionTimed(1.7)
+                    .transition(() -> follower.closestT() > 0.8).transitionTimed(1.7)
                     .state(AutoStates.wait3)
                     .onEnter(() -> {
-                        follower.pausePathFollowing();
+                        follower.hold(shootPose);
                     })
                     .transitionTimed(0.2)
 
@@ -298,23 +277,19 @@ public class farauto extends LinearOpMode {
                         } else {
                             dx = Math.min(dx, 3);
                         }
-                        Pose intakePoseAuto = new Pose(follower.getPose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakePoseAuto))
-                                .setLinearHeadingInterpolation(follower.heading(), intakePoseAuto.heading())
+                        Pose intakePoseAuto = new Pose(follower.pose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+                        Path toIntake = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.pose(), intakePoseAuto))
+                                .setLinearHeadingInterpolation(follower.pose().heading(), intakePoseAuto.heading())
                                 .build();
-                        follower.followPath(toIntake, true);
+                        follower.follow(toIntake);
                         System.out.println("Detected at " + dx);
 
                     }else{
                     */
 
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakemiddonePose))
-                                .setLinearHeadingInterpolation(follower.heading(), intakemiddonePose.heading())
-                                .setNoDeceleration()
-                                .build();
-                        follower.followPath(toIntake, true);
+                        Path toIntake = line(follower.pose(), intakemiddonePose).linear(follower.pose(), intakemiddonePose);
+                        follower.follow(toIntake);
                         System.out.println("Detected at NULL");
 
                     })
@@ -322,12 +297,8 @@ public class farauto extends LinearOpMode {
                     .state(AutoStates.MOVETOSHOOT4)
                     .onEnter(() -> {
                         intakes.setTransferPower(0.4);
-                        PathChain toScore = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), shootPose))
-                                .setLinearHeadingInterpolation(follower.heading(), shootPose.heading())
-                                .setBrakingStrength(3)
-                                .build();
-                        follower.followPath(toScore, true);
+                        Path toScore = line(follower.pose(), shootPose).linear(follower.pose(), shootPose);
+                        follower.follow(toScore);
                     })
                     .transition(()->intakes.getBeamBreakOutside() && intakes.getBeamBreakInside() && intakes.getDetected(), AutoStates.reject4)
                     .transition(() -> follower.atParametricEnd())
@@ -342,11 +313,12 @@ public class farauto extends LinearOpMode {
                             intakes.setIntakePower(1);
                         }
                     })
-                    .transition(() -> follower.getCurrentTValue() > 0.9).transitionTimed(1.7)
+                    .transition(() -> follower.closestT() > 0.8)
+                    .transitionTimed(1.7)
 
                     .state(AutoStates.wait4)
                     .onEnter(() -> {
-                        follower.pausePathFollowing();
+follower.hold(shootPose);
                     })
                     .transitionTimed(0.2)
 
@@ -378,23 +350,19 @@ public class farauto extends LinearOpMode {
                         } else {
                             dx = Math.min(dx, 3);
                         }
-                        Pose intakePoseAuto = new Pose(follower.getPose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakePoseAuto))
-                                .setLinearHeadingInterpolation(follower.heading(), intakePoseAuto.heading())
+                        Pose intakePoseAuto = new Pose(follower.pose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+                        Path toIntake = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.pose(), intakePoseAuto))
+                                .setLinearHeadingInterpolation(follower.pose().heading(), intakePoseAuto.heading())
                                 .build();
-                        follower.followPath(toIntake, true);
+                        follower.follow(toIntake);
                         System.out.println("Detected at " + dx);
 
                     }else{
 
                      */
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intake1donePose))
-                                .setConstantHeadingInterpolation(intake1donePose.heading())
-                                .setNoDeceleration()
-                                .build();
-                        follower.followPath(toIntake, true);
+                        Path toIntake = line(follower.pose(), intake1donePose).constant(intake1donePose);
+                        follower.follow(toIntake);
                         System.out.println("Detected at NULL");
 
                     })
@@ -402,12 +370,8 @@ public class farauto extends LinearOpMode {
                     .state(AutoStates.MOVETOSHOOT5)
                     .onEnter(() -> {
                         intakes.setPower(0.2);
-                        PathChain toScore = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), shootPose))
-                                .setConstantHeadingInterpolation(intake1donePose.heading())
-                                .setBrakingStrength(0.7)
-                                .build();
-                        follower.followPath(toScore, true);
+                        Path toScore = line(follower.pose(), shootPose).constant(intake1donePose);
+                        follower.follow(toScore);
                     })
                     .transition(()->intakes.getBeamBreakOutside() && intakes.getBeamBreakInside() && intakes.getDetected(), AutoStates.reject5)
                     .transition(() -> follower.atParametricEnd())
@@ -422,11 +386,10 @@ public class farauto extends LinearOpMode {
                             intakes.setIntakePower(1);
                         }
                     })
-                    .transition(() -> follower.getCurrentTValue() > 0.9).transitionTimed(1.7)
+                    .transition(() -> follower.closestT() > 0.8).transitionTimed(1.7)
                     .state(AutoStates.wait5)
                     .onEnter(() -> {
-                        follower.pausePathFollowing();
-                    })
+follower.hold(shootPose);                    })
                     .transitionTimed(0.2)
 
                     .state(AutoStates.preSHOOT5)
@@ -456,23 +419,19 @@ public class farauto extends LinearOpMode {
                         } else {
                             dx = Math.min(dx, 3);
                         }
-                        Pose intakePoseAuto = new Pose(follower.getPose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakePoseAuto))
-                                .setLinearHeadingInterpolation(follower.heading(), intakePoseAuto.heading())
+                        Pose intakePoseAuto = new Pose(follower.pose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+                        Path toIntake = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.pose(), intakePoseAuto))
+                                .setLinearHeadingInterpolation(follower.pose().heading(), intakePoseAuto.heading())
                                 .build();
-                        follower.followPath(toIntake, true);
+                        follower.follow(toIntake);
                         System.out.println("Detected at " + dx);
 
                     }else{
 
                      */
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakeHuman))
-                                .setConstantHeadingInterpolation(intake1donePose.heading())
-                                .setNoDeceleration()
-                                .build();
-                        follower.followPath(toIntake, true);
+                        Path toIntake = line(follower.pose(), intakeHuman).constant(intake1donePose);
+                        follower.follow(toIntake);
                         System.out.println("Detected at NULL");
 
                     })
@@ -482,14 +441,10 @@ public class farauto extends LinearOpMode {
                     .onEnter(() -> {
                         turretangle=76;
                         intakes.setTransferPower(0.4);
-                        PathChain toScore = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), shootPose))
-                                .setLinearHeadingInterpolation(follower.heading(), shootPose.heading())
-                                .setBrakingStrength(0.7)
-                                .build();
+                        Path toScore = line(follower.pose(), shootPose).linear(follower.pose(), shootPose);
                         //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
 
-                        follower.followPath(toScore, true);
+                        follower.follow(toScore);
                     })
                     .transition(()->intakes.getBeamBreakOutside() && intakes.getBeamBreakInside() && intakes.getDetected(), AutoStates.reject6)
                     .transition(() -> follower.atParametricEnd())
@@ -504,12 +459,11 @@ public class farauto extends LinearOpMode {
                             intakes.setIntakePower(1);
                         }
                     })
-                    .transition(() -> follower.getCurrentTValue() > 0.9).transitionTimed(1.7)
+                    .transition(() -> follower.closestT() > 0.8).transitionTimed(1.7)
 
                     .state(AutoStates.wait6)
                     .onEnter(() -> {
-                        follower.pausePathFollowing();
-                    })
+follower.hold(shootPose);                    })
                     .transitionTimed(0.2)
 
                     .state(AutoStates.preSHOOT6)
@@ -538,24 +492,19 @@ public class farauto extends LinearOpMode {
                         } else {
                             dx = Math.min(dx, 3);
                         }
-                        Pose intakePoseAuto = new Pose(follower.getPose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakePoseAuto))
-                                .setLinearHeadingInterpolation(follower.heading(), intakePoseAuto.heading())
+                        Pose intakePoseAuto = new Pose(follower.pose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+                        Path toIntake = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.pose(), intakePoseAuto))
+                                .setLinearHeadingInterpolation(follower.pose().heading(), intakePoseAuto.heading())
                                 .build();
-                        follower.followPath(toIntake, true);
+                        follower.follow(toIntake);
                         System.out.println("Detected at " + dx);
 
                     }else{
 
                      */
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakemiddonePose))
-                                .setConstantHeadingInterpolation(intake1donePose.heading())
-                                .setNoDeceleration()
-
-                                .build();
-                        follower.followPath(toIntake, true);
+                        Path toIntake = line(follower.pose(), intakemiddonePose).constant(intake1donePose);
+                        follower.follow(toIntake);
                         System.out.println("Detected at NULL");
 
                     })
@@ -563,14 +512,10 @@ public class farauto extends LinearOpMode {
                     .state(AutoStates.MOVETOSHOOT7)
                     .onEnter(() -> {
                         intakes.setTransferPower(0.4);
-                        PathChain toScore = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), shootPose))
-                                .setLinearHeadingInterpolation(follower.heading(), shootPose.heading())
-                                .setBrakingStrength(0.7)
-                                .build();
+                        Path toScore = line(follower.pose(), shootPose).linear(follower.pose(), shootPose);
 //                        shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
 
-                        follower.followPath(toScore, true);
+                        follower.follow(toScore);
                     })
                     .transition(()->intakes.getBeamBreakOutside() && intakes.getBeamBreakInside() && intakes.getDetected(), AutoStates.reject7)
                     .transition(() -> follower.atParametricEnd())
@@ -585,11 +530,10 @@ public class farauto extends LinearOpMode {
                             intakes.setIntakePower(1);
                         }
                     })
-                    .transition(() -> follower.getCurrentTValue() > 0.9).transitionTimed(1.7)
+                    .transition(() -> follower.closestT() > 0.8).transitionTimed(1.7)
                     .state(AutoStates.wait7)
                     .onEnter(() -> {
-                        follower.pausePathFollowing();
-                    })
+follower.hold(shootPose);                    })
                     .transitionTimed(0.2)
 
                     .state(AutoStates.preSHOOT7)
@@ -618,24 +562,19 @@ public class farauto extends LinearOpMode {
                         } else {
                             dx = Math.min(dx, 3);
                         }
-                        Pose intakePoseAuto = new Pose(follower.getPose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakePoseAuto))
-                                .setLinearHeadingInterpolation(follower.heading(), intakePoseAuto.heading())
+                        Pose intakePoseAuto = new Pose(follower.pose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+                        Path toIntake = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.pose(), intakePoseAuto))
+                                .setLinearHeadingInterpolation(follower.pose().heading(), intakePoseAuto.heading())
                                 .build();
-                        follower.followPath(toIntake, true);
+                        follower.follow(toIntake);
                         System.out.println("Detected at " + dx);
 
                     }else{
 
                      */
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakeHuman))
-                                .setConstantHeadingInterpolation(intake1donePose.heading())
-                                .setNoDeceleration()
-
-                                .build();
-                        follower.followPath(toIntake, true);
+                        Path toIntake = line(follower.pose(), intakeHuman).constant(intake1donePose);
+                        follower.follow(toIntake);
                         System.out.println("Detected at NULL");
 
                     })
@@ -643,14 +582,10 @@ public class farauto extends LinearOpMode {
                     .state(AutoStates.MOVETOSHOOT8)
                     .onEnter(() -> {
                         intakes.setTransferPower(0.4);
-                        PathChain toScore = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), shootPose))
-                                .setLinearHeadingInterpolation(follower.heading(), shootPose.heading())
-                                .setBrakingStrength(0.7)
-                                .build();
+                        Path toScore = line(follower.pose(), shootPose).linear(follower.pose(), shootPose);
 //                        shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
 
-                        follower.followPath(toScore, true);
+                        follower.follow(toScore);
                     })
                     .transition(()->intakes.getBeamBreakOutside() && intakes.getBeamBreakInside() && intakes.getDetected(), AutoStates.reject8)
                     .transition(() -> follower.atParametricEnd())
@@ -665,12 +600,11 @@ public class farauto extends LinearOpMode {
                             intakes.setIntakePower(1);
                         }
                     })
-                    .transition(() -> follower.getCurrentTValue() > 0.9).transitionTimed(1.7)
+                    .transition(() -> follower.closestT() > 0.8).transitionTimed(1.7)
 
                     .state(AutoStates.wait8)
                     .onEnter(() -> {
-                        follower.pausePathFollowing();
-                    })
+follower.hold(shootPose);                    })
                     .transitionTimed(0.2)
 
                     .state(AutoStates.preSHOOT8)
@@ -699,24 +633,19 @@ public class farauto extends LinearOpMode {
                         } else {
                             dx = Math.min(dx, 3);
                         }
-                        Pose intakePoseAuto = new Pose(follower.getPose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakePoseAuto))
-                                .setLinearHeadingInterpolation(follower.heading(), intakePoseAuto.heading())
+                        Pose intakePoseAuto = new Pose(follower.pose().getX() - Posmultiplier * dx, -63 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+                        Path toIntake = follower.pathBuilder()
+                                .addPath(new BezierLine(follower.pose(), intakePoseAuto))
+                                .setLinearHeadingInterpolation(follower.pose().heading(), intakePoseAuto.heading())
                                 .build();
-                        follower.followPath(toIntake, true);
+                        follower.follow(toIntake);
                         System.out.println("Detected at " + dx);
 
                     }else{
 
                      */
-                        PathChain toIntake = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), intakemiddonePose))
-                                .setConstantHeadingInterpolation(intake1donePose.heading())
-                                .setNoDeceleration()
-
-                                .build();
-                        follower.followPath(toIntake, true);
+                        Path toIntake = line(follower.pose(), intakemiddonePose).constant(intake1donePose);
+                        follower.follow(toIntake);
                         System.out.println("Detected at NULL");
 
                     })
@@ -724,14 +653,10 @@ public class farauto extends LinearOpMode {
                     .state(AutoStates.MOVETOSHOOT9)
                     .onEnter(() -> {
                         intakes.setTransferPower(0.4);
-                        PathChain toScore = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), shootPose))
-                                .setLinearHeadingInterpolation(follower.heading(), shootPose.heading())
-                                .setBrakingStrength(0.7)
-                                .build();
+                        Path toScore = line(follower.pose(), shootPose).linear(follower.pose(), shootPose);
 //                        shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
 
-                        follower.followPath(toScore, true);
+                        follower.follow(toScore);
                     })
                     .transition(()->intakes.getBeamBreakOutside() && intakes.getBeamBreakInside() && intakes.getDetected(), AutoStates.reject9)
                     .transition(() -> follower.atParametricEnd())
@@ -746,12 +671,12 @@ public class farauto extends LinearOpMode {
                             intakes.setIntakePower(1);
                         }
                     })
-                    .transition(() -> follower.getCurrentTValue() > 0.9).transitionTimed(1.7)
+                    .transition(() -> follower.closestT() > 0.8)
+                    .transitionTimed(1.9)
 
                     .state(AutoStates.wait9)
                     .onEnter(() -> {
-                        follower.pausePathFollowing();
-                    })
+follower.hold(shootPose);                    })
                     .transitionTimed(0.2)
 
                     .state(AutoStates.preSHOOT9)
@@ -769,12 +694,8 @@ public class farauto extends LinearOpMode {
                     .onEnter(() -> {
                         shooter.setUpperGate(false);
                         spindexer.setKicker(false);
-                        PathChain park = follower.pathBuilder()
-                                .addPath(new BezierLine(follower.getPose(), leave))
-                                .setLinearHeadingInterpolation(follower.heading(), leave.heading())
-                                .setBrakingStrength(0.6)
-                                .build();
-                        follower.followPath(park, true);
+                        Path park = line(follower.pose(), leave).linear(follower.pose(), leave);
+                        follower.follow(park);
                     })
                     .build();
 
@@ -782,7 +703,7 @@ public class farauto extends LinearOpMode {
             //limelightCamera.setCurrentPipeline(LimelightCamera.Pipelines.BALLTRACKING);
             while (opModeIsActive()) {
                 for (LynxModule hub : hubs) hub.clearBulkCache();
-                Robot.savedPose = follower.getPose();
+                Robot.savedPose = follower.pose();
                 if (Posmultiplier == 1) {
                     Shooter.powerOffset = 0;
                     Shooter.turretOffset = 0;
@@ -790,24 +711,24 @@ public class farauto extends LinearOpMode {
                     Shooter.powerOffset = 0;
                     Shooter.turretOffset = 0;
                 }
-                autoMachine.update();
                 telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Robot.savedPose, shooterTarget)));
-                shooter.setTurretPos(shooter.convertDegreestoServoPos(turretangle*Posmultiplier+limelightAdjust - Math.toDegrees(follower.headingError())));
+                shooter.setTurretPos(shooter.convertDegreestoServoPos(turretangle*Posmultiplier+limelightAdjust - Math.toDegrees(follower.pose().heading() - Math.PI/2)));
 
                 follower.update();
                 intakes.update();
                 shooter.update();
+                autoMachine.update();
                 spindexer.update();
-                telemetry.addData("heading +90: ", follower.heading()*Posmultiplier);
-                telemetry.addData("heading error: ", Math.toDegrees(follower.headingError()));
+                telemetry.addData("t-value", follower.closestT());
+                telemetry.addData("heading +90: ", follower.pose().heading()*Posmultiplier);
+                telemetry.addData("heading error: ", Math.toDegrees(follower.pose().heading() - Math.PI/2));
                 telemetry.addData("State auto: ", autoMachine.getState());
                 telemetry.addData("Shooter Target", shooter.getTargetVelo());
                 telemetry.addData("Shooter Velocity", shooter.getCurrentVelocity());
                 telemetry.addData("Spindexer kick", spindexer.kicked);
-                telemetry.addData("Pose: ", follower.getPose());
+                telemetry.addData("Pose: ", follower.pose());
                 telemetry.update();
             }
         }
     }
 }
-

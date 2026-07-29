@@ -3,15 +3,12 @@ package org.firstinspires.ftc.teamcode;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
-import com.pedropathing.control.PIDFCoefficients;
-import com.pedropathing.geometry.Pose;
-import com.pedropathing.math.MathFunctions;
+import com.pedropathing.math.Pose;
+import com.pedropathing.utils.Angle;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
-
-import org.firstinspires.ftc.teamcode.pedro.PanelsDrawing;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 import java.util.Arrays;
@@ -76,7 +73,7 @@ public class Tele extends OpMode {
         headingPID = new PIDFController(1.4426, 0, 0.2179, 0);
         secondaryHeadingPID = new PIDFController(0.6412, 0 ,0.1141, 0);
 
-        robot.follower.setStartingPose(Robot.savedPose);
+        robot.follower.setPose(Robot.savedPose);
 
         stateMachine = new StateMachineBuilder()
                 .state(States.Intake)
@@ -156,19 +153,19 @@ public class Tele extends OpMode {
 //        }
 
         telemetry.addData("Shooter Target", target);
-        telemetry.addData("Current Pos", robot.follower.getPose());
+        telemetry.addData("Current Pos", robot.follower.pose());
         telemetry.update();
     }
 
     public void start() {
         stateMachine.start();
-        robot.follower.startTeleopDrive();
+//        robot.follower.startTeleopDrive();
     }
 
     public void loop() {
         robot.update();
-        telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.getPose(), target)));
-        robot.shooter.aimAtTarget(robot.follower.getPose(), target);
+        telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), target)));
+        robot.shooter.aimAtTarget(robot.follower.pose(), target);
 
         double forward = gamepad1.left_stick_y;
         double strafe = gamepad1.left_stick_x;
@@ -184,19 +181,19 @@ public class Tele extends OpMode {
             headingPID.setSetPoint(Math.toRadians(headingLock));
             secondaryHeadingPID.setSetPoint(Math.toRadians(headingLock));
 
-            double error = MathFunctions.normalizeAngle(Math.toRadians(headingLock) - robot.follower.heading());
+            double error = Angle.normalize(Math.toRadians(headingLock) - robot.follower.pose().heading());
             double calc;
 
             if (Math.abs(error) > Math.PI/20)
-                calc = headingPID.calculate(robot.follower.heading());
+                calc = headingPID.calculate(robot.follower.pose().heading());
             else
-                calc = secondaryHeadingPID.calculate(robot.follower.heading());
+                calc = secondaryHeadingPID.calculate(robot.follower.pose().heading());
 
             telemetry.addData("heading lock enabled", calc);
-            robot.follower.setTeleOpDrive(-forward, -strafe, calc, true);
+            robot.follower.manual(-forward, -strafe, calc);
         } else {
             telemetry.addLine("heading lock disabled");
-            robot.follower.setTeleOpDrive(-forward, -strafe, -turn, true);
+            robot.follower.manual(-forward, -strafe, -turn);
         }
         if (gamepad1.leftBumperWasPressed()) {
             robot.follower.setPose(relocalizePos);
@@ -229,14 +226,14 @@ public class Tele extends OpMode {
             robot.light.setRed();
 
         telemetry.addData("Turret can reach target", robot.shooter.canReachPos);
-        telemetry.addData("Current Pos", robot.follower.getPose());
+        telemetry.addData("Current Pos", robot.follower.pose());
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
         telemetry.addData("Spindexer kick", robot.kicker.kicked);
         telemetry.addData("Statemachine State", stateMachine.getState());
         telemetry.addData("Loop time hz", robot.getLoopTimeHz());
 
-        PanelsDrawing.drawDebug(robot.follower);
+//        PanelsDrawing.drawDebug(robot.follower);
         telemetry.update();
     }
 }

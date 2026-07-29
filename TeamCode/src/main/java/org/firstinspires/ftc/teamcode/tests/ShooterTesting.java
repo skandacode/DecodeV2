@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-import static org.firstinspires.ftc.teamcode.pedro.Constants.createFollower;
+import static org.firstinspires.ftc.teamcode.pedro.Constants.create;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
+//import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -35,12 +36,12 @@ public class ShooterTesting extends LinearOpMode {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
 
-        follower = createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(60, 0, Math.toRadians(180)));
+        follower = create(hardwareMap);
+        follower.setPose(new Pose(60, 0, Math.toRadians(180)));
 
         waitForStart();
 
-        follower.startTeleopDrive();
+        follower.setPose(new Pose(60, 0, Math.toRadians(180)));
 
         while (opModeIsActive()){
             intake.setPower(intakePower);
@@ -52,7 +53,7 @@ public class ShooterTesting extends LinearOpMode {
             }else {
                 shooter.setTurretPos(turretPos);
             }
-            telemetry.addData("angle distance", Arrays.toString(shooter.getAngleDistance(follower.getPose(), targetGoal)));
+            telemetry.addData("angle distance", Arrays.toString(shooter.getAngleDistance(follower.pose(), targetGoal)));
             intake.update();
             shooter.update();
             follower.update();

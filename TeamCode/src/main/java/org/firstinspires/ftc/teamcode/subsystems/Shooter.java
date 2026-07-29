@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.geometry.Pose;
-
-import com.pedropathing.util.Timer;
+import com.pedropathing.math.Pose;
+import com.pedropathing.utils.Timer;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -113,8 +112,8 @@ public class Shooter {
     }
 
     public double[] getAngleDistance(Pose currPosition, Pose target){
-        double dx = target.getX()-currPosition.getX();
-        double dy = target.getY()-currPosition.getY();
+        double dx = target.x()-currPosition.x();
+        double dy = target.y()-currPosition.y();
         double angle = Math.atan2(dy, dx);
         double turretAngle = Math.toDegrees(-angle + currPosition.heading());
 
@@ -262,7 +261,7 @@ public class Shooter {
         hood.setPosition(Range.clip(compensatedPos, hoodLowerBound, hoodUpperBound));
     }
     public void resetTimer() {
-        hoodTimer.resetTimer();
+        hoodTimer.reset();
     }
 
     @Configurable
