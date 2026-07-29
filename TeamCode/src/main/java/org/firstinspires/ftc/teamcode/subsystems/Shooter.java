@@ -45,7 +45,6 @@ public class Shooter {
     public static double turretLowerBound = 0.05;
 
     // --- Hood bounds ---
-    public static double hoodCompensationConstant = 0.01;
 
     public static double hoodLowerBound = 0.48;
     public static double hoodUpperBound = 0.85;
