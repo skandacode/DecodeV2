@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.math.Pose;
-import com.pedropathing.utils.Timer;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -19,7 +19,6 @@ public class Shooter {
     private CachedMotor shooterCachedMotor1, shooterCachedMotor2, shooterEncoder1, shooterEncoder2;
     private CachedServo turret1, turret2;
     private Servo hood;
-    private Timer hoodTimer = new Timer();
 
     private CachedServo upperGate;
 
@@ -33,6 +32,8 @@ public class Shooter {
     public static double diffTurret = 0.001;
     // --- Flywheel PIDF coefficients ---
     public static double kP = 0.005;
+    public static double kI = 0;
+    public static double kD = 0;
 
     public static double kS = 0.0613641; // Static feedforward
     public static double kV = 0.000375058; // Velocity feedforward
@@ -45,13 +46,17 @@ public class Shooter {
 
     // --- Hood bounds ---
     public static double hoodCompensationConstant = 0.01;
+
     public static double hoodLowerBound = 0.48;
     public static double hoodUpperBound = 0.85;
-    private double baseHoodPosition = hoodLowerBound;
 
-    public static Pose RedGoalPose = new Pose(-70.25, 70.25);
+    // --- Low-pass filter coefficient (for smoothing) ---
+    public static double ALPHA = 0.3;
+    private double smoothedVelocity = 0.0;
+
+    public static Pose RedGoalPose = new Pose(-70, 62);
     public static Pose BlueGoalPose
-            = new Pose(-70.25, -70.25);
+            = new Pose(-67, -62);
 
     public enum Goal{
         RED (RedGoalPose),
@@ -65,14 +70,33 @@ public class Shooter {
 
     public static double powerOffset = 0;
     public static double turretOffset = 0;
+    public static double limelightOffset = 0;
 
 
     public static double upperGateOpenPos = 0.68;
     public static double upperGateClosedPos = 0.56;
 
+    private double prevX, prevY;
+    private long prevPosTime;
+
+    // add vx and vy fields
+    private double vx = 0.0;
+    private double vy = 0.0;
+
+    // angular velocity field
+    private double omega = 0.0;
+    private double prevHeading = 0.0;
+    private long prevHeadingTime = 0;
+
+    // acceleration fields
+    private double ax = 0.0;
+    private double ay = 0.0;
+    private double prevVx = 0.0;
+    private double prevVy = 0.0;
+    private long prevVelTime = 0;
 
     private double prevTargetVelocity = 0.0;
-    private long prevTargetTime;
+    private long prevTargetTime = 0;
 
     public boolean canReachPos = true;
 
@@ -93,8 +117,18 @@ public class Shooter {
 
         hood = hardwareMap.servo.get("hood");
 
-        pidf = new PIDFController(kP, 0, 0, 0);
+        pidf = new PIDFController(kP, kI, kD, 0);
         feedforward = new SimpleMotorFeedforward(kS, kV);
+
+        // initialize previous pos time to avoid large dt on first call
+        prevPosTime = System.nanoTime();
+        prevX = 0.0;
+        prevY = 0.0;
+        prevVelTime = System.nanoTime();
+        prevVx = 0.0;
+        prevVy = 0.0;
+        prevHeadingTime = System.nanoTime();
+        prevHeading = 0.0;
 
         prevTargetTime = System.nanoTime();
     }
@@ -131,9 +165,7 @@ public class Shooter {
     }
 
     public void setTurretPos(double pos){
-        // leave room for diffTurret so the servos never get pushed past their bounds
-        double diff = Math.abs(diffTurret);
-        double safePos = Range.clip(pos, turretLowerBound + diff, turretUpperBound - diff);
+        double safePos = Range.clip(pos, turretLowerBound, turretUpperBound);
         canReachPos = safePos == pos;
         turret1.setPosition(safePos+diffTurret);
         turret2.setPosition(safePos-diffTurret);
@@ -141,7 +173,7 @@ public class Shooter {
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*-0.0031111111111111114+0.5;
+        return deg*-0.003111111111111111+0.5;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){
@@ -151,9 +183,13 @@ public class Shooter {
     public void aimTurret(Pose currPosition, Goal target){
         double[] angleDistance = getAngleDistance(currPosition, target);
         double angle = angleDistance[0];
+        double distance = angleDistance[1];
 
-        // setTurretPos clips and reports whether the angle was actually reachable
-        setTurretPos(convertDegreestoServoPos(angle + turretOffset));
+        double servoPos = convertDegreestoServoPos(angle + turretOffset + limelightOffset);
+
+        servoPos = Range.clip(servoPos, turretLowerBound, turretUpperBound);
+
+        setTurretPos(servoPos);
     }
 
     public void aimAtTarget(Pose currPosition, Pose target){
@@ -161,8 +197,11 @@ public class Shooter {
         double angle = angleDistance[0];
         double distance = angleDistance[1];
 
-        // setTurretPos clips and reports whether the angle was actually reachable
-        setTurretPos(convertDegreestoServoPos(angle + turretOffset));
+        double servoPos = convertDegreestoServoPos(angle + turretOffset + limelightOffset);
+
+        servoPos = Range.clip(servoPos, turretLowerBound, turretUpperBound);
+
+        setTurretPos(servoPos);
         setTargetVelocity(Tables.getShooterVelocity(distance) + powerOffset);
         setHood(Tables.getHoodPosition(distance));
     }
@@ -173,7 +212,7 @@ public class Shooter {
     }
 
     public double getCurrentVelocity() {
-        return currentVelocity;
+        return smoothedVelocity;
     }
 
     public void setDirectPower(double power) {
@@ -190,6 +229,7 @@ public class Shooter {
     public void update() {
         // Measure velocity
         currentVelocity = getCurrentVelo();
+        smoothedVelocity = ALPHA * currentVelocity + (1 - ALPHA) * smoothedVelocity;
 
         long currTime = System.nanoTime();
         double dt = (currTime - prevTargetTime) / 1e9;
@@ -204,6 +244,7 @@ public class Shooter {
 
         if (targetVelocity <= 0) {
             outputPower = 0;
+            smoothedVelocity = 0;
         } else {
             outputPower = feedforward.calculate(targetVelocity, accel);
             if (enablePIDF){
@@ -212,12 +253,9 @@ public class Shooter {
                 if (Math.abs(error) > 60)
                     outputPower = Math.signum(error);
                 else
-                    outputPower += pidf.calculate(currentVelocity, targetVelocity);
+                    outputPower += pidf.calculate(smoothedVelocity, targetVelocity);
             }
         }
-
-//        if (hoodTimer.getElapsedTimeSeconds() < 1)
-           // hoodCompensation();
 
         setDirectPower(Math.max(outputPower,0));
         upperGate.update();
@@ -240,84 +278,57 @@ public class Shooter {
         System.out.println("2: "+shooterEncoder2.getVelocity());
 
         if(shooterEncoder1.getVelocity()<10){
-                return Math.abs(shooterEncoder2.getVelocity());
+            return Math.abs(shooterEncoder2.getVelocity());
         }
         else{
             return Math.abs(shooterEncoder1.getVelocity());
         }
     }
 
-    public void hoodCompensation() {
-        double ticksUnderTarget = targetVelocity - currentVelocity;
-
-        if (ticksUnderTarget <= 0) {
-            hood.setPosition(Range.clip(baseHoodPosition, hoodLowerBound, hoodUpperBound));
-            return;
-        }
-
-        double compensation = (ticksUnderTarget / 100.0) * hoodCompensationConstant;
-        double compensatedPos = baseHoodPosition - compensation;
-
-        hood.setPosition(Range.clip(compensatedPos, hoodLowerBound, hoodUpperBound));
+    // getters for vx and vy
+    public double getVx() {
+        return vx;
     }
-    public void resetTimer() {
-        hoodTimer.reset();
+
+    public double getVy() {
+        return vy;
+    }
+
+    // getters for ax and ay
+    public double getAx() {
+        return ax;
+    }
+
+    public double getAy() {
+        return ay;
+    }
+
+    // getter for angular velocity (rad/s)
+    public double getOmega() {
+        return omega;
     }
 
     @Configurable
     public static class Tables {
-        private static final double[] DISTANCES = {
-                123.3, 127.1, 131.0, 134.2, 137.1,
-                141.1, 145.4, 149.3, 153.2, 158.3
-        };
-
-        private static final double[] HOOD = {
-                0.68, 0.66, 0.66, 0.66, 0.66,
-                0.66, 0.66, 0.63, 0.65, 0.75
-        };
-
-        private static final double[] VELOCITY = {
-                1770, 1790, 1790, 1810, 1830,
-                1870, 1920, 1970, 2030, 2160
-        };
-
+        public static double minVelocity = 1200;
         public static double getHoodPosition(double distance) {
-            return interpolate(distance, DISTANCES, HOOD);
-        }
+            double increasehood = 0;
+            double hood =  1.82496e-8 * Math.pow(distance, 4)
+                    - 0.00000387675 * Math.pow(distance, 3)
+                    + 0.000164823 * Math.pow(distance, 2)
+                    + 0.0128326 * distance
+                    - 0.148405 +increasehood;
+            return Math.min(hood, 0.8);
 
+        }
         public static double getShooterVelocity(double distance) {
-            return interpolate(distance, DISTANCES, VELOCITY);
-        }
-
-        private static double interpolate(double x, double[] xValues, double[] yValues) {
-
-            // Clamp below smallest value
-            if (x <= xValues[0])
-                return yValues[0];
-
-            // Clamp above largest value
-            if (x >= xValues[xValues.length - 1])
-                return yValues[yValues.length - 1];
-
-            // Find interval
-            for (int i = 0; i < xValues.length - 1; i++) {
-
-                if (x >= xValues[i] && x <= xValues[i + 1]) {
-
-                    double x1 = xValues[i];
-                    double x2 = xValues[i + 1];
-
-                    double y1 = yValues[i];
-                    double y2 = yValues[i + 1];
-
-                    double t = (x - x1) / (x2 - x1);
-
-                    return y1 + t * (y2 - y1);
-                }
-            }
-
-            // Should never happen
-            return yValues[yValues.length - 1];
+            double increase = 0;
+            double vel =  -0.0000108852 * Math.pow(distance, 4)
+                    + 0.00192886 * Math.pow(distance, 3)
+                    - 0.0697063 * Math.pow(distance, 2)
+                    + 5.6394 * distance
+                    + 950.93742 +increase;
+            return Math.max(minVelocity, vel);
         }
     }
 }

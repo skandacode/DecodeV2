@@ -70,6 +70,7 @@ public class Tele extends OpMode {
         robot = new Robot(hardwareMap, alliance);
         robot.update();
 
+
         headingPID = new PIDFController(1.4426, 0, 0.2179, 0);
         secondaryHeadingPID = new PIDFController(0.6412, 0 ,0.1141, 0);
 
@@ -79,8 +80,7 @@ public class Tele extends OpMode {
                 .state(States.Intake)
                 .onEnter(() -> {
                     robot.light.setRed();
-                    robot.intake.setIntakePower(1);
-                    robot.intake.setTransferPower(0.7);
+                    robot.intake.setPower(1);
                     robot.shooter.setUpperGate(false);
                     robot.kicker.setKicker(false);
                 })
@@ -119,13 +119,15 @@ public class Tele extends OpMode {
                         robot.intake.setPower(1);
                         robot.light.setOrange();
                     }
+                    if (!robot.shooter.canReachPos) {
+                        robot.light.setRed();
+                    }
                 })
                 .transition(() -> gamepad1.bWasPressed(), States.OpenUpperGate)
                 .transition(() -> gamepad1.yWasPressed(), States.Intake)
 
                 .state(States.OpenUpperGate)
                 .onEnter(() -> {
-                    robot.shooter.resetTimer();
                     robot.shooter.setUpperGate(true);
                     robot.intake.setPower(0);
                 })
@@ -135,11 +137,12 @@ public class Tele extends OpMode {
                     robot.intake.setPower(1);
                     robot.kicker.setKicker(true);
                 })
-                .transitionTimed(0.5, States.Intake)
+                .transitionTimed(0.3, States.Intake)
                 .build();
     }
 
     public void init_loop() {
+        robot.follower.setPose(Robot.savedPose);
         robot.update();
 //        if (gamepad1.a) {
 //            target = Shooter.Goal.BLUE;
@@ -158,6 +161,12 @@ public class Tele extends OpMode {
     }
 
     public void start() {
+//        if (target == Shooter.Goal.BLUE) {
+//            robot.limelight.setCurrentPipeline(LimelightCamera.Pipelines.BLUETRACK);
+//        } else {
+//            robot.limelight.setCurrentPipeline(LimelightCamera.Pipelines.REDTRACK);
+//        }
+
         stateMachine.start();
 //        robot.follower.startTeleopDrive();
     }
@@ -197,6 +206,7 @@ public class Tele extends OpMode {
         }
         if (gamepad1.leftBumperWasPressed()) {
             robot.follower.setPose(relocalizePos);
+//            Shooter.limelightOffset = 0;
             if (allianceBlue) {
                 Shooter.powerOffset = 0;
                 Shooter.turretOffset = 0;
@@ -205,6 +215,10 @@ public class Tele extends OpMode {
                 Shooter.turretOffset = 2;
             }
         }
+
+//        if (gamepad1.xWasPressed())
+//            Shooter.limelightOffset += robot.limelight.getTrackingResults();
+
 
         if (gamepad1.dpadDownWasPressed())
             Shooter.powerOffset -= powerOffsetIncrements;
@@ -219,13 +233,6 @@ public class Tele extends OpMode {
 
         stateMachine.update();
 
-        // Overrides whatever colour the state machine picked: if the turret physically
-        // cannot reach the angle needed to hit the goal, the shot is bad regardless of
-        // how many balls we are holding.
-        if (!robot.shooter.canReachPos)
-            robot.light.setRed();
-
-        telemetry.addData("Turret can reach target", robot.shooter.canReachPos);
         telemetry.addData("Current Pos", robot.follower.pose());
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());

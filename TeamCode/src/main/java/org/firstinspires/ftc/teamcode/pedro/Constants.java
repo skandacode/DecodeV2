@@ -33,8 +33,8 @@ public class Constants {
                 c.name.set("odo");
                 c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
                 c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
-                c.xPodOffset.set(4.4274);
-                c.yPodOffset.set(-3.18316);
+                c.xPodOffset.set(4.446691317);
+                c.yPodOffset.set(-3.189212829);
                 c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
             }
     );
@@ -52,7 +52,7 @@ public class Constants {
                 c.lateralTranslationalController.set(Controller.piecewise(Controller.zero).put(0.5, smallTranslationalLateral).put(2.5, largeTranslationalLateral));
                 c.brakeController.set(Controller.pid(0.0285, 0, 0).plus(Controller.dynamicFeedforward(0.0085574)));
                 c.brakeAccelFeedforward.set(Controller.dynamicFeedforward(0.00164713333));
-                c.headingController.set(Controller.pid(1.5724,0,0.2183));
+//                c.headingController.set(Controller.pid(1.5724,0,0.2183));
                 c.maxBrakingPower.set(0.3);
                 c.centripetalScaling.set(0.0005);
                 c.headingDriveRatio.set(0.35);
