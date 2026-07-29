@@ -64,7 +64,7 @@
 //    public CommandBuilder preload() {
 ////        PathChain path = f.pathBuilder()
 ////                .addPath(new BezierLine(start, preloadScore))
-////                .setLinearHeadingInterpolation(start.getHeading(), preloadScore.getHeading())
+////                .setLinearHeadingInterpolation(start.heading(), preloadScore.heading())
 ////                .setBrakingStrength(1.5)
 ////                .build();
 ////        return new FollowPath(this.f, path);

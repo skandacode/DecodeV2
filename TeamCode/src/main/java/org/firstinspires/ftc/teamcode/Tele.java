@@ -82,7 +82,8 @@ public class Tele extends OpMode {
                 .state(States.Intake)
                 .onEnter(() -> {
                     robot.light.setRed();
-                    robot.intake.setPower(1);
+                    robot.intake.setIntakePower(1);
+                    robot.intake.setTransferPower(0.7);
                     robot.shooter.setUpperGate(false);
                     robot.kicker.setKicker(false);
                 })
@@ -183,13 +184,13 @@ public class Tele extends OpMode {
             headingPID.setSetPoint(Math.toRadians(headingLock));
             secondaryHeadingPID.setSetPoint(Math.toRadians(headingLock));
 
-            double error = MathFunctions.normalizeAngle(Math.toRadians(headingLock) - robot.follower.getHeading());
+            double error = MathFunctions.normalizeAngle(Math.toRadians(headingLock) - robot.follower.heading());
             double calc;
 
             if (Math.abs(error) > Math.PI/20)
-                calc = headingPID.calculate(robot.follower.getHeading());
+                calc = headingPID.calculate(robot.follower.heading());
             else
-                calc = secondaryHeadingPID.calculate(robot.follower.getHeading());
+                calc = secondaryHeadingPID.calculate(robot.follower.heading());
 
             telemetry.addData("heading lock enabled", calc);
             robot.follower.setTeleOpDrive(-forward, -strafe, calc, true);

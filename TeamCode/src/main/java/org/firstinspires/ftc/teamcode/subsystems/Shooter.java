@@ -31,7 +31,7 @@ public class Shooter {
 
     private double targetVelocity = 0.0;
     private double currentVelocity = 0.0;
-    public static double diffTurret = -0.006;
+    public static double diffTurret = 0.001;
     // --- Flywheel PIDF coefficients ---
     public static double kP = 0.005;
 
@@ -41,8 +41,8 @@ public class Shooter {
     public static boolean enablePIDF = true;
 
     // --- Turret bounds ---
-    public static double turretUpperBound = 0.97;
-    public static double turretLowerBound = 0.03;
+    public static double turretUpperBound = 0.95;
+    public static double turretLowerBound = 0.05;
 
     // --- Hood bounds ---
     public static double hoodCompensationConstant = 0.01;
@@ -116,7 +116,7 @@ public class Shooter {
         double dx = target.getX()-currPosition.getX();
         double dy = target.getY()-currPosition.getY();
         double angle = Math.atan2(dy, dx);
-        double turretAngle = Math.toDegrees(-angle + currPosition.getHeading());
+        double turretAngle = Math.toDegrees(-angle + currPosition.heading());
 
         while (Math.abs(turretAngle)>=180){
             if (turretAngle>0){
@@ -142,7 +142,7 @@ public class Shooter {
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*-0.003111111111111111+0.503;
+        return deg*-0.0031111111111111114+0.5;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){
@@ -217,8 +217,8 @@ public class Shooter {
             }
         }
 
-        if (hoodTimer.getElapsedTimeSeconds() < 1)
-            hoodCompensation();
+//        if (hoodTimer.getElapsedTimeSeconds() < 1)
+           // hoodCompensation();
 
         setDirectPower(Math.max(outputPower,0));
         upperGate.update();

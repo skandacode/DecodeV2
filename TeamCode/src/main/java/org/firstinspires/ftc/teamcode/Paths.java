@@ -87,7 +87,7 @@ public class Paths {
     public CommandBuilder preload() {
         PathChain path = f.pathBuilder()
                 .addPath(new BezierLine(start, preloadScore))
-                .setLinearHeadingInterpolation(start.getHeading(), preloadScore.getHeading())
+                .setLinearHeadingInterpolation(start.heading(), preloadScore.heading())
                 .setBrakingStrength(1.5)
                 .build();
         return new FollowPath(this.f, path);
@@ -105,7 +105,7 @@ public class Paths {
     public CommandBuilder scoreSpike1() {
         PathChain path = f.pathBuilder()
                 .addPath(new BezierCurve(intake1End, intake1Control, score))
-                .setLinearHeadingInterpolation(intake1End.getHeading(), score.getHeading())
+                .setLinearHeadingInterpolation(intake1End.heading(), score.heading())
                 .setBrakingStrength(1.5)
                 .build();
         return new FollowPath(this.f, path);
@@ -123,7 +123,7 @@ public class Paths {
     public CommandBuilder scoreSpike2() {
         PathChain path = f.pathBuilder()
                 .addPath(new BezierCurve(intake2End, intake2Control, score))
-                .setLinearHeadingInterpolation(intake2End.getHeading(), score.getHeading())
+                .setLinearHeadingInterpolation(intake2End.heading(), score.heading())
                 .setBrakingStrength(1.5)
                 .build();
         return new FollowPath(this.f, path);
@@ -132,7 +132,7 @@ public class Paths {
     public CommandBuilder openGate2() {
         PathChain path = f.pathBuilder()
                 .addPath(new BezierLine(gatePreOpen2ndTime, gateOpen))
-                .setLinearHeadingInterpolation(gatePreOpen2ndTime.getHeading(), gateOpen.getHeading())
+                .setLinearHeadingInterpolation(gatePreOpen2ndTime.heading(), gateOpen.heading())
                 .build();
         return new FollowPath(this.f, path);
     }
@@ -140,7 +140,7 @@ public class Paths {
     public CommandBuilder openGate() {
         PathChain path = f.pathBuilder()
                 .addPath(new BezierLine(gatePreOpen, gateOpen))
-                .setLinearHeadingInterpolation(gatePreOpen.getHeading(), gateOpen.getHeading())
+                .setLinearHeadingInterpolation(gatePreOpen.heading(), gateOpen.heading())
                 .build();
         return new FollowPath(this.f, path);
     }
@@ -149,7 +149,7 @@ public class Paths {
         PathChain path = f.pathBuilder()
                 .addPath(new BezierLine(intake1End, gatePreOpen))
                 .setNoDeceleration()
-                .setLinearHeadingInterpolation(intake1End.getHeading(), gatePreOpen.getHeading())
+                .setLinearHeadingInterpolation(intake1End.heading(), gatePreOpen.heading())
                 .build();
         return new FollowPath(this.f, path);
     }
@@ -158,7 +158,7 @@ public class Paths {
         PathChain path = f.pathBuilder()
                 .addPath(new BezierCurve(intake2End, intake2Control, gatePreOpen2ndTime))
                 .setNoDeceleration()
-                .setLinearHeadingInterpolation(intake2End.getHeading(), gatePreOpen2ndTime.getHeading())
+                .setLinearHeadingInterpolation(intake2End.heading(), gatePreOpen2ndTime.heading())
                 .build();
         return new FollowPath(this.f, path);
     }
@@ -166,7 +166,7 @@ public class Paths {
     public CommandBuilder scoreGate1() {
         PathChain path = f.pathBuilder()
                 .addPath(new BezierLine(gateOpen, score))
-                .setLinearHeadingInterpolation(gateOpen.getHeading(), score.getHeading())
+                .setLinearHeadingInterpolation(gateOpen.heading(), score.heading())
                 .setBrakingStrength(1)
                 .build();
         return new FollowPath(this.f, path);
@@ -214,7 +214,7 @@ public class Paths {
     private CommandBuilder intakeGate(Pose target, double brakingStrength) {
         PathChain path = f.pathBuilder()
                 .addPath(new BezierCurve(f.getPose(), gateIntakeControl, target))
-                .setLinearHeadingInterpolation(f.getHeading(), target.getHeading())
+                .setLinearHeadingInterpolation(f.heading(), target.heading())
                 .setBrakingStrength(brakingStrength)
                 .build();
         return new FollowPath(this.f, path);

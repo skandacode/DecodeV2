@@ -133,7 +133,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
 
         PathChain toShoot = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, shootPose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), shootPose.getHeading())
+                .setLinearHeadingInterpolation(startPose.heading(), shootPose.heading())
                 .setBrakingStrength(1.5)
                 .build();
         PathChain toIntake1 = follower.pathBuilder()
@@ -150,19 +150,19 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
 
         PathChain openGate2 = follower.pathBuilder()
                 .addPath(new BezierLine(gatepreopen2ndtime, gateopen))
-                .setLinearHeadingInterpolation(gatepreopen2ndtime.getHeading(), gateopen.getHeading())
+                .setLinearHeadingInterpolation(gatepreopen2ndtime.heading(), gateopen.heading())
                 .build();
 
         PathChain intake2back = follower.pathBuilder()
                 .addPath(new BezierCurve(intake2donePose, intake2Pose, gatepreopen2ndtime))
                 .setNoDeceleration()
-                .setLinearHeadingInterpolation(intake2donePose.getHeading(), gatepreopen2ndtime.getHeading())
+                .setLinearHeadingInterpolation(intake2donePose.heading(), gatepreopen2ndtime.heading())
                 .build();
 
 
         PathChain toScore1 = follower.pathBuilder()
                 .addPath(new BezierLine(intake1donePose, shootPose2nd))
-                .setLinearHeadingInterpolation(intake1donePose.getHeading(), shootPose2nd.getHeading())
+                .setLinearHeadingInterpolation(intake1donePose.heading(), shootPose2nd.heading())
                 .setBrakingStrength(1)
                 .build();
 
@@ -286,7 +286,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                     spindexer.setKicker(false);
                     PathChain toIntakeGate = follower.pathBuilder()
                             .addPath(new BezierCurve(follower.getPose(), gateintakecontrol, gateintake1))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake1.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintake1.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(toIntakeGate, true);
@@ -303,7 +303,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 .onEnter(()->{
                     PathChain back = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), gateintakeback1))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintakeback1.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintakeback1.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(back, true);
@@ -313,7 +313,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 .onEnter(()->{
                     PathChain up = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), gateintake1))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake1.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintake1.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(up, true);
@@ -354,7 +354,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                     spindexer.setKicker(false);
                     PathChain toIntakeGate = follower.pathBuilder()
                             .addPath(new BezierCurve(follower.getPose(), gateintakecontrol, gateintake2))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake2.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintake2.heading())
                             .setBrakingStrength(0.6)
                             .build();
                     follower.followPath(toIntakeGate, true);
@@ -371,7 +371,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 .onEnter(()->{
                     PathChain back = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), gateintakeback2))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintakeback2.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintakeback2.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(back, true);
@@ -381,7 +381,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 .onEnter(()->{
                     PathChain up = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), gateintake2))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake2.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintake2.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(up, true);
@@ -423,7 +423,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                     spindexer.setKicker(false);
                     PathChain toIntakeGate = follower.pathBuilder()
                             .addPath(new BezierCurve(follower.getPose(), gateintakecontrol, gateintake3))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake3.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintake3.heading())
                             .setBrakingStrength(0.6)
                             .build();
                     follower.followPath(toIntakeGate, true);
@@ -440,7 +440,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 .onEnter(()->{
                     PathChain back = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), gateintakeback3))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintakeback3.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintakeback3.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(back, true);
@@ -450,7 +450,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 .onEnter(()->{
                     PathChain up = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), gateintake3))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake3.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintake3.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(up, true);
@@ -491,7 +491,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                     spindexer.setKicker(false);
                     PathChain toIntakeGate = follower.pathBuilder()
                             .addPath(new BezierCurve(follower.getPose(), gateintakecontrol, gateintake4))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake4.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintake4.heading())
                             .setBrakingStrength(0.6)
                             .build();
                     follower.followPath(toIntakeGate, true);
@@ -508,7 +508,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 .onEnter(()->{
                     PathChain back = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), gateintakeback3))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintakeback3.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintakeback3.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(back, true);
@@ -518,7 +518,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 .onEnter(()->{
                     PathChain up = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), gateintake3))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake3.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintake3.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(up, true);
@@ -561,7 +561,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                     spindexer.setKicker(false);
                     PathChain toIntakeGate = follower.pathBuilder()
                             .addPath(new BezierCurve(follower.getPose(), gateintakecontrol, gateintake4))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake4.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintake4.heading())
                             .setBrakingStrength(0.6)
                             .build();
                     follower.followPath(toIntakeGate, true);
@@ -578,7 +578,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 .onEnter(()->{
                     PathChain back = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), gateintakeback3))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintakeback3.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintakeback3.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(back, true);
@@ -588,7 +588,7 @@ public class AutoStartCloseManyGateHeart21 extends LinearOpMode {
                 .onEnter(()->{
                     PathChain up = follower.pathBuilder()
                             .addPath(new BezierLine(follower.getPose(), gateintake3))
-                            .setLinearHeadingInterpolation(follower.getHeading(), gateintake3.getHeading())
+                            .setLinearHeadingInterpolation(follower.heading(), gateintake3.heading())
                             .setBrakingStrength(0.4)
                             .build();
                     follower.followPath(up, true);
