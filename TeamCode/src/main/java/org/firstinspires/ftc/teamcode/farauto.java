@@ -107,7 +107,7 @@ public class farauto extends LinearOpMode {
                 Posmultiplier=-1;
             }
             spindexer.setKicker(false);
-            Shooter.turretOffset=-2;
+            Shooter.turretOffset=-3.5;
             shooter.setTurretPos(shooter.convertDegreestoServoPos(0));
             shooter.setHood(0.65);
             shooter.setUpperGate(false);
@@ -118,7 +118,7 @@ public class farauto extends LinearOpMode {
 
         if (opModeIsActive()) {
             waitForStart();
-            Pose shootPose1 = new Pose(57, -12 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
+            Pose shootPose1 = new Pose(57, -13.5 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
 
             Pose shootPose = new Pose(50, -20 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
             Pose intakeHuman = new Pose(58, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
@@ -139,13 +139,11 @@ public class farauto extends LinearOpMode {
                     .onEnter(() -> {
                         intakes.setPower(0.4);
                         spindexer.setKicker(false);
-                        Path toScore = line(follower.pose(), shootPose1).constant(shootPose1);
-                        follower.follow(toScore);
                         //shooter.setHood(0.67);
                         //shooter.setTargetVelocity(1900);
 //                        shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
                     })
-                    .transitionTimed(1)
+                    .transitionTimed(1.1)
 
                     .state(AutoStates.preSHOOT1)
                     .onEnter(() -> {
@@ -154,10 +152,11 @@ public class farauto extends LinearOpMode {
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT1)
                     .onEnter(() -> {
-                        intakes.setPower(1);
+                        intakes.setIntakePower(1);
+                        intakes.setTransferPower(0.7);
                         spindexer.setKicker(true);
                     })
-                    .transitionTimed(0.3)
+                    .transitionTimed(0.26)
 
 
                     .state(AutoStates.MOVETOINTAKE1)
@@ -186,7 +185,7 @@ public class farauto extends LinearOpMode {
                     .state(AutoStates.wait2)
                     .onEnter(() -> {
                     })
-                    .transitionTimed(0.1)
+                    .transitionTimed(0.2)
 
                     .state(AutoStates.preSHOOT2)
                     .onEnter(() -> {
@@ -195,7 +194,8 @@ public class farauto extends LinearOpMode {
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT2)
                     .onEnter(() -> {
-                        intakes.setPower(1);
+                        intakes.setIntakePower(1);
+                        intakes.setTransferPower(0.7);
                         spindexer.setKicker(true);
                     })
                     .transitionTimed(0.3)
@@ -210,11 +210,11 @@ public class farauto extends LinearOpMode {
                         Path toIntakeHuman = line(follower.pose(), intakeHuman).constant(intakeHuman);
                         follower.follow(toIntakeHuman);
                     })
-                    .transitionTimed(1.2)
+                    .transitionTimed(1.7)
 
                     .state(AutoStates.MOVETOSHOOT3)
                     .onEnter(() -> {
-                        intakes.setTransferPower(0.4);
+//                        intakes.setTransferPower(0.4);
                         Path toScore = line(follower.pose(), shootPose).constant(shootPose);
                         follower.follow(toScore);
                     })
@@ -224,7 +224,7 @@ public class farauto extends LinearOpMode {
                     .onEnter(() -> {
                         follower.hold(shootPose);
                     })
-                    .transitionTimed(0.2)
+                    .transitionTimed(0.36)
 
                     .state(AutoStates.preSHOOT3)
                     .onEnter(() -> {
@@ -233,7 +233,8 @@ public class farauto extends LinearOpMode {
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT3)
                     .onEnter(() -> {
-                        intakes.setPower(1);
+                        intakes.setIntakePower(1);
+                        intakes.setTransferPower(0.7);
                         spindexer.setKicker(true);
                     })
                     .transitionTimed(0.3)
@@ -250,7 +251,7 @@ public class farauto extends LinearOpMode {
                     .transitionTimed(1.2)
                     .state(AutoStates.MOVETOSHOOT4)
                     .onEnter(() -> {
-                        intakes.setTransferPower(0.4);
+//                        intakes.setPower(0.4);
                         Path toScore = line(follower.pose(), shootPose).constant(shootPose);
                         follower.follow(toScore);
                     })
@@ -261,7 +262,7 @@ public class farauto extends LinearOpMode {
                     .onEnter(() -> {
 follower.hold(shootPose);
                     })
-                    .transitionTimed(0.2)
+                    .transitionTimed(0.36)
 
                     .state(AutoStates.preSHOOT4)
                     .onEnter(() -> {
@@ -270,7 +271,8 @@ follower.hold(shootPose);
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT4)
                     .onEnter(() -> {
-                        intakes.setPower(1);
+                        intakes.setIntakePower(1);
+                        intakes.setTransferPower(0.7);
                         spindexer.setKicker(true);
                     })
                     .transitionTimed(0.3)
@@ -286,7 +288,7 @@ follower.hold(shootPose);
                     .transitionTimed(1.5)
                     .state(AutoStates.MOVETOSHOOT5)
                     .onEnter(() -> {
-                        intakes.setPower(0.2);
+//                        intakes.setPower(0.4);
                         Path toScore = line(follower.pose(), shootPose).constant(intake1donePose);
                         follower.follow(toScore);
                     })
@@ -295,7 +297,7 @@ follower.hold(shootPose);
                     .state(AutoStates.wait5)
                     .onEnter(() -> {
 follower.hold(shootPose);                    })
-                    .transitionTimed(0.2)
+                    .transitionTimed(0.36)
 
                     .state(AutoStates.preSHOOT5)
                     .onEnter(() -> {
@@ -304,7 +306,8 @@ follower.hold(shootPose);                    })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT5)
                     .onEnter(() -> {
-                        intakes.setPower(1);
+                        intakes.setIntakePower(1);
+                        intakes.setTransferPower(0.7);
                         spindexer.setKicker(true);
                     })
                     .transitionTimed(0.3)
@@ -321,7 +324,7 @@ follower.hold(shootPose);                    })
 
                     .state(AutoStates.MOVETOSHOOT6)
                     .onEnter(() -> {
-                        intakes.setTransferPower(0.4);
+//                        intakes.setPower(0.4);
                         Path toScore = line(follower.pose(), shootPose).constant(shootPose);
                         //shooter.setTurretPos(shooter.convertDegreestoServoPos(69*Posmultiplier));
 
@@ -333,7 +336,7 @@ follower.hold(shootPose);                    })
                     .state(AutoStates.wait6)
                     .onEnter(() -> {
 follower.hold(shootPose);                    })
-                    .transitionTimed(0.2)
+                    .transitionTimed(0.36)
 
                     .state(AutoStates.preSHOOT6)
                     .onEnter(() -> {
@@ -342,7 +345,8 @@ follower.hold(shootPose);                    })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT6)
                     .onEnter(() -> {
-                        intakes.setPower(1);
+                        intakes.setIntakePower(1);
+                        intakes.setTransferPower(0.7);
                         spindexer.setKicker(true);
                     })
                     .transitionTimed(0.3)
@@ -357,7 +361,7 @@ follower.hold(shootPose);                    })
                     .transitionTimed(1.6)
                     .state(AutoStates.MOVETOSHOOT7)
                     .onEnter(() -> {
-                        intakes.setTransferPower(0.4);
+//                        intakes.setPower(0.4);
                         Path toScore = line(follower.pose(), shootPose).constant(shootPose);
 //                        shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
 
@@ -368,7 +372,7 @@ follower.hold(shootPose);                    })
                     .state(AutoStates.wait7)
                     .onEnter(() -> {
 follower.hold(shootPose);                    })
-                    .transitionTimed(0.2)
+                    .transitionTimed(0.36)
 
                     .state(AutoStates.preSHOOT7)
                     .onEnter(() -> {
@@ -377,13 +381,14 @@ follower.hold(shootPose);                    })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT7)
                     .onEnter(() -> {
-                        intakes.setPower(1);
+                        intakes.setIntakePower(1);
+                        intakes.setTransferPower(0.7);
                         spindexer.setKicker(true);
                     })
                     .transitionTimed(0.3)
                     .state(AutoStates.MOVETOINTAKE7)
                     .onEnter(() -> {
-                        intakes.setPower(1);
+//                        intakes.setPower(1);
                         shooter.setUpperGate(false);
                         spindexer.setKicker(false);
                         detection();
@@ -392,7 +397,7 @@ follower.hold(shootPose);                    })
                     .transitionTimed(1.6)
                     .state(AutoStates.MOVETOSHOOT8)
                     .onEnter(() -> {
-                        intakes.setTransferPower(0.4);
+//                        intakes.setPower(0.4);
                         Path toScore = line(follower.pose(), shootPose).constant(shootPose);
 //                        shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
 
@@ -404,7 +409,7 @@ follower.hold(shootPose);                    })
                     .state(AutoStates.wait8)
                     .onEnter(() -> {
 follower.hold(shootPose);                    })
-                    .transitionTimed(0.2)
+                    .transitionTimed(0.36)
 
                     .state(AutoStates.preSHOOT8)
                     .onEnter(() -> {
@@ -413,7 +418,8 @@ follower.hold(shootPose);                    })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT8)
                     .onEnter(() -> {
-                        intakes.setPower(1);
+                        intakes.setIntakePower(1);
+                        intakes.setTransferPower(0.7);
                         spindexer.setKicker(true);
                     })
                     .transitionTimed(0.3)
@@ -429,7 +435,7 @@ follower.hold(shootPose);                    })
                     .transitionTimed(1.6)
                     .state(AutoStates.MOVETOSHOOT9)
                     .onEnter(() -> {
-                        intakes.setTransferPower(0.4);
+//                        intakes.setPower(0.4);
                         Path toScore = line(follower.pose(), shootPose).constant(shootPose);
 //                        shooter.setTurretPos(shooter.convertDegreestoServoPos(72*Posmultiplier));
 
@@ -441,7 +447,7 @@ follower.hold(shootPose);                    })
                     .onEnter(() -> {
                         follower.hold(shootPose);
                     })
-                    .transitionTimed(0.2)
+                    .transitionTimed(0.36)
 
                     .state(AutoStates.preSHOOT9)
                     .onEnter(() -> {
@@ -450,7 +456,8 @@ follower.hold(shootPose);                    })
                     .transitionTimed(0.1)
                     .state(AutoStates.SHOOT9)
                     .onEnter(() -> {
-                        intakes.setPower(1);
+                        intakes.setIntakePower(1);
+                        intakes.setTransferPower(0.7);
                         spindexer.setKicker(true);
                     })
                     .transitionTimed(0.3)
@@ -468,8 +475,8 @@ follower.hold(shootPose);                    })
             while (opModeIsActive()) {
                 for (LynxModule hub : hubs) hub.clearBulkCache();
                 shooter.aimTurret(follower.pose(),shooterTarget);
-                shooter.setHood(0.68);
-                shooter.setTargetVelocity(1880);
+                shooter.setHood(0.66);
+                shooter.setTargetVelocity(1860);
                 Robot.savedPose = follower.pose();
                 telemetry.addData("Angle and distance:", Arrays.toString(shooter.getAngleDistance(Robot.savedPose, shooterTarget)));
                 follower.update();
@@ -500,9 +507,14 @@ follower.hold(shootPose);                    })
         result = limelight.getLatestResult();
         tx = result.getTx();
         ty = result.getTy();
+
+        if (tx==0 && ty==0){
+            path = line(p, new Pose(56, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier))).constant(90);
+            return;
+        }
         x = 5.25*Math.sin(Math.toRadians(tx))/Math.tan(Math.toRadians(ty));
         y = -5.25*Math.cos(Math.toRadians(tx))/Math.tan(Math.toRadians(ty));
-        ball1 = p.plus(new Pose(x, y));
+        ball1 = p.plus(new Pose(-x, y));
         System.out.println("Detection angles: "+tx +" "+ty);
         System.out.println("Detection inches: "+x +" "+y);
 
@@ -510,15 +522,26 @@ follower.hold(shootPose);                    })
         result = limelight.getLatestResult();
         tx = result.getTx();
         ty = result.getTy();
+
+        if (tx==0 && ty==0){
+            path = line(p, new Pose(56, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier))).constant(90);
+            return;
+        }
+
         x = 5.25*Math.sin(Math.toRadians(tx))/Math.tan(Math.toRadians(ty));
         y = -5.25*Math.cos(Math.toRadians(tx))/Math.tan(Math.toRadians(ty));
         System.out.println("Detection angles: "+tx +" "+ty);
         System.out.println("Detection inches: "+x +" "+y);
 
-        ball2 = p.plus(new Pose(x, y));
+        ball2 = p.plus(new Pose(-x, y));
         ball3 = ball1.plus(new Pose(10*timp*(ball2.x()-ball1.x()),10*timp*(ball2.y()-ball1.y())));
         ball3=ball3.withY(60).withHeading(Math.toRadians(90));
-
+        if (ball3.x()>58){
+            ball3 = ball3.withX(58);
+        }
+        if (ball3.x()<36){
+            ball3 = ball3.withX(36);
+        }
 
         path = line(p, ball3).constant(p.heading());
 

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -105,7 +106,7 @@ public class limelighttest extends LinearOpMode {
 
             telemetry.addData("x", x);
             telemetry.addData("y", y);
-
+            telemetry.addData("target position: ", new Pose(57, 14, Math.toRadians(90)).plus(new Pose(-x, y)).toString());
             telemetry.update();
         }
     }
