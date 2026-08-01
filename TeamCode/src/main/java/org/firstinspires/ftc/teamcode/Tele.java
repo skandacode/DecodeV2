@@ -6,7 +6,6 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.math.Pose;
 import com.pedropathing.utils.Angle;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -24,6 +23,8 @@ public class Tele extends OpMode {
 
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
+    public static double hoodOffsetIncrements = 0.02;
+
     public static double turretOffsetIncrements = 2;
 
     public static double pulseTime = 0.05;
@@ -32,13 +33,11 @@ public class Tele extends OpMode {
     private PIDFController headingPID, secondaryHeadingPID;
 
 
-    public Pose relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
-
-    public static boolean allianceBlue = true;
-    public static boolean telemetryCurrent = false;
+    public Pose relocalizePos;
 
     public enum States {
         Intake,
+        BallsUp,
         TransferOff,
         BeforePulseOut,
         PulseOut,
@@ -56,14 +55,16 @@ public class Tele extends OpMode {
     public void init() {
         if (alliance.equals(Alliance.BLUE)) {
             target = Shooter.Goal.BLUE;
-            allianceBlue = true;
             relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
+            Shooter.turretOffset=-2;
+            Shooter.powerOffset=30;
             headingLock = -122;
         } else {
             target = Shooter.Goal.RED;
-            allianceBlue = false;
             relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
             headingLock = 122;
+            Shooter.turretOffset=0;
+            Shooter.powerOffset=0;
         }
 
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
@@ -85,8 +86,16 @@ public class Tele extends OpMode {
                     robot.kicker.setKicker(false);
                 })
                 .transition(() -> gamepad1.bWasPressed(), States.OpenUpperGate)
-                .transition(() -> robot.intake.getBeamBreakInside() && robot.intake.getDetected(), States.TransferOff)
+                .transition(() -> robot.intake.getBeamBreakInside() && robot.intake.getDetected(), States.BallsUp)
                 .transition(() -> gamepad1.aWasPressed(), States.HoldBalls)
+
+                .state(States.BallsUp)
+                .onEnter(()->{
+                    robot.light.setYellow();
+                    robot.intake.setPower(1);
+                })
+                .transitionTimed(0.3, States.TransferOff)
+                .transition(() -> gamepad1.bWasPressed(), States.OpenUpperGate)
 
                 .state(States.TransferOff)
                 .onEnter(() -> robot.intake.setTransferPower(0.3))
@@ -106,7 +115,7 @@ public class Tele extends OpMode {
 
                 .state(States.PulseIn)
                 .onEnter(() -> robot.intake.setIntakePower(1))
-                .transitionTimed(0.2)
+                .transitionTimed(0.5)
                 .transition(() -> gamepad1.bWasPressed(), States.OpenUpperGate)
 
                 .state(States.HoldBalls)
@@ -144,31 +153,13 @@ public class Tele extends OpMode {
     public void init_loop() {
         robot.follower.setPose(Robot.savedPose);
         robot.update();
-//        if (gamepad1.a) {
-//            target = Shooter.Goal.BLUE;
-//            allianceBlue = true;
-//            relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
-//        }
-//        if (gamepad1.b) {
-//            target = Shooter.Goal.RED;
-//            allianceBlue = false;
-//            relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
-//        }
-
         telemetry.addData("Shooter Target", target);
         telemetry.addData("Current Pos", robot.follower.pose());
         telemetry.update();
     }
 
     public void start() {
-//        if (target == Shooter.Goal.BLUE) {
-//            robot.limelight.setCurrentPipeline(LimelightCamera.Pipelines.BLUETRACK);
-//        } else {
-//            robot.limelight.setCurrentPipeline(LimelightCamera.Pipelines.REDTRACK);
-//        }
-
         stateMachine.start();
-//        robot.follower.startTeleopDrive();
     }
 
     public void loop() {
@@ -187,16 +178,16 @@ public class Tele extends OpMode {
         }
 
         if (gamepad1.right_trigger > 0.1) {
-            headingPID.setSetPoint(Math.toRadians(headingLock));
-            secondaryHeadingPID.setSetPoint(Math.toRadians(headingLock));
+            headingPID.setSetPoint(Angle.normalize(Math.toRadians(headingLock)));
+            secondaryHeadingPID.setSetPoint(Angle.normalize(Math.toRadians(headingLock)));
 
-            double error = Angle.normalize(Math.toRadians(headingLock) - robot.follower.pose().heading());
+            double error = Angle.normalize(Angle.normalize(Math.toRadians(headingLock)) - Angle.normalize(robot.follower.pose().heading()));
             double calc;
 
             if (Math.abs(error) > Math.PI/20)
-                calc = headingPID.calculate(robot.follower.pose().heading());
+                calc = headingPID.calculate(Angle.normalize(robot.follower.pose().heading()));
             else
-                calc = secondaryHeadingPID.calculate(robot.follower.pose().heading());
+                calc = secondaryHeadingPID.calculate(Angle.normalize(robot.follower.pose().heading()));
 
             telemetry.addData("heading lock enabled", calc);
             robot.follower.manual(-forward, -strafe, calc);
@@ -206,36 +197,38 @@ public class Tele extends OpMode {
         }
         if (gamepad1.leftBumperWasPressed()) {
             robot.follower.setPose(relocalizePos);
-//            Shooter.limelightOffset = 0;
-            if (allianceBlue) {
+            if (alliance.equals(Alliance.BLUE)) {
                 Shooter.powerOffset = 0;
-                Shooter.turretOffset = 0;
+                Shooter.turretOffset = -2;
             } else {
                 Shooter.powerOffset = 0;
                 Shooter.turretOffset = 2;
             }
         }
 
-//        if (gamepad1.xWasPressed())
-//            Shooter.limelightOffset += robot.limelight.getTrackingResults();
-
-
-        if (gamepad1.dpadDownWasPressed())
+        if (gamepad2.dpadDownWasPressed())
             Shooter.powerOffset -= powerOffsetIncrements;
 
-        if (gamepad1.dpadLeftWasPressed())
+        if (gamepad2.dpadLeftWasPressed())
             Shooter.turretOffset -= turretOffsetIncrements;
-
-        if (gamepad1.dpadRightWasPressed())
+        if (gamepad2.dpadRightWasPressed())
             Shooter.turretOffset += turretOffsetIncrements;
-        if (gamepad1.dpadUpWasPressed())
+        if (gamepad2.dpadUpWasPressed())
             Shooter.powerOffset += powerOffsetIncrements;
+        if (gamepad2.yWasPressed())
+            Shooter.hoodOffset -= hoodOffsetIncrements;
+        if (gamepad2.aWasPressed())
+            Shooter.hoodOffset += hoodOffsetIncrements;
 
         stateMachine.update();
 
         telemetry.addData("Current Pos", robot.follower.pose());
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
+        telemetry.addData("Shooter power offset", Shooter.powerOffset);
+        telemetry.addData("Shooter turret offset", Shooter.turretOffset);
+
+
         telemetry.addData("Spindexer kick", robot.kicker.kicked);
         telemetry.addData("Statemachine State", stateMachine.getState());
         telemetry.addData("Loop time hz", robot.getLoopTimeHz());

@@ -106,7 +106,7 @@ public class limelighttest extends LinearOpMode {
 
             telemetry.addData("x", x);
             telemetry.addData("y", y);
-            telemetry.addData("target position: ", new Pose(57, 14, Math.toRadians(90)).plus(new Pose(-x, y)).toString());
+            telemetry.addData("target position: ", new Pose(57, -14, Math.toRadians(-90)).plus(new Pose(x, y)).toString());
             telemetry.update();
         }
     }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import static com.pedropathing.api.Paths.*;
+import static com.pedropathing.api.Paths.curve;
+import static com.pedropathing.api.Paths.line;
 import static org.firstinspires.ftc.teamcode.pedro.Constants.create;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -19,23 +20,20 @@ import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
-//import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Kicker;
-//import org.firstinspires.ftc.teamcode.subsystems.LimelightCamera;
-//import org.firstinspires.ftc.teamcode.subsystems.Position;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Configurable
-@Autonomous(name = "farauto", group = "Auto")
-public class farauto extends LinearOpMode {
+@Autonomous(name = "farautoblue", group = "Auto")
+public class farautoBLUE extends LinearOpMode {
     private Follower follower;
     public boolean reset=true;
     Intake intakes;
-    String colorAlliance = "REDE";
-    int Posmultiplier = -1;
+    String colorAlliance = "blueblueblue pls not run on red";
+    int Posmultiplier = 1;
     Shooter shooter;
     Kicker spindexer;
     Limelight3A limelight;
@@ -44,7 +42,7 @@ public class farauto extends LinearOpMode {
     List<LynxModule> hubs;
 
 
-    public static Shooter.Goal shooterTarget = Shooter.Goal.RED;
+    public static Shooter.Goal shooterTarget = Shooter.Goal.BLUE;
 
 
     public enum AutoStates {
@@ -75,7 +73,6 @@ public class farauto extends LinearOpMode {
         for (LynxModule hub : hubs)
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-//        limelight.pipelineSwitch(0);
         limelight.start();
         intakes = new Intake(hardwareMap);
         shooter = new Shooter(hardwareMap);
@@ -86,6 +83,7 @@ public class farauto extends LinearOpMode {
         follower.setPose(startPose);
 
         while (opModeInInit()) {
+//            for (LynxModule hub : hubs) hub.clearBulkCache();
             if (reset) {
                 follower.setPose(startPose);
                 reset = false;
@@ -98,13 +96,9 @@ public class farauto extends LinearOpMode {
                 shooterTarget = Shooter.Goal.BLUE;
                 Posmultiplier=1;
             }
-            if (gamepad1.b){
-                colorAlliance="RED";
-                shooterTarget = Shooter.Goal.RED;
-                Posmultiplier=-1;
-            }
             spindexer.setKicker(false);
-            Shooter.turretOffset=-3.5;  ///////////////////////////////////////////////////////////////TUNE
+            Shooter.turretOffset=1;
+            Shooter.powerOffset = -10;
 
 
             shooter.setTurretPos(shooter.convertDegreestoServoPos(0));
@@ -117,7 +111,6 @@ public class farauto extends LinearOpMode {
 
         if (opModeIsActive()) {
             waitForStart();
-
             Pose shootPose = new Pose(50, -20 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
             Pose intakeHuman = new Pose(58, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
             Pose intake1Pose = new Pose(20, -28 * Posmultiplier, Math.toRadians(-90 * Posmultiplier));
@@ -503,12 +496,12 @@ follower.hold(shootPose);                    })
         ty = result.getTy();
 
         if (tx==0 && ty==0){
-            path = line(p, new Pose(58, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier))).constant(90);
+            path = line(p, new Pose(58, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier))).constant(-90);
             return;
         }
         x = 5.25*Math.sin(Math.toRadians(tx))/Math.tan(Math.toRadians(ty));
         y = -5.25*Math.cos(Math.toRadians(tx))/Math.tan(Math.toRadians(ty));
-        ball1 = p.plus(new Pose(-x, y));
+        ball1 = p.plus(new Pose(x, y));
         System.out.println("Detection angles: "+tx +" "+ty);
         System.out.println("Detection inches: "+x +" "+y);
 
@@ -518,7 +511,7 @@ follower.hold(shootPose);                    })
         ty = result.getTy();
 
         if (tx==0 && ty==0){
-            path = line(p, new Pose(58, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier))).constant(90);
+            path = line(p, new Pose(58, -61 * Posmultiplier, Math.toRadians(-90 * Posmultiplier))).constant(-90);
             return;
         }
 
@@ -527,9 +520,9 @@ follower.hold(shootPose);                    })
         System.out.println("Detection angles: "+tx +" "+ty);
         System.out.println("Detection inches: "+x +" "+y);
 
-        ball2 = p.plus(new Pose(-x, y));
+        ball2 = p.plus(new Pose(x, y));
         ball3 = ball1.plus(new Pose(10*timp*(ball2.x()-ball1.x()),10*timp*(ball2.y()-ball1.y())));
-        ball3=ball3.withY(60).withHeading(Math.toRadians(90));
+        ball3=ball3.withY(-60).withHeading(Math.toRadians(-90));
         if (ball3.x()>58){
             ball3 = ball3.withX(58);
         }

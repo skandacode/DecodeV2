@@ -32,8 +32,6 @@ public class Shooter {
     public static double diffTurret = 0.001;
     // --- Flywheel PIDF coefficients ---
     public static double kP = 0.005;
-    public static double kI = 0;
-    public static double kD = 0;
 
     public static double kS = 0.0613641; // Static feedforward
     public static double kV = 0.000375058; // Velocity feedforward
@@ -54,8 +52,7 @@ public class Shooter {
     private double smoothedVelocity = 0.0;
 
     public static Pose RedGoalPose = new Pose(-70, 62);
-    public static Pose BlueGoalPose
-            = new Pose(-67, -62);
+    public static Pose BlueGoalPose = new Pose(-67, -62);
 
     public enum Goal{
         RED (RedGoalPose),
@@ -68,34 +65,15 @@ public class Shooter {
     }
 
     public static double powerOffset = 0;
+    public static double hoodOffset = 0;
     public static double turretOffset = 0;
     public static double limelightOffset = 0;
 
 
     public static double upperGateOpenPos = 0.68;
     public static double upperGateClosedPos = 0.56;
-
-    private double prevX, prevY;
-    private long prevPosTime;
-
-    // add vx and vy fields
-    private double vx = 0.0;
-    private double vy = 0.0;
-
-    // angular velocity field
-    private double omega = 0.0;
-    private double prevHeading = 0.0;
-    private long prevHeadingTime = 0;
-
-    // acceleration fields
-    private double ax = 0.0;
-    private double ay = 0.0;
-    private double prevVx = 0.0;
-    private double prevVy = 0.0;
-    private long prevVelTime = 0;
-
     private double prevTargetVelocity = 0.0;
-    private long prevTargetTime = 0;
+    private long prevTargetTime;
 
     public boolean canReachPos = true;
 
@@ -116,18 +94,8 @@ public class Shooter {
 
         hood = hardwareMap.servo.get("hood");
 
-        pidf = new PIDFController(kP, kI, kD, 0);
+        pidf = new PIDFController(kP, 0, 0, 0);
         feedforward = new SimpleMotorFeedforward(kS, kV);
-
-        // initialize previous pos time to avoid large dt on first call
-        prevPosTime = System.nanoTime();
-        prevX = 0.0;
-        prevY = 0.0;
-        prevVelTime = System.nanoTime();
-        prevVx = 0.0;
-        prevVy = 0.0;
-        prevHeadingTime = System.nanoTime();
-        prevHeading = 0.0;
 
         prevTargetTime = System.nanoTime();
     }
@@ -182,7 +150,6 @@ public class Shooter {
     public void aimTurret(Pose currPosition, Goal target){
         double[] angleDistance = getAngleDistance(currPosition, target);
         double angle = angleDistance[0];
-        double distance = angleDistance[1];
 
         double servoPos = convertDegreestoServoPos(angle + turretOffset + limelightOffset);
 
@@ -202,7 +169,7 @@ public class Shooter {
 
         setTurretPos(servoPos);
         setTargetVelocity(Tables.getShooterVelocity(distance) + powerOffset);
-        setHood(Tables.getHoodPosition(distance));
+        setHood(Tables.getHoodPosition(distance) + hoodOffset);
     }
 
     public void setTargetVelocity(double target) {
@@ -273,8 +240,7 @@ public class Shooter {
     }
 
     public double getCurrentVelo() {
-        System.out.println("1: "+shooterEncoder1.getVelocity());
-        System.out.println("2: "+shooterEncoder2.getVelocity());
+        System.out.println("Shooter Powers: "+shooterEncoder1.getVelocity() + ", "+shooterEncoder2.getVelocity());
 
         if(shooterEncoder1.getVelocity()<10){
             return Math.abs(shooterEncoder2.getVelocity());
@@ -282,29 +248,6 @@ public class Shooter {
         else{
             return Math.abs(shooterEncoder1.getVelocity());
         }
-    }
-
-    // getters for vx and vy
-    public double getVx() {
-        return vx;
-    }
-
-    public double getVy() {
-        return vy;
-    }
-
-    // getters for ax and ay
-    public double getAx() {
-        return ax;
-    }
-
-    public double getAy() {
-        return ay;
-    }
-
-    // getter for angular velocity (rad/s)
-    public double getOmega() {
-        return omega;
     }
 
     @Configurable
