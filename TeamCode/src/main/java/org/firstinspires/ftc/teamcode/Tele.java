@@ -143,10 +143,15 @@ public class Tele extends OpMode {
                 .transitionTimed(0.1, States.Shoot)
                 .state(States.Shoot)
                 .onEnter(() -> {
-                    robot.intake.setPower(1);
+                    if (gamepad1.left_trigger_pressed){
+                        robot.intake.setPower(0.7);
+                    }else{
+                        robot.intake.setPower(1);
+
+                    }
                     robot.kicker.setKicker(true);
                 })
-                .transitionTimed(0.3, States.Intake)
+                .transitionTimed(0.4, States.Intake)
                 .build();
     }
 

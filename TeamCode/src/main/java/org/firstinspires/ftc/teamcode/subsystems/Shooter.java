@@ -29,7 +29,7 @@ public class Shooter {
 
     private double targetVelocity = 0.0;
     private double currentVelocity = 0.0;
-    public static double diffTurret = 0.001;
+    public static double diffTurret = -0.006;
     // --- Flywheel PIDF coefficients ---
     public static double kP = 0.005;
 
@@ -41,18 +41,17 @@ public class Shooter {
     // --- Turret bounds ---
     public static double turretUpperBound = 0.95;
     public static double turretLowerBound = 0.05;
+    public static double shooterincrease = 100;
+
 
     // --- Hood bounds ---
-
     public static double hoodLowerBound = 0.48;
     public static double hoodUpperBound = 0.85;
+    private double baseHoodPosition = hoodLowerBound;
 
-    // --- Low-pass filter coefficient (for smoothing) ---
-    public static double ALPHA = 0.3;
-    private double smoothedVelocity = 0.0;
-
-    public static Pose RedGoalPose = new Pose(-70, 62);
-    public static Pose BlueGoalPose = new Pose(-67, -62);
+    public static Pose RedGoalPose = new Pose(-70.25, 70.25);
+    public static Pose BlueGoalPose
+            = new Pose(-70.25, -70.25);
 
     public enum Goal{
         RED (RedGoalPose),
@@ -65,13 +64,15 @@ public class Shooter {
     }
 
     public static double powerOffset = 0;
-    public static double hoodOffset = 0;
     public static double turretOffset = 0;
+    public static double hoodOffset = 0;
     public static double limelightOffset = 0;
 
 
     public static double upperGateOpenPos = 0.68;
     public static double upperGateClosedPos = 0.56;
+
+
     private double prevTargetVelocity = 0.0;
     private long prevTargetTime;
 
@@ -140,7 +141,7 @@ public class Shooter {
     }
 
     public double convertDegreestoServoPos(double deg){
-        return deg*-0.003111111111111111+0.5;
+        return deg*-0.003111111111111111+0.503;
     }
 
     public void aimAtTarget(Pose currPosition, Goal target){
@@ -178,7 +179,7 @@ public class Shooter {
     }
 
     public double getCurrentVelocity() {
-        return smoothedVelocity;
+        return currentVelocity;
     }
 
     public void setDirectPower(double power) {
@@ -195,7 +196,6 @@ public class Shooter {
     public void update() {
         // Measure velocity
         currentVelocity = getCurrentVelo();
-        smoothedVelocity = ALPHA * currentVelocity + (1 - ALPHA) * smoothedVelocity;
 
         long currTime = System.nanoTime();
         double dt = (currTime - prevTargetTime) / 1e9;
@@ -210,7 +210,6 @@ public class Shooter {
 
         if (targetVelocity <= 0) {
             outputPower = 0;
-            smoothedVelocity = 0;
         } else {
             outputPower = feedforward.calculate(targetVelocity, accel);
             if (enablePIDF){
@@ -219,7 +218,7 @@ public class Shooter {
                 if (Math.abs(error) > 60)
                     outputPower = Math.signum(error);
                 else
-                    outputPower += pidf.calculate(smoothedVelocity, targetVelocity);
+                    outputPower += pidf.calculate(currentVelocity, targetVelocity);
             }
         }
 
@@ -240,7 +239,8 @@ public class Shooter {
     }
 
     public double getCurrentVelo() {
-        System.out.println("Shooter Powers: "+shooterEncoder1.getVelocity() + ", "+shooterEncoder2.getVelocity());
+        System.out.println("1: "+shooterEncoder1.getVelocity());
+        System.out.println("2: "+shooterEncoder2.getVelocity());
 
         if(shooterEncoder1.getVelocity()<10){
             return Math.abs(shooterEncoder2.getVelocity());
@@ -249,28 +249,82 @@ public class Shooter {
             return Math.abs(shooterEncoder1.getVelocity());
         }
     }
-
     @Configurable
     public static class Tables {
-        public static double minVelocity = 1200;
+        private static final double[] DISTANCES = {
+                123.3, 127.1, 131.0, 134.2, 137.1,
+                141.1, 145.4, 149.3, 153.2, 158.3
+        };
+
+        private static final double[] HOOD = {
+                0.68, 0.66, 0.66, 0.66, 0.66,
+                0.66, 0.66, 0.63, 0.65, 0.75
+        };
+
+        private static final double[] VELOCITY = {
+                1770, 1790, 1790, 1810, 1830,
+                1870, 1920, 1970, 2030, 2160
+        };
+
         public static double getHoodPosition(double distance) {
+            if (distance>110){return interpolate(distance, DISTANCES, HOOD);}
+            else{
+                return closegetHood(distance);
+            }
+        }
+
+        public static double getShooterVelocity(double distance) {
+            if (distance>110){return interpolate(distance, DISTANCES, VELOCITY);}
+            else{
+                return closegetShooterVelo(distance) + shooterincrease;
+            }
+        }
+        private static double closegetHood(double distance){
             double increasehood = 0;
             double hood =  1.82496e-8 * Math.pow(distance, 4)
                     - 0.00000387675 * Math.pow(distance, 3)
                     + 0.000164823 * Math.pow(distance, 2)
                     + 0.0128326 * distance
                     - 0.148405 +increasehood;
-            return Math.min(hood, 0.8);
-
+            return Math.min(hood, 0.8);}
+        private static double closegetShooterVelo(double distance){
+                double increase = 0;
+                double vel =  -0.0000108852 * Math.pow(distance, 4)
+                        + 0.00192886 * Math.pow(distance, 3)
+                        - 0.0697063 * Math.pow(distance, 2)
+                        + 5.6394 * distance
+                        + 950.93742 +increase;
+                return Math.max(1100, vel);
         }
-        public static double getShooterVelocity(double distance) {
-            double increase = 0;
-            double vel =  -0.0000108852 * Math.pow(distance, 4)
-                    + 0.00192886 * Math.pow(distance, 3)
-                    - 0.0697063 * Math.pow(distance, 2)
-                    + 5.6394 * distance
-                    + 950.93742 +increase;
-            return Math.max(minVelocity, vel);
+        private static double interpolate(double x, double[] xValues, double[] yValues) {
+
+            // Clamp below smallest value
+            if (x <= xValues[0])
+                return yValues[0];
+
+            // Clamp above largest value
+            if (x >= xValues[xValues.length - 1])
+                return yValues[yValues.length - 1];
+
+            // Find interval
+            for (int i = 0; i < xValues.length - 1; i++) {
+
+                if (x >= xValues[i] && x <= xValues[i + 1]) {
+
+                    double x1 = xValues[i];
+                    double x2 = xValues[i + 1];
+
+                    double y1 = yValues[i];
+                    double y2 = yValues[i + 1];
+
+                    double t = (x - x1) / (x2 - x1);
+
+                    return y1 + t * (y2 - y1);
+                }
+            }
+
+            // Should never happen
+            return yValues[yValues.length - 1];
         }
     }
 }
